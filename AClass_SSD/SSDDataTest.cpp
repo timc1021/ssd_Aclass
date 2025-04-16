@@ -17,6 +17,8 @@ class SSDDataTest : public Test {
 public:
 	std::string data = "0xffffff10\n0x00000020";
 	std::vector<unsigned int> golden = { 0xffffff10 ,0x00000020 };
+	std::string emptyData = "";
+	unsigned int emptyDataInt = 0x00000000;
 	DataMock dataMock;
 	SSDData ssd;
 
@@ -29,4 +31,10 @@ TEST_F(SSDDataTest, initSSDDataAndReadLBA) {
 
 	EXPECT_EQ(ssd.readLBA(0), golden[0]);
 	EXPECT_EQ(ssd.readLBA(1), golden[1]);
+}
+TEST_F(SSDDataTest, ReadLBAWhenDataIsEmpty) {
+
+	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
+
+	EXPECT_EQ(ssd.readLBA(0), emptyDataInt);
 }

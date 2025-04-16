@@ -18,8 +18,8 @@ void SSDData::getSsdData() {
 	std::string line;
 	unsigned int value;
 
-	while (std::getline(iss, line)) {
-		value = std::stoul(line, nullptr, 16);
-		ssdData.push_back(value);
-	}
+	if (rawData == "") ssdData.resize(100, 0x00000000);
+
+	while (std::getline(iss, line))
+		ssdData.push_back(std::stoul(line, nullptr, 16));
 }
