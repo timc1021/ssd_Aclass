@@ -59,3 +59,46 @@ int TestShell::fullWrite(uint32_t data)
 void TestShell::exit() {
 	exit();
 }
+
+int TestShell::read(int lba)
+{
+	int result = 0;
+	int read_data = 0;
+	// result = system("ssd.exe");
+
+	if (result == 0) {
+		std::cout << "read done, lba : " << lba << ", data : " << read_data << std::endl;
+	}
+	else {
+		return -1;
+	}
+	return read_data;
+}
+
+int TestShell::fullRead()
+{
+	int result = 0;
+	int read_data = 0;
+
+	for (int lba = 0; lba < 100; lba++) {
+		read_data = TestShell::read(lba);
+	}
+
+	if (result == 0) {
+		std::cout << "full read done\n";
+	}
+	else {
+		return -1;
+	}
+
+	return result;
+}
+
+int TestShell::help()
+{
+	int result = 0;
+
+	std::cout << "help done\n";
+
+	return result;
+}

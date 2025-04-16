@@ -26,6 +26,31 @@ TEST(TS, write) {
 	EXPECT_EQ(result, 0);
 }
 
+TEST(TS, read) {
+	TestShell testShell;
+	int lba = 0;
+
+	int result = testShell.read(lba);
+
+	EXPECT_EQ(result, 0);
+}
+
+TEST(TS, fullRead) {
+	TestShell testShell;
+
+	int result = testShell.fullRead();
+
+	EXPECT_EQ(result, 0);
+}
+
+TEST(TS, help) {
+	TestShell testShell;
+
+	int result = testShell.help();
+
+	EXPECT_EQ(result, 0);
+}
+
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
