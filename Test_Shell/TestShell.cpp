@@ -81,7 +81,7 @@ int TestShell::fullRead()
 	int read_data = 0;
 
 	for (int lba = 0; lba < 100; lba++) {
-		read_data = TestShell::read(lba);
+		read_data = read(lba);
 	}
 
 	if (result == 0) {
