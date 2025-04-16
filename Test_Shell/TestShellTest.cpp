@@ -1,16 +1,6 @@
 #include "gmock/gmock.h"
 #include "TestShell.h"
 
-TEST(TS, testRead) {
-	TestShell ts;
-	EXPECT_TRUE(ts.init("read 3 "));
-}
-
-TEST(TS, testWrite) {
-	TestShell ts;
-	EXPECT_TRUE(ts.init("write 3 0xAAAABBBB"));
-}
-
 TEST(TS, fullWrite) {
 	TestShell testShell;
 	uint32_t data = 0x12341234;
@@ -49,6 +39,16 @@ TEST(TS, help) {
 	int result = testShell.help();
 
 	EXPECT_EQ(result, 0);
+}
+
+TEST(TS, handleReadCommand) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("read 3 "), 0);
+}
+
+TEST(TS, handleWriteCommand) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("write 3 0xAAAABBBB"), 0);
 }
 
 int main() {
