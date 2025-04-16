@@ -1,17 +1,13 @@
-#pragma once
 #include <vector>
 #include <string>
 #include <cstdint>
 
 class Data {
 private:
-    static const int LBA_SIZE = 100;  // 총 LBA 수
-
+    std::string fileName;
 public:
-    std::vector<uint32_t> nandData;
+    Data(std::string fileName);
 
-    Data();  // 생성자: LBA 0으로 초기화
-
-    bool loadFromFile(const std::string& filename);   // ssd_nand.txt 로드
-    bool saveToFile(const std::string& filename) const; // ssd_nand.txt 저장
+    std::string loadFromFile();
+    void saveToFile(std::string data) const;
 };
