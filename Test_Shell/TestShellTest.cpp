@@ -1,11 +1,15 @@
 #include "gmock/gmock.h"
 
-TEST(TS, TC1) {
+#include "TestShell.cpp"
 
+TEST(TS, testWrite) {
+	TestShell ts;
+	EXPECT_TRUE(ts.init("write 3 0xAAAABBBB"));
 }
 
-TEST(TS, TC2) {
-
+TEST(TS, testRead) {
+	TestShell ts;
+	EXPECT_TRUE(ts.init("read 3 "));
 }
 
 int main() {
