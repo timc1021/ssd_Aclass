@@ -60,10 +60,10 @@ void TestShell::exit() {
 	exit();
 }
 
-int TestShell::read(int lba)
+uint32_t TestShell::read(int lba)
 {
 	int result = 0;
-	int read_data = 0;
+	uint32_t read_data = 0;
 	// result = system("ssd.exe");
 
 	if (result == 0) {
@@ -78,7 +78,7 @@ int TestShell::read(int lba)
 int TestShell::fullRead()
 {
 	int result = 0;
-	int read_data = 0;
+	uint32_t read_data = 0;
 
 	for (int lba = 0; lba < 100; lba++) {
 		read_data = read(lba);

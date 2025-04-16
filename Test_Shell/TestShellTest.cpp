@@ -30,7 +30,7 @@ TEST(TS, read) {
 	TestShell testShell;
 	int lba = 0;
 
-	int result = testShell.read(lba);
+	uint32_t result = testShell.read(lba);
 
 	EXPECT_EQ(result, 0);
 }
