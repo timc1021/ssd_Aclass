@@ -52,6 +52,10 @@ int TestShell::handleCommand(string commandLine) {
 
         return write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
     }
+	else if (commandToken[0] == "exit") {
+		// TODO : should call exit()
+		return 1;
+	}
 }
 
 int TestShell::write(int lba, uint32_t data)

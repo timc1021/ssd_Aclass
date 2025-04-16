@@ -81,6 +81,11 @@ TEST(TS, handleWrongRangeWriteData) {
 	EXPECT_EQ(ts.handleCommand("write 55 0xA!AABBBB"), -1);
 }
 
+TEST(TS, parseExitCommand) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("exit"), 1);
+}
+
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
