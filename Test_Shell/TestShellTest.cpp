@@ -51,6 +51,32 @@ TEST(TS, handleWriteCommand) {
 	EXPECT_EQ(ts.handleCommand("write 3 0xAAAABBBB"), 0);
 }
 
+TEST(TS, handleWrongReadCommandParaNum) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("read"), -1);
+}
+
+TEST(TS, handleWrongWriteCommandParaNum) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("write 3 0xAAAABBBB 2"), -1);
+}
+
+TEST(TS, handleWrongReadLBA) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("read 200"), -1);
+}
+
+TEST(TS, handleWrongWriteLBA) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("write 300 0xAAAABBBB"), -1);
+}
+
+TEST(TS, handleWrongWriteData) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("write 55 0xAABBBB"), -1);
+}
+
+
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
