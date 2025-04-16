@@ -21,12 +21,19 @@ int TestShell::handleCommand(string commandLine) {
     vector<string> commandToken = splitBySpace(commandLine);
 
     if (commandToken[0] == "read") {
+		if (commandToken.size() != 2)
+			return -1;
+
         return read(std::stoi(commandToken[1]));
     }
     else if (commandToken[0] == "write") {
+        if (commandToken.size() != 3)
+            return -1;
+        
         return write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
     }
 }
+
 int TestShell::write(int lba, uint32_t data)
 {
 	int result = 0; // system("ssd.exe");

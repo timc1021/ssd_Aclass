@@ -51,6 +51,16 @@ TEST(TS, handleWriteCommand) {
 	EXPECT_EQ(ts.handleCommand("write 3 0xAAAABBBB"), 0);
 }
 
+TEST(TS, handleWrongReadCommand) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("read"), -1);
+}
+
+TEST(TS, handleWrongWriteCommand) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("write 3 0xAAAABBBB 2"), -1);
+}
+
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
