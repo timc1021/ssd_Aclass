@@ -5,11 +5,12 @@
 #include "DataInterface.h"
 
 class SSDData {
-  std::vector<unsigned int> ssdData;
-  DataInterface* data;
+	std::vector<unsigned int> ssdData;
+	DataInterface* data;
 
- public:
-  SSDData(DataInterface* data);
-  void writeLBA(int lba, unsigned int value);
-  unsigned int readLBA(int lba);
+public:
+	SSDData(DataInterface* data);
+	void writeLBA(int lba, unsigned int value);
+	unsigned int readLBA(int lba);
+	void getSsdData();
 };
