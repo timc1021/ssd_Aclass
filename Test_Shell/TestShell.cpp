@@ -17,17 +17,17 @@ vector<string> TestShell::splitBySpace(const string& input) {
     return tokens;
 }
 
-unsigned int TestShell::init(string input) {
-    vector<string> result = splitBySpace(input);
+int TestShell::handleCommand(string commandLine) {
+    vector<string> commandToken = splitBySpace(commandLine);
 
-    if (result[0] == "read") {
-        // call read()
-        return true;
-    }
-    else if (result[0] == "write") {
-        // call write()
-        return true;
-    }
+	if (commandToken[0] == "read") {
+		return read(std::stoi(commandToken[1]));
+	}
+	else if (commandToken[0] == "write") {
+		return write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
+	}
+	else
+		return -1;
 }
 int TestShell::write(int lba, uint32_t data)
 {
