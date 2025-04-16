@@ -71,11 +71,15 @@ TEST(TS, handleWrongWriteLBA) {
 	EXPECT_EQ(ts.handleCommand("write 300 0xAAAABBBB"), -1);
 }
 
-TEST(TS, handleWrongWriteData) {
+TEST(TS, handleWrongLengthWriteData) {
 	TestShell ts;
 	EXPECT_EQ(ts.handleCommand("write 55 0xAABBBB"), -1);
 }
 
+TEST(TS, handleWrongRangeWriteData) {
+	TestShell ts;
+	EXPECT_EQ(ts.handleCommand("write 55 0xA!AABBBB"), -1);
+}
 
 int main() {
 	::testing::InitGoogleMock();

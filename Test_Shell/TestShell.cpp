@@ -25,7 +25,7 @@ int TestShell::handleCommand(string commandLine) {
 			return -1;
 		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
 			return -1;
-		
+
         return read(std::stoi(commandToken[1]));
     }
     else if (commandToken[0] == "write") {
@@ -35,6 +35,21 @@ int TestShell::handleCommand(string commandLine) {
 			return -1;
 		if (commandToken[2].length() != 10)
 			return -1;
+
+		// check the data input starts with "0x"
+		if (commandToken[2].substr(0, 2) != "0x") {
+			return -1;
+		}
+
+		// check the data range after "0x". 
+		for (size_t i = 2; i < commandToken[2].length(); ++i) {
+			char c = commandToken[2][i];
+			// should be one of those "A~F", "0~9"
+			if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
+				return -1;
+			}
+		}
+
         return write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
     }
 }
