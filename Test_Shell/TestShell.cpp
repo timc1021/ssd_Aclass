@@ -20,15 +20,25 @@ vector<string> TestShell::splitBySpace(const string& input) {
 int TestShell::handleCommand(string commandLine) {
     vector<string> commandToken = splitBySpace(commandLine);
 
-	if (commandToken[0] == "read") {
-		return read(std::stoi(commandToken[1]));
-	}
-	else if (commandToken[0] == "write") {
-		return write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
-	}
-	else
-		return -1;
+    if (commandToken[0] == "read") {
+		if (commandToken.size() != 2)
+			return -1;
+		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
+			return -1;
+		
+        return read(std::stoi(commandToken[1]));
+    }
+    else if (commandToken[0] == "write") {
+        if (commandToken.size() != 3)
+            return -1;
+		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
+			return -1;
+		if (commandToken[2].length() != 10)
+			return -1;
+        return write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
+    }
 }
+
 int TestShell::write(int lba, uint32_t data)
 {
 	int result = 0; // system("ssd.exe");
