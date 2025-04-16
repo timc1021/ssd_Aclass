@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 
 #include <string>
+#include <exception>
 
 #include "DataInterface.h"
 #include "SSDData.h"
@@ -35,6 +36,10 @@ TEST_F(SSDDataTest, initSSDDataAndReadLBA) {
 TEST_F(SSDDataTest, ReadLBAWhenDataIsEmpty) {
 
 	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
-
 	EXPECT_EQ(ssd.readLBA(0), emptyDataInt);
+}
+TEST_F(SSDDataTest, ThrowExceptionWhenReadLBAWithInvalidLBAValue) {
+
+	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
+	EXPECT_THROW({ ssd.readLBA(102); }, std::invalid_argument);
 }

@@ -5,6 +5,7 @@
 #include "DataInterface.h"
 
 class SSDData {
+	static const int LBA_SIZE = 100;
 	std::vector<unsigned int> ssdData;
 	DataInterface* data;
 
