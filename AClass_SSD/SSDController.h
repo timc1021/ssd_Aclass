@@ -9,8 +9,8 @@ class SSDController : public SSDControllerInterface {
 
 public:
 	SSDController(DataInterface* data);
-	void writeLBA(int lba, unsigned int value) override;
-	unsigned int readLBA(int lba) override;
+	void writeLBA(int lba, uint32_t value) override;
+	uint32_t readLBA(int lba) override;
 private:
 	void getSsdDataFromFile();
 	void saveSsdDataToFile();

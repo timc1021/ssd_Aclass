@@ -17,9 +17,9 @@ public:
 class SSDDataTest : public Test {
 public:
 	std::string data = "0xffffff10\n0x00000020\n";
-	std::vector<unsigned int> data2Int = { 0xffffff10 ,0x00000020 };
+	std::vector<uint32_t> data2Int = { 0xffffff10 ,0x00000020 };
 	std::string emptyData = "";
-	unsigned int emptyData2Int = 0x00000000;
+	uint32_t emptyData2Int = 0x00000000;
 	DataMock dataMock;
 	SSDController ssd;
 
