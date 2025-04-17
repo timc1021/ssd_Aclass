@@ -1,31 +1,56 @@
 #include "TestShellMock.h"
 
-int TestShellMock::handleCommand(string input) {
-    vector<string> result = splitBySpace(input);
+COMMAND_RESULT TestShellMock::handleCommand(string commandLine) {
+    vector<string> commandToken = splitBySpace(commandLine);
 
-    if (result[0] == "read") {
-        read(0); // TODO
+    if (commandToken[0] == "read") {
+        if (commandToken.size() != 2)
+            return COMMAND_INVALID_PARAM;
+        if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
+            return COMMAND_INVALID_PARAM;
+
+        read(std::stoi(commandToken[1]));
     }
-    else if (result[0] == "write") {
-        write(3, 0xAAAABBBB); // TODO
+    else if (commandToken[0] == "write") {
+        if (commandToken.size() != 3)
+            return COMMAND_INVALID_PARAM;
+        if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
+            return COMMAND_INVALID_PARAM;
+        if (commandToken[2].length() != 10)
+            return COMMAND_INVALID_PARAM;
+
+        // check the data input starts with "0x"
+        if (commandToken[2].substr(0, 2) != "0x") {
+            return COMMAND_INVALID_PARAM;
+        }
+
+        // check the data range after "0x". 
+        for (size_t i = 2; i < commandToken[2].length(); ++i) {
+            char c = commandToken[2][i];
+            // should be one of those "A~F", "0~9"
+            if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
+                return COMMAND_INVALID_PARAM;
+            }
+        }
+
+        write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
     }
-    else if (result[0] == "fullRead") {
+    else if (commandToken[0] == "fullRead") {
         fullRead();
     }
-    else if (result[0] == "fullWrite") {
+    else if (commandToken[0] == "fullWrite") {
         fullWrite(0xAAAABBBB); // TODO
     }
-    else if (result[0] == "help") {
+    else if (commandToken[0] == "help") {
         help();
     }
-    else if (result[0] == "exit") {
+    else if (commandToken[0] == "exit") {
         return exit();
     }
     else {
-        // invalid command
-        return -1;
+        return COMMAND_INVALID_PARAM;
     }
-    return 0;
+    return COMMAND_SUCCESS;
 }
 
 vector<string> TestShellMock::splitBySpace(const string& input) {
@@ -44,31 +69,27 @@ vector<string> TestShellMock::splitBySpace(const string& input) {
     return tokens;
 }
 
-int TestShellMock::fullWrite(uint32_t data)
+void TestShellMock::fullWrite(uint32_t data)
 {
-    int result;
-
     for (int lba = 0; lba < 100; lba++) {
-        result = write(lba, data);
+        write(lba, data);
     }
-    
-    return result;
 }
 
 uint32_t TestShellMock::fullRead()
 {
-    int read_data;
+    int read_data = 0;
 
     for (int lba = 0; lba < 100; lba++) {
         read_data = read(lba);
     }
 
-    return 0; // TODO
+    return read_data;
 }
 
-int TestShellMock::exit()
+COMMAND_RESULT TestShellMock::exit()
 {
-    return -2;
+    return COMMAND_EXIT;
 }
 
 void TestShellMock::help()
