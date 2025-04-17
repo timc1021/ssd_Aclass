@@ -69,7 +69,7 @@ bool ITestShell::isWriteCommandValid(const vector<string> commandToken) {
 		if (commandToken.size() != TOKEN_WRITE_NUM) {
 		return false;
 	}
-	if (!isValidLBA(commandToken[TOKEN_WRITE_LBA])) {
+	if (!isLBAValid(commandToken[TOKEN_WRITE_LBA])) {
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool ITestShell::isReadCommandValid(const vector<string> commandToken) {
 		return false;
 	}
 
-	if (!isValidLBA(commandToken[TOKEN_READ_LBA])) {
+	if (!isLBAValid(commandToken[TOKEN_READ_LBA])) {
 		return false;
 	}
 
@@ -106,7 +106,7 @@ bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 	return true;
 }
 
-bool ITestShell::isValidLBA(const string& lba)
+bool ITestShell::isLBAValid(const string& lba)
 {
 	int iLba = std::stoi(lba);
 

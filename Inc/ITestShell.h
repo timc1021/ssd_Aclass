@@ -36,7 +36,7 @@ private:
 	bool isWriteCommandValid(const vector<string> commandToken);
 	bool isReadCommandValid(const vector<string> commandToken);
 	bool isFullwriteCommandValid(const vector<string> commandToken);
-	bool isValidLBA(const string& lba);
+	bool isLBAValid(const string& lba);
 	bool isCommandValid(const vector<string> commandToken);
 
 	const vector<string> commandList = {
