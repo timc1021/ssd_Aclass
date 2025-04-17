@@ -1,24 +1,24 @@
 #include <iostream>
-#include "TestShell.h"
+#include "ITestShell.h"
 
-vector<string> TestShell::splitBySpace(const string& input) {
-    std::vector<std::string> tokens;
-    size_t start = 0, end;
+vector<string> ITestShell::splitBySpace(const string& input) {
+	std::vector<std::string> tokens;
+	size_t start = 0, end;
 
-    while ((end = input.find(' ', start)) != string::npos) {
-        if (end != start)
-            tokens.push_back(input.substr(start, end - start));
-        start = end + 1;
-    }
+	while ((end = input.find(' ', start)) != string::npos) {
+		if (end != start)
+			tokens.push_back(input.substr(start, end - start));
+		start = end + 1;
+	}
 
-    if (start < input.size())
-        tokens.push_back(input.substr(start));
+	if (start < input.size())
+		tokens.push_back(input.substr(start));
 
-    return tokens;
+	return tokens;
 }
 
-COMMAND_RESULT TestShell::handleCommand(string commandLine) {
-    vector<string> commandToken = splitBySpace(commandLine);
+COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken[0] == "read") {
 		if (commandToken.size() != 2)
@@ -70,24 +70,24 @@ COMMAND_RESULT TestShell::handleCommand(string commandLine) {
 	return COMMAND_SUCCESS;
 }
 
-void TestShell::write(int lba, uint32_t data)
+void ITestShell::write(int lba, uint32_t data)
 {
 	// TODO : system("ssd.exe");
 	std::cout << "write done, lba : " << lba << ", data : " << data << std::endl;
 }
 
-void TestShell::fullWrite(uint32_t data)
+void ITestShell::fullWrite(uint32_t data)
 {
 	for (int i = 0; i < 100; i++) {
 		write(i, data);
 	}
 }
 
-COMMAND_RESULT TestShell::exit() {
+COMMAND_RESULT ITestShell::exit() {
 	return COMMAND_EXIT;
 }
 
-uint32_t TestShell::read(int lba)
+uint32_t ITestShell::read(int lba)
 {
 	int result = 0;
 	uint32_t read_data = 0;
@@ -102,7 +102,7 @@ uint32_t TestShell::read(int lba)
 	return read_data;
 }
 
-uint32_t TestShell::fullRead()
+uint32_t ITestShell::fullRead()
 {
 	int result = 0;
 	uint32_t read_data = 0;
@@ -121,7 +121,7 @@ uint32_t TestShell::fullRead()
 	return result;
 }
 
-void TestShell::help()
+void ITestShell::help()
 {
 	std::cout << "ÆÀ¸í: A class\n";
 	std::cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";

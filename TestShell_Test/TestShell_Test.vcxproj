@@ -185,7 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Test_Shell\TestShellApp.cpp" />
-    <ClCompile Include="TestShellMock.cpp" />
+    <ClCompile Include="ITestShell.cpp" />
     <ClCompile Include="TestShellTest.cpp" />
   </ItemGroup>
   <ItemGroup>
