@@ -2,8 +2,34 @@
 #include <iomanip>
 #include "ITestShell.h"
 
+using std::cout;
+using std::isdigit;
+using std::stoi;
+
+#define TOKEN_COMMAND (0)
+
+typedef enum {
+	TOKEN_WRITE_LBA = 1,
+	TOKEN_WRITE_DATA,
+	TOKEN_WRITE_NUM,
+} WRITE_TOKEN;
+
+typedef enum {
+	TOKEN_FULLWRITE_DATA = 1,
+	TOKEN_FULLWRITE_NUM,
+} FULLWRITE_TOKEN;
+
+typedef enum {
+	TOKEN_READ_LBA = 1,
+	TOKEN_READ_NUM,
+} READ_TOKEN;
+
+typedef enum {
+	TOKEN_FULLREAD_NUM = 1,
+} FULLREAD_TOKEN;
+
 vector<string> ITestShell::splitBySpace(const string& input) {
-	std::vector<std::string> tokens;
+	vector<string> tokens;
 	size_t start = 0, end;
 
 	while ((end = input.find(' ', start)) != string::npos) {
@@ -21,132 +47,134 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 #define HEX_PREFIX			("0x")
 #define HEX_PREFIX_LENGTH	(2)
 
-bool ITestShell::isCapitalLetter(const char c) {
-	if (c >= 'A' && c <= 'F') {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 bool ITestShell::isWriteDataValid(const string& writeData)
 {
-	// check the data input starts with "0x"
+	if (writeData.length() != 10) {
+		return false;
+	}
+
 	if (writeData.substr(0, HEX_PREFIX_LENGTH) != HEX_PREFIX) {
 		return false;
 	}
 
-	// check the data range after "0x". 
 	for (char c : writeData.substr(HEX_PREFIX_LENGTH)) {
-		// should be one of those "A~F", "0~9"
-		if (std::isdigit(c) || isCapitalLetter(c)) {
-			continue;
-		}
-		else {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool ITestShell::isWriteCommandValid(const string& commandLine) {
-	vector<string> commandToken = splitBySpace(commandLine);
-
-	if (commandToken.size() != 3) {
-		return false;
-	}
-	if (!isValidLBA(commandToken)) {
-		return false;
-	}
-	if (commandToken[2].length() != 10) {
-		return false;
-	}
-
-	if (!isWriteDataValid(commandToken[2])) {
+		if (isdigit(c) || isupper(c)) continue;
 		return false;
 	}
 
 	return true;
 }
 
-bool ITestShell::isReadCommandValid(const string& commandLine) {
-	vector<string> commandToken = splitBySpace(commandLine);
-
-	if (commandToken.size() != 2) {
+bool ITestShell::isWriteCommandValid(const vector<string> commandToken) {
+		if (commandToken.size() != TOKEN_WRITE_NUM) {
+		return false;
+	}
+	if (!isValidLBA(commandToken[TOKEN_WRITE_LBA])) {
 		return false;
 	}
 
-	if (!isValidLBA(commandToken)) {
+	if (!isWriteDataValid(commandToken[TOKEN_WRITE_DATA])) {
 		return false;
 	}
 
 	return true;
 }
 
-bool ITestShell::isValidLBA(const vector<string>& commandToken)
+bool ITestShell::isReadCommandValid(const vector<string> commandToken) {
+
+	if (commandToken.size() != TOKEN_READ_NUM) {
+		return false;
+	}
+
+	if (!isValidLBA(commandToken[TOKEN_READ_LBA])) {
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 {
-	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0) {
+	if (commandToken.size() != TOKEN_FULLWRITE_NUM) {
+		return false;
+	}
+
+	if (!isWriteDataValid(commandToken[TOKEN_FULLWRITE_DATA])) {
 		return false;
 	}
 
 	return true;
 }
 
-bool ITestShell::isCommandValid(const string& commandLine) {
-	vector<string> commandToken = splitBySpace(commandLine);
+bool ITestShell::isValidLBA(const string& lba)
+{
+	int iLba = std::stoi(lba);
 
-	if (commandToken[0] == "read") {
-		return isReadCommandValid(commandLine);
+	if (iLba >= MAX_LBA_SIZE || iLba < START_LBA) {
+		return false;
 	}
-	else if (commandToken[0] == "write") {
-		return (isWriteCommandValid(commandLine));
-	}
-	else {
-		return true;
-	}
+
+	return true;
+}
+
+bool ITestShell::isCommandValid(const vector<string> commandToken) {
+	string command = commandToken[TOKEN_COMMAND];
+
+	bool exists = find(commandList.begin(), commandList.end(), command) != commandList.end();
+	if (!exists) return false;
+	
+	return true;
 }
 
 COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
+	string command = commandToken[TOKEN_COMMAND];
 
-	if (!isCommandValid(commandLine)) {
+	if (!isCommandValid(commandToken)) {
 		return COMMAND_INVALID_PARAM; 
 	}
-	if (commandToken[0] == "read") {
-		read(std::stoi(commandToken[1]));
+
+	if (command == "read") {
+		if (!isReadCommandValid(commandToken))
+			return COMMAND_INVALID_PARAM;
+
+		read(stoi(commandToken[TOKEN_READ_LBA]));
 	}
-	else if (commandToken[0] == "write") {
-		write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
+	else if (command == "write") {
+		if (!isWriteCommandValid(commandToken))
+			return COMMAND_INVALID_PARAM;
+
+		write(stoi(commandToken[TOKEN_WRITE_LBA]), static_cast<unsigned int>(std::stoul(commandToken[TOKEN_WRITE_DATA], nullptr, 16)));
 	}
-	else if (commandToken[0] == "fullread") {
+	else if (command == "fullread") {
 		fullRead();
 	}
-	else if (commandToken[0] == "fullwrite") {
-		fullWrite(static_cast<unsigned int>(std::stoul(commandToken[1], nullptr, 16)));
+	else if (command == "fullwrite") {
+		if (!isFullwriteCommandValid(commandToken))
+			return COMMAND_INVALID_PARAM;
+
+		fullWrite(static_cast<unsigned int>(std::stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
 	}
-	else if (commandToken[0] == "1_FullWriteAndReadCompare" || commandToken[0] == "1_") {
+	else if (command == "1_FullWriteAndReadCompare" || command == "1_") {
 		fullWriteAndReadCompare();
 	}
-	else if (commandToken[0] == "2_PartialLBAWrite" || commandToken[0] == "2_") {
+	else if (command == "2_PartialLBAWrite" || command == "2_") {
 		partialLBAWrite();
 	}
-	else if (commandToken[0] == "3_WriteReadAging" || commandToken[0] == "3_") {
+	else if (command == "3_WriteReadAging" || command == "3_") {
 		writeReadAging();
 	}
-	else if (commandToken[0] == "help") {
+	else if (command == "help") {
 		help();
 	}
-	else if (commandToken[0] == "exit") {
+	else if (command == "exit") {
 		return exit();
 	}
-	else {
-		return COMMAND_INVALID_PARAM;
-	}
+
 	return COMMAND_SUCCESS;
 }
 
-void ITestShell::fullWrite(uint32_t data)
+void ITestShell::fullWrite(const uint32_t data)
 {
 	for (int i = 0; i < MAX_LBA_SIZE; i++) {
 		write(i, data);
@@ -198,12 +226,12 @@ bool ITestShell::fullWriteAndReadCompare() {
 		for (int lba_offset = 0; lba_offset < 5; lba_offset++) {
 			result = readCompare(lba_base + lba_offset, data);
 			if (result == false) {
-				std::cout << "FullWriteAndReadCompare FAIL\n";
+				cout << "FullWriteAndReadCompare FAIL\n";
 				return false;
 			}
 		}
 	}
-	std::cout << "FullWriteAndReadCompare PASS\n";
+	cout << "FullWriteAndReadCompare PASS\n";
 	return true;
 }
 
@@ -222,18 +250,19 @@ bool ITestShell::partialLBAWrite() {
 		for (int lba = 0; lba < 5; lba++) {
 			result = readCompare(lba, data);
 			if (result == false) {
-				std::cout << "PartialLBAWrite FAIL\n";
+				cout << "PartialLBAWrite FAIL\n";
 				return result;
 			}
 		}
 	}
 
-	std::cout << "PartialLBAWrite PASS\n";
+	cout << "PartialLBAWrite PASS\n";
 	return true;
 }
 
 bool ITestShell::writeReadAging() {
-	uint32_t data;
+	uint32_t data = 0;
+	bool result = false;
 
 	for (int loop = 0; loop < 200; loop++) {
 		data = getRandUint32();
@@ -242,31 +271,38 @@ bool ITestShell::writeReadAging() {
 		write(99, data);
 
 		if (readCompare(0, data) == false || readCompare(99, data) == false) {
-			std::cout << "WriteReadAging FAIL\n";
+			cout << "WriteReadAging FAIL\n";
+			return false;
+		}
+		result = readCompare(99, data);
+		if (result == false) {
+			cout << "WriteReadAging FAIL\n";
 			return false;
 		}
 	}
-	std::cout << "WriteReadAging PASS\n";
+	cout << "WriteReadAging PASS\n";
 	return true;
 }
 
 void ITestShell::help()
 {
-	std::cout << "ÆÀ¸í: A class\n";
-	std::cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";
-	std::cout << "============ command information (format: command : description) ============\n";
-	std::cout << std::left << std::setw(40) << std::setfill(' ') << "write (lba_num) (data)" << "Write(data) at LBA(lba_num).ex: write 3 0xAAAABBBB\n";
-	std::cout << std::left << std::setw(40) << "read (lba_num)" << "Read data at LBA(lba_num).ex: read 3\n";
-	std::cout << std::left << std::setw(40) << "exit" << "Exit from this program.ex: exit\n";
-	std::cout << std::left << std::setw(40) << "help" << "Display help information.ex: help\n";
-	std::cout << std::left << std::setw(40) << "fullwrite (data)" << "Fill all LBA with(data).ex: fullwrite 0xAAAABBBB\n";
-	std::cout << std::left << std::setw(40) << "fullread" << "Read all LBA data and display.ex: fullread\n";
+	using std::left;
+	using std::setw;
+	using std::setfill;
 
-	std::cout << "============ TC information ============\n";
-	std::cout << std::left << std::setw(40)  << "1_FullWriteAndReadCompare"	<< "Write all LBA and test all data is written with right data.\n";
-	std::cout << "  ex: 1_FullWriteAndReadCompare or 1_\n";
-	std::cout << std::left << std::setw(40) << "2_PartialLBAWrite" << "Write 5 LBAs and test all data is written with right data.Repeat 30 times.\n";
-	std::cout << "  ex: 2_PartialLBAWrite or 2_\n";
-	std::cout << std::left << std::setw(40) << "3_WriteReadAging" << "Write LBA 0 and 99 and test all data is written with right data.Repeat 200 times.\n";
-	std::cout << "  ex: 3_WriteReadAging or 3_\n";
+	cout << "ÆÀ¸í: A class\n";
+	cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";
+
+	cout << "\n=============================== command ===============================\n";
+	cout << left << setfill(' ') << setw(35) << "write [LBA] [Value]" << "Write(data) at LBA(lba_num).ex: write 3 0xAAAABBBB\n";
+	cout << left << setfill(' ') << setw(35) << "read [LBA]" << "Read data at LBA(lba_num).ex: read 3\n";
+	cout << left << setfill(' ') << setw(35) << "exit" << "Exit from this program.ex: exit\n";
+	cout << left << setfill(' ') << setw(35) << "help" << "Display help information.ex: help\n";
+	cout << left << setfill(' ') << setw(35) << "fullwrite [Value]" << "Fill all LBA with(data).ex: fullwrite 0xAAAABBBB\n";
+	cout << left << setfill(' ') << setw(35) << "fullread" << "Read all LBA data and display.ex: fullread\n";
+
+	cout << "\n=============================== TC command ===============================\n";
+	cout << left << setfill(' ') << setw(35)  << "1_FullWriteAndReadCompare or 1_"	<< "Write all LBA and test all data is written with right data.\n";
+	cout << left << setfill(' ') << setw(35) << "2_PartialLBAWrite or 2_" << "Write 5 LBAs and test all data is written with right data.Repeat 30 times.\n";
+	cout << left << setfill(' ') << setw(35) << "3_WriteReadAging of 3_" << "Write LBA 0 and 99 and test all data is written with right data.Repeat 200 times.\n";
 }

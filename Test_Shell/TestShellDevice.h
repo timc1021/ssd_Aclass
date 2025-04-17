@@ -7,6 +7,6 @@ using std::vector;
 
 class TestShellDevice : public ITestShell {
 public:
-	void write(int lba, uint32_t data);
-	uint32_t read(int lba);
+	void write(const int lba, const uint32_t data);
+	uint32_t read(const int lba);
 };

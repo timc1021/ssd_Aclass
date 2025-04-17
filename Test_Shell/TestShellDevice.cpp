@@ -4,7 +4,7 @@
 #include "TestShellDevice.h"
 #include <iomanip>
 
-void TestShellDevice::write(int lba, uint32_t data)
+void TestShellDevice::write(const int lba, const uint32_t data)
 {
 	std::ostringstream cmd;
 
@@ -12,7 +12,6 @@ void TestShellDevice::write(int lba, uint32_t data)
 	oss << "0x" << std::hex << std::uppercase << std::setw(8) << std::setfill('0') << data;
 	cmd << "SSD.exe W " << lba << " " << oss.str();
 
-	// system call
 	int retCode = std::system(cmd.str().c_str());
 	if (retCode != 0) {
 		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
@@ -22,16 +21,14 @@ void TestShellDevice::write(int lba, uint32_t data)
 	}
 }
 
-uint32_t TestShellDevice::read(int lba)
+uint32_t TestShellDevice::read(const int lba)
 {
 	string strReadData;
 	uint32_t readData = 0;
 
-
 	std::ostringstream cmd;
 	cmd << "SSD.exe R " << lba;
 
-	// system call
 	int retCode = std::system(cmd.str().c_str());
 	if (retCode != 0) {
 		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
@@ -39,14 +36,13 @@ uint32_t TestShellDevice::read(int lba)
 		return -1;
 	}
 
-	// 출력 파일 열기
 	std::ifstream file("ssd_output.txt");
 	if (!file.is_open()) {
 		std::cerr << "Failed to open ssd_output.txt" << std::endl;
 		return -2;
 	}
 
-	getline(file, strReadData);  // 한 줄만 읽고 싶을 경우
+	getline(file, strReadData);
 	file.close();
 
 	std::cout << "[read] LBA : " << std::right << std::setw(2) << std::setfill('0') << lba << " : " << strReadData << std::endl;

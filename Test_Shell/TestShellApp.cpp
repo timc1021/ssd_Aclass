@@ -20,5 +20,7 @@ void TestShellApp::run(std::istream& in, std::ostream& out)
         {
             break;
         }
+
+        out << "\n";
     }
 }
