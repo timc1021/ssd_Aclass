@@ -51,5 +51,5 @@ uint32_t TestShellDevice::read(int lba)
 
 	std::cout << "[read] LBA : " << std::right << std::setw(2) << std::setfill('0') << lba << " : " << strReadData << std::endl;
 
-	return stoi(strReadData, nullptr, 16);
+	return stoul(strReadData, nullptr, 0);
 }
