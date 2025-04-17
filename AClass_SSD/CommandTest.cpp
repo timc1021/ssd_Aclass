@@ -5,7 +5,7 @@
 
 class MockSSDController : public SSDControllerInterface {
 public:
-    MockSSDController(FileTextIOInterface* data = nullptr) : SSDControllerInterface(data) {}
+    MockSSDController(std::shared_ptr<FileTextIOInterface> data = nullptr) : SSDControllerInterface(std::move(data)) {}
 
     MOCK_METHOD(void, writeLBA, (int lba, unsigned int value), (override));
     MOCK_METHOD(unsigned int, readLBA, (int lba), (override));
