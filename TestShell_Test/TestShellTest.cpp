@@ -80,6 +80,43 @@ TEST_F(TestShellFixture, writeWithInvalidData) {
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
+TEST_F(TestShellFixture, writeWithInvalidData2) {
+	input.str("write 55 0xA!AABBBB");
+	input.clear();
+	app.run(input, output);
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+
+}
+
+TEST_F(TestShellFixture, writeWithWrongLengthData) {
+	input.str("write 55 0xAABBBB");
+	input.clear();
+	app.run(input, output);
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, readWithWrongCommandParaNum) {
+	input.str("read");
+	input.clear();
+	app.run(input, output);
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, writeWithWrongCommandParaNum) {
+	input.str("write 3 0xAAAABBBB 2");
+	input.clear();
+	app.run(input, output);
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, parseExitCommand) {
+	input.str("exit");
+	input.clear();
+	app.run(input, output);
+	EXPECT_EQ(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
