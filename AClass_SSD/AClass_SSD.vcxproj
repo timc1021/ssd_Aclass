@@ -185,16 +185,16 @@
     <ClCompile Include="CommandTest.cpp" />
     <ClCompile Include="SSDControllerTest.cpp" />
     <ClCompile Include="SSDController.cpp" />
-    <ClCompile Include="Data.cpp" />
-    <ClCompile Include="DataTest.cpp" />
+    <ClCompile Include="FileTextIO.cpp" />
+    <ClCompile Include="FileTextIOTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
-    <ClInclude Include="DataInterface.h" />
+    <ClInclude Include="FileTextIOInterface.h" />
     <ClInclude Include="SSDControllerInterface.h" />
     <ClInclude Include="SSDController.h" />
-    <ClInclude Include="Data.h" />
+    <ClInclude Include="FileTextIO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

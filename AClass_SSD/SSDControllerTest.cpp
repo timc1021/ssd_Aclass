@@ -3,14 +3,14 @@
 #include <string>
 #include <exception>
 
-#include "DataInterface.h"
+#include "FileTextIOInterface.h"
 #include "SSDController.h"
 
 using namespace ::testing;
 
-class DataMock : public DataInterface {
+class DataMock : public FileTextIOInterface {
 public:
-	DataMock(std::string fileName) : DataInterface(fileName) {}
+	DataMock(std::string fileName) : FileTextIOInterface(fileName) {}
 	MOCK_METHOD(std::string, loadFromFile, (), (override));
 	MOCK_METHOD(void, saveToFile, (std::string), (const, override));
 };
