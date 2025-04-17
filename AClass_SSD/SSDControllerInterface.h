@@ -5,10 +5,10 @@
 class SSDControllerInterface {
 public:
 	SSDControllerInterface(DataInterface* data) : data(data) {};
-	virtual void writeLBA(int lba, unsigned int value) = 0;
-	virtual unsigned int readLBA(int lba) = 0;
+	virtual void writeLBA(int lba, uint32_t value) = 0;
+	virtual uint32_t readLBA(int lba) = 0;
 protected:
 	static const int LBA_SIZE = 100;
-	std::vector<unsigned int> ssdData;
+	std::vector<uint32_t> ssdData;
 	DataInterface* data;
 };
