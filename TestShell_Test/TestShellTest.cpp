@@ -38,7 +38,7 @@ TEST_F(TestShellFixture, fullRead) {
 		.Times(100)
 		.WillRepeatedly(Return(0));
 
-	input.str("fullRead");
+	input.str("fullread");
 	input.clear();
 	app.run(input, output);
 }
@@ -47,7 +47,7 @@ TEST_F(TestShellFixture, fullWrite) {
 	EXPECT_CALL(mock, write(_, 0xAAAABBBB))
 		.Times(100);
 
-	input.str("fullWrite 0xAAAABBBB");
+	input.str("fullwrite 0xAAAABBBB");
 	input.clear();
 	app.run(input, output);
 }

@@ -9,15 +9,11 @@ void TestShellDevice::write(int lba, uint32_t data)
 
 uint32_t TestShellDevice::read(int lba)
 {
-	int result = 0;
-	uint32_t read_data = 0;
+	uint32_t readDate = 0;
+
 	// result = system("ssd.exe");
 
-	if (result == 0) {
-		std::cout << "read done, lba : " << lba << ", data : " << read_data << std::endl;
-	}
-	else {
-		return -1;
-	}
-	return read_data;
+	std::cout << "read done, lba : " << lba << ", data : " << readDate << std::endl;
+
+	return readDate;
 }

@@ -16,12 +16,14 @@ public:
 	COMMAND_RESULT handleCommand(string commandLine);
 	vector<string> splitBySpace(const string& input);
 	void fullWrite(uint32_t data);
-	COMMAND_RESULT exit();
 	uint32_t fullRead();
 	void help();
+	COMMAND_RESULT exit();
 
 	virtual void write(int lba, uint32_t data) = 0;
-	virtual uint32_t read(int lb) = 0;
+	virtual uint32_t read(int lba) = 0;
+
+	const int MAX_LBA_SIZE = 100;
 
 private:
 	bool isWriteDataValid(string& commandLine);
