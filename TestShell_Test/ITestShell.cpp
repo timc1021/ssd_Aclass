@@ -17,7 +17,7 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
-COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
+COMMAND_RESULT ITestShell::checkCommandError(string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken[0] == "read") {
@@ -25,8 +25,6 @@ COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
 			return COMMAND_INVALID_PARAM;
 		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
 			return COMMAND_INVALID_PARAM;
-
-		read(std::stoi(commandToken[1]));
 	}
 	else if (commandToken[0] == "write") {
 		if (commandToken.size() != 3)
@@ -49,7 +47,20 @@ COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
 				return COMMAND_INVALID_PARAM;
 			}
 		}
+	}
+	return COMMAND_SUCCESS;
+}
 
+COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
+
+	if (checkCommandError(commandLine) == COMMAND_INVALID_PARAM)
+		return COMMAND_INVALID_PARAM;
+
+	if (commandToken[0] == "read") {
+		read(std::stoi(commandToken[1]));
+	}
+	else if (commandToken[0] == "write") {
 		write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
 	}
 	else if (commandToken[0] == "fullRead") {
