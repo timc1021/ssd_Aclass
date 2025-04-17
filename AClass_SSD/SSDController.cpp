@@ -41,7 +41,7 @@ void SSDController::saveSsdDataToFile()
 	std::stringstream ss;
 
 	for (auto data : ssdData)
-		ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << data << '\n';
+		ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << std::uppercase << data << '\n';
 
 	data->saveToFile(ss.str());
 }
