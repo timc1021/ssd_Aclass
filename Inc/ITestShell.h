@@ -24,5 +24,7 @@ public:
 	virtual uint32_t read(int lb) = 0;
 
 private:
+	COMMAND_RESULT checkWriteCommandError(string& commandLine);
+	COMMAND_RESULT checkReadCommandError(string& commandLine);
 	COMMAND_RESULT checkCommandError(string& commandLine);
 };

@@ -17,35 +17,55 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
-COMMAND_RESULT ITestShell::checkCommandError(string& commandLine) {
+COMMAND_RESULT ITestShell::checkWriteCommandError(string& commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
+
+	if (commandToken.size() != 3)
+		return COMMAND_INVALID_PARAM;
+	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
+		return COMMAND_INVALID_PARAM;
+	if (commandToken[2].length() != 10)
+		return COMMAND_INVALID_PARAM;
+
+	// check the data input starts with "0x"
+	if (commandToken[2].substr(0, 2) != "0x") {
+		return COMMAND_INVALID_PARAM;
+	}
+
+	// check the data range after "0x". 
+	for (size_t i = 2; i < commandToken[2].length(); ++i) {
+		char c = commandToken[2][i];
+		// should be one of those "A~F", "0~9"
+		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
+			return COMMAND_INVALID_PARAM;
+		}
+	}
+
+	return COMMAND_SUCCESS;
+}
+
+COMMAND_RESULT ITestShell::checkReadCommandError(string& commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
+
+	if (commandToken.size() != 2)
+		return COMMAND_INVALID_PARAM;
+	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
+		return COMMAND_INVALID_PARAM;
+
+	return COMMAND_SUCCESS;
+}
+
+COMMAND_RESULT ITestShell::checkCommandError(string & commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken[0] == "read") {
-		if (commandToken.size() != 2)
-			return COMMAND_INVALID_PARAM;
-		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-			return COMMAND_INVALID_PARAM;
-	}
-	else if (commandToken[0] == "write") {
-		if (commandToken.size() != 3)
-			return COMMAND_INVALID_PARAM;
-		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-			return COMMAND_INVALID_PARAM;
-		if (commandToken[2].length() != 10)
-			return COMMAND_INVALID_PARAM;
-
-		// check the data input starts with "0x"
-		if (commandToken[2].substr(0, 2) != "0x") {
+		if (checkReadCommandError(commandLine) == COMMAND_INVALID_PARAM) {
 			return COMMAND_INVALID_PARAM;
 		}
-
-		// check the data range after "0x". 
-		for (size_t i = 2; i < commandToken[2].length(); ++i) {
-			char c = commandToken[2][i];
-			// should be one of those "A~F", "0~9"
-			if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
-				return COMMAND_INVALID_PARAM;
-			}
+	}
+	else if (commandToken[0] == "write") {
+		if (checkWriteCommandError(commandLine) == COMMAND_INVALID_PARAM) {
+			return COMMAND_INVALID_PARAM;
 		}
 	}
 	return COMMAND_SUCCESS;
