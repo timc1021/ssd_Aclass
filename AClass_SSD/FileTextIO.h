@@ -1,12 +1,12 @@
 #include <vector>
 #include <string>
 #include <cstdint>
-#include "DataInterface.h"
+#include "FileTextIOInterface.h"
 
-class Data : public DataInterface {
+class FileTextIO : public FileTextIOInterface {
 
 public:
-    Data(std::string fileName);
+    FileTextIO(std::string fileName);
 
     std::string loadFromFile() override;
     void saveToFile(std::string data) const override;

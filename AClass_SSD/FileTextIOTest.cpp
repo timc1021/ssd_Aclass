@@ -1,9 +1,9 @@
-#include "Data.h"
+#include "FileTextIO.h"
 #include "gtest/gtest.h"
 #include <fstream>
 #include <cstdio>
 
-class DataTest : public ::testing::Test {
+class FileTextIOTest : public ::testing::Test {
 protected:
     const std::string testFile = "test_file.txt";
 
@@ -16,13 +16,13 @@ protected:
         return f.good();
     }
 };
-TEST_F(DataTest, LoadFromNonexistentFileReturnsEmptyString) {
-    Data d(testFile);
+TEST_F(FileTextIOTest, LoadFromNonexistentFileReturnsEmptyString) {
+    FileTextIO d(testFile);
     std::string content = d.loadFromFile();
     EXPECT_EQ(content, "");
 }
-TEST_F(DataTest, SaveAndLoadConsistency) {
-    Data d(testFile);
+TEST_F(FileTextIOTest, SaveAndLoadConsistency) {
+    FileTextIO d(testFile);
     std::string message = "SSD Emulator Test";
 
     d.saveToFile(message);
@@ -30,8 +30,8 @@ TEST_F(DataTest, SaveAndLoadConsistency) {
 
     EXPECT_EQ(loaded, message);
 }
-TEST_F(DataTest, OverwriteFileContent) {
-    Data d(testFile);
+TEST_F(FileTextIOTest, OverwriteFileContent) {
+    FileTextIO d(testFile);
     std::string first = "First Content";
     std::string second = "Newer Content";
 
@@ -41,8 +41,8 @@ TEST_F(DataTest, OverwriteFileContent) {
     d.saveToFile(second);
     EXPECT_EQ(d.loadFromFile(), second);
 }
-TEST_F(DataTest, SaveCreatesFileIfNotExists) {
-    Data d(testFile);
+TEST_F(FileTextIOTest, SaveCreatesFileIfNotExists) {
+    FileTextIO d(testFile);
     EXPECT_FALSE(fileExists(testFile));
 
     d.saveToFile("File created via saveToFile");

@@ -1,10 +1,10 @@
-#include "Data.h"
+#include "FileTextIO.h"
 #include <fstream>
 #include <sstream>
 
-Data::Data(std::string fileName) : DataInterface(fileName) {}
+FileTextIO::FileTextIO(std::string fileName) : FileTextIOInterface(fileName) {}
 
-std::string Data::loadFromFile() {
+std::string FileTextIO::loadFromFile() {
     std::ifstream inFile(fileName);
     if (!inFile.is_open()) {
         return "";
@@ -15,7 +15,7 @@ std::string Data::loadFromFile() {
     return ss.str();
 }
 
-void Data::saveToFile(std::string data) const {
+void FileTextIO::saveToFile(std::string data) const {
     std::ofstream outFile(fileName);
     if (!outFile.is_open()) {
         return;
