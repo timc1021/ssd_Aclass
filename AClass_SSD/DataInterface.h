@@ -2,7 +2,7 @@
 #include <string>
 
 class DataInterface {
- private:
+ protected:
   std::string fileName;
 
  public:

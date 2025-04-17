@@ -3,7 +3,7 @@
 #include <sstream>
 
 // 생성자: 파일 이름 저장
-Data::Data(std::string fileName) : fileName(std::move(fileName)) {}
+Data::Data(std::string fileName) : DataInterface(fileName) {}
 
 // 파일을 문자열로 로드
 std::string Data::loadFromFile() {

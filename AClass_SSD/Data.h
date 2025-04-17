@@ -1,13 +1,13 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include "DataInterface.h"
 
-class Data {
-private:
-    std::string fileName;
+class Data : public DataInterface {
+
 public:
     Data(std::string fileName);
 
-    std::string loadFromFile();
-    void saveToFile(std::string data) const;
+    std::string loadFromFile() override;
+    void saveToFile(std::string data) const override;
 };
