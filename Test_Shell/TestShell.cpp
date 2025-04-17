@@ -123,5 +123,19 @@ uint32_t TestShell::fullRead()
 
 void TestShell::help()
 {
+	std::cout << "ÆÀ¸í: A class\n";
+	std::cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";
+	std::cout << "============ command information (format: command : description) ============\n";
+	std::cout << "write (lba_num) (data): Write (data) at LBA(lba_num). ex: write 3 0xAAAABBBB\n";
+	std::cout << "read (lba_num): Read data at LBA(lba_num). ex: read 3\n";
+	std::cout << "exit: Exit from this program. ex: exit\n";
+	std::cout << "help: Display help information. ex: help\n";
+	std::cout << "fullwrite (data): Fill all LBA with (data). ex: fullwrite 0xAAAABBBB\n";
+	std::cout << "fullread: Read all LBA data and display. ex: fullread\n";
+
+	std::cout << "1_FullWriteAndReadCompare: Write all LBA and test all data is written with right data. ex: 1_FullWriteAndReadCompare or 1_\n";
+	std::cout << "2_PartialLBAWrite: Write 5 LBAs and test all data is written with right data. Repeat 30 times. ex: 2_PartialLBAWrite or 2_\n";
+	std::cout << "3_WriteReadAging: Write LBA 0 and 99 and test all data is written with right data. Repeat 200 times. ex: 3_WriteReadAging or 3_\n";
+
 	std::cout << "help done\n";
 }
