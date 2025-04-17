@@ -15,7 +15,7 @@ std::string FileTextIO::loadFromFile() {
     return ss.str();
 }
 
-void FileTextIO::saveToFile(std::string data) const {
+void FileTextIO::saveToFile(const std::string data) const {
     std::ofstream outFile(fileName);
     if (!outFile.is_open()) {
         return;

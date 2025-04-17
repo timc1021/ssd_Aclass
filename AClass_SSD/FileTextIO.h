@@ -9,5 +9,5 @@ public:
     FileTextIO(std::string fileName);
 
     std::string loadFromFile() override;
-    void saveToFile(std::string data) const override;
+    void saveToFile(const std::string data) const override;
 };

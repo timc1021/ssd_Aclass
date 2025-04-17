@@ -8,5 +8,5 @@ private:
 
 public:
 	Command(std::shared_ptr<SSDControllerInterface> ssdData, std::shared_ptr<FileTextIOInterface> outputFile);
-	void execute(const std::string& cmdType, int lba, const std::string& valueHex = "");
+	void execute(const std::string& cmdType, const int lba, const std::string& valueHex = "");
 };
