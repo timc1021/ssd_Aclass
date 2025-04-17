@@ -17,28 +17,28 @@ vector<string> TestShell::splitBySpace(const string& input) {
     return tokens;
 }
 
-int TestShell::handleCommand(string commandLine) {
+COMMAND_RESULT TestShell::handleCommand(string commandLine) {
     vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken[0] == "read") {
 		if (commandToken.size() != 2)
-			return -1;
+			return COMMAND_INVALID_PARAM;
 		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-			return -1;
+			return COMMAND_INVALID_PARAM;
 
-		return read(std::stoi(commandToken[1]));
+		read(std::stoi(commandToken[1]));
 	}
 	else if (commandToken[0] == "write") {
 		if (commandToken.size() != 3)
-			return -1;
+			return COMMAND_INVALID_PARAM;
 		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-			return -1;
+			return COMMAND_INVALID_PARAM;
 		if (commandToken[2].length() != 10)
-			return -1;
+			return COMMAND_INVALID_PARAM;
 
 		// check the data input starts with "0x"
 		if (commandToken[2].substr(0, 2) != "0x") {
-			return -1;
+			return COMMAND_INVALID_PARAM;
 		}
 
 		// check the data range after "0x". 
@@ -46,11 +46,11 @@ int TestShell::handleCommand(string commandLine) {
 			char c = commandToken[2][i];
 			// should be one of those "A~F", "0~9"
 			if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
-				return -1;
+				return COMMAND_INVALID_PARAM;
 			}
 		}
 
-		return write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
+		write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
 	}
 	else if (commandToken[0] == "fullRead") {
 		fullRead();
@@ -65,40 +65,26 @@ int TestShell::handleCommand(string commandLine) {
 		return exit();
 	}
 	else {
-		// invalid command
-		return -1;
+		return COMMAND_INVALID_PARAM;
 	}
-	return 0;
+	return COMMAND_SUCCESS;
 }
 
-int TestShell::write(int lba, uint32_t data)
+void TestShell::write(int lba, uint32_t data)
 {
-	int result = 0; // system("ssd.exe");
-
-	if (result == 0) {
-		std::cout << "write done, lba : " << lba << ", data : " << data << std::endl;
-	}
-	else {
-		return -1;
-	}
-	return result;
+	// TODO : system("ssd.exe");
+	std::cout << "write done, lba : " << lba << ", data : " << data << std::endl;
 }
 
-int TestShell::fullWrite(uint32_t data)
+void TestShell::fullWrite(uint32_t data)
 {
-	int result = 0;
-
 	for (int i = 0; i < 100; i++) {
-		result = write(i, data);
-		if (result != 0) {
-			return -1;
-		}
+		write(i, data);
 	}
-	return 0;
 }
 
-int TestShell::exit() {
-	return -2;
+COMMAND_RESULT TestShell::exit() {
+	return COMMAND_EXIT;
 }
 
 uint32_t TestShell::read(int lba)
