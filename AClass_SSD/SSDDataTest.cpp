@@ -57,3 +57,7 @@ TEST_F(SSDDataTest, NotEmptySSDDataAndWriteLBA) {
 
 	ssd.writeLBA(1, 0xffffff10);
 }
+TEST_F(SSDDataTest, ThrowExceptionWhenWriteLBAWithInvalidLBAValue) {
+
+	EXPECT_THROW({ ssd.writeLBA(102, 0xffffff10); }, std::invalid_argument);
+}
