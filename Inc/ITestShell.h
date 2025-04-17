@@ -13,7 +13,7 @@ typedef enum {
 
 class ITestShell {
 public:
-	COMMAND_RESULT handleCommand(string commandLine);
+	COMMAND_RESULT handleCommand(const string& commandLine);
 	vector<string> splitBySpace(const string& input);
 	void fullWrite(uint32_t data);
 	uint32_t fullRead();
@@ -26,9 +26,9 @@ public:
 	const int MAX_LBA_SIZE = 100;
 
 private:
-	bool isWriteDataValid(string& commandLine);
-	bool isWriteCommandValid(string& commandLine);
-	bool isReadCommandValid(string& commandLine);
-	bool isValidLBA(vector<string>& commandToken);
-	bool isCommandValid(string& commandLine);
+	bool isWriteDataValid(const string& commandLine);
+	bool isWriteCommandValid(const string& commandLine);
+	bool isReadCommandValid(const string& commandLine);
+	bool isValidLBA(const vector<string>& commandToken);
+	bool isCommandValid(const string& commandLine);
 };
