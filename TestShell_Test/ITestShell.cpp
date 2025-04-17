@@ -188,15 +188,15 @@ bool ITestShell::fullWriteAndReadCompare() {
 	uint32_t data;
 	bool result;
 
-	for (int i = 0; i < 100; i += 5) {
+	for (int lba_base = 0; lba_base < ITestShell::MAX_LBA_SIZE; lba_base += 5) {
 		data = getRandUint32();
 
-		for (int j = 0; j < 5; j++) {
-			write(i + j, data);
+		for (int lba_offset = 0; lba_offset < 5; lba_offset++) {
+			write(lba_base + lba_offset, data);
 		}
 
-		for (int j = 0; j < 5; j++) {
-			result = readCompare(i + j, data);
+		for (int lba_offset = 0; lba_offset < 5; lba_offset++) {
+			result = readCompare(lba_base + lba_offset, data);
 			if (result == false) {
 				std::cout << "FullWriteAndReadCompare FAIL\n";
 				return false;
@@ -212,18 +212,18 @@ bool ITestShell::partialLBAWrite() {
 	bool result;
 	int seq[5] = {4, 0, 3, 1, 2};
 
-	for (int i = 0; i < 30; i++) {
+	for (int loop = 0; loop < 30; loop++) {
 		data = getRandUint32();
 
-		for (int j = 0; j < 5; j++) {
-			write(seq[j], data);
+		for (int seq_idx = 0; seq_idx < 5; seq_idx++) {
+			write(seq[seq_idx], data);
 		}
 
-		for (int j = 0; j < 5; j++) {
-			result = readCompare(j, data);
+		for (int lba = 0; lba < 5; lba++) {
+			result = readCompare(lba, data);
 			if (result == false) {
 				std::cout << "PartialLBAWrite FAIL\n";
-				return false;
+				return result;
 			}
 		}
 	}
@@ -234,21 +234,14 @@ bool ITestShell::partialLBAWrite() {
 
 bool ITestShell::writeReadAging() {
 	uint32_t data;
-	bool result;
 
-	for (int i = 0; i < 200; i++) {
+	for (int loop = 0; loop < 200; loop++) {
 		data = getRandUint32();
 
 		write(0, data);
 		write(99, data);
 
-		result = readCompare(0, data);
-		if (result == false) {
-			std::cout << "WriteReadAging FAIL\n";
-			return false;
-		}
-		result = readCompare(99, data);
-		if (result == false) {
+		if (readCompare(0, data) == false || readCompare(99, data) == false) {
 			std::cout << "WriteReadAging FAIL\n";
 			return false;
 		}
