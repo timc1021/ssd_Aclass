@@ -17,19 +17,12 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
-COMMAND_RESULT ITestShell::checkWriteCommandError(string& commandLine) {
+bool ITestShell::isWriteDataValid(string& commandLine)
+{
 	vector<string> commandToken = splitBySpace(commandLine);
-
-	if (commandToken.size() != 3)
-		return COMMAND_INVALID_PARAM;
-	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-		return COMMAND_INVALID_PARAM;
-	if (commandToken[2].length() != 10)
-		return COMMAND_INVALID_PARAM;
-
 	// check the data input starts with "0x"
 	if (commandToken[2].substr(0, 2) != "0x") {
-		return COMMAND_INVALID_PARAM;
+		return false;
 	}
 
 	// check the data range after "0x". 
@@ -37,46 +30,75 @@ COMMAND_RESULT ITestShell::checkWriteCommandError(string& commandLine) {
 		char c = commandToken[2][i];
 		// should be one of those "A~F", "0~9"
 		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
-			return COMMAND_INVALID_PARAM;
+			return false;
 		}
 	}
-
-	return COMMAND_SUCCESS;
+	return true;
 }
 
-COMMAND_RESULT ITestShell::checkReadCommandError(string& commandLine) {
+bool ITestShell::isWriteCommandValid(string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
-	if (commandToken.size() != 2)
-		return COMMAND_INVALID_PARAM;
-	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-		return COMMAND_INVALID_PARAM;
+	if (commandToken.size() != 3) {
+		return false;
+	}
+	if (!isValidLBA(commandToken)) {
+		return false;
+	}
+	if (commandToken[2].length() != 10) {
+		return false;
+	}
 
-	return COMMAND_SUCCESS;
+	if (!isWriteDataValid(commandLine)) {
+		return false;
+	}
+
+	return true;
 }
 
-COMMAND_RESULT ITestShell::checkCommandError(string & commandLine) {
+bool ITestShell::isReadCommandValid(string& commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
+
+	if (commandToken.size() != 2) {
+		return false;
+	}
+
+	if (!isValidLBA(commandToken)) {
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isValidLBA(vector<string>& commandToken)
+{
+	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0) {
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isCommandValid(string & commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken[0] == "read") {
-		if (checkReadCommandError(commandLine) == COMMAND_INVALID_PARAM) {
-			return COMMAND_INVALID_PARAM;
-		}
+		return isReadCommandValid(commandLine);
 	}
 	else if (commandToken[0] == "write") {
-		if (checkWriteCommandError(commandLine) == COMMAND_INVALID_PARAM) {
-			return COMMAND_INVALID_PARAM;
-		}
+		return (isWriteCommandValid(commandLine));
 	}
-	return COMMAND_SUCCESS;
+	else {
+		return true;
+	}
 }
 
 COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
-	if (checkCommandError(commandLine) == COMMAND_INVALID_PARAM)
-		return COMMAND_INVALID_PARAM;
-
+	if (!isCommandValid(commandLine)) {
+		return COMMAND_INVALID_PARAM; 
+	}
 	if (commandToken[0] == "read") {
 		read(std::stoi(commandToken[1]));
 	}
