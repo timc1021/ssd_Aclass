@@ -52,8 +52,8 @@ TEST_F(SSDDataTest, EmptySSDDataAndWriteLBA) {
 }
 TEST_F(SSDDataTest, NotEmptySSDDataAndWriteLBA) {
 
-	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
-	EXPECT_CALL(dataMock, saveToFile(StartsWith("0x00000000\n0xffffff10\n"))).Times(1);
+	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(data));
+	EXPECT_CALL(dataMock, saveToFile(StartsWith("0xffffff10\n0xffffff10\n"))).Times(1);
 
 	ssd.writeLBA(1, 0xffffff10);
 }

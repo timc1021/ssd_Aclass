@@ -13,5 +13,6 @@ public:
 	SSDData(DataInterface* data);
 	void writeLBA(int lba, unsigned int value);
 	unsigned int readLBA(int lba);
-	void getSsdData();
+	void getSsdDataFromFile();
+	void saveSsdDataToFile();
 };
