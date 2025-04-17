@@ -8,5 +8,5 @@ using std::vector;
 class TestShellDevice : public ITestShell {
 public:
 	void write(int lba, uint32_t data);
-	uint32_t read(int lb);
+	uint32_t read(int lba);
 };

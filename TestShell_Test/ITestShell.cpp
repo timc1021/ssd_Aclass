@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "ITestShell.h"
 
 vector<string> ITestShell::splitBySpace(const string& input) {
@@ -105,10 +106,10 @@ COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
 	else if (commandToken[0] == "write") {
 		write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
 	}
-	else if (commandToken[0] == "fullRead") {
+	else if (commandToken[0] == "fullread") {
 		fullRead();
 	}
-	else if (commandToken[0] == "fullWrite") {
+	else if (commandToken[0] == "fullwrite") {
 		fullWrite(0xAAAABBBB); // TODO
 	}
 	else if (commandToken[0] == "help") {
@@ -123,15 +124,9 @@ COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
 	return COMMAND_SUCCESS;
 }
 
-void ITestShell::write(int lba, uint32_t data)
-{
-	// TODO : system("ssd.exe");
-	std::cout << "write done, lba : " << lba << ", data : " << data << std::endl;
-}
-
 void ITestShell::fullWrite(uint32_t data)
 {
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < MAX_LBA_SIZE; i++) {
 		write(i, data);
 	}
 }
@@ -140,38 +135,15 @@ COMMAND_RESULT ITestShell::exit() {
 	return COMMAND_EXIT;
 }
 
-uint32_t ITestShell::read(int lba)
-{
-	int result = 0;
-	uint32_t read_data = 0;
-	// result = system("ssd.exe");
-
-	if (result == 0) {
-		std::cout << "read done, lba : " << lba << ", data : " << read_data << std::endl;
-	}
-	else {
-		return -1;
-	}
-	return read_data;
-}
-
 uint32_t ITestShell::fullRead()
 {
-	int result = 0;
-	uint32_t read_data = 0;
+	uint32_t readData = 0;
 
-	for (int lba = 0; lba < 100; lba++) {
-		read_data = read(lba);
+	for (int lba = 0; lba < MAX_LBA_SIZE; lba++) {
+		readData = read(lba);
 	}
 
-	if (result == 0) {
-		std::cout << "full read done\n";
-	}
-	else {
-		return -1;
-	}
-
-	return result;
+	return readData;
 }
 
 void ITestShell::help()
@@ -179,16 +151,18 @@ void ITestShell::help()
 	std::cout << "ÆÀ¸í: A class\n";
 	std::cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";
 	std::cout << "============ command information (format: command : description) ============\n";
-	std::cout << "write (lba_num) (data): Write (data) at LBA(lba_num). ex: write 3 0xAAAABBBB\n";
-	std::cout << "read (lba_num): Read data at LBA(lba_num). ex: read 3\n";
-	std::cout << "exit: Exit from this program. ex: exit\n";
-	std::cout << "help: Display help information. ex: help\n";
-	std::cout << "fullwrite (data): Fill all LBA with (data). ex: fullwrite 0xAAAABBBB\n";
-	std::cout << "fullread: Read all LBA data and display. ex: fullread\n";
+	std::cout << std::left << std::setw(40) << "write (lba_num) (data)" << "Write(data) at LBA(lba_num).ex: write 3 0xAAAABBBB\n";
+	std::cout << std::left << std::setw(40) << "read (lba_num)" << "Read data at LBA(lba_num).ex: read 3\n";
+	std::cout << std::left << std::setw(40) << "exit" << "Exit from this program.ex: exit\n";
+	std::cout << std::left << std::setw(40) << "help" << "Display help information.ex: help\n";
+	std::cout << std::left << std::setw(40) << "fullwrite (data)" << "Fill all LBA with(data).ex: fullwrite 0xAAAABBBB\n";
+	std::cout << std::left << std::setw(40) << "fullread" << "Read all LBA data and display.ex: fullread\n";
 
-	std::cout << "1_FullWriteAndReadCompare: Write all LBA and test all data is written with right data. ex: 1_FullWriteAndReadCompare or 1_\n";
-	std::cout << "2_PartialLBAWrite: Write 5 LBAs and test all data is written with right data. Repeat 30 times. ex: 2_PartialLBAWrite or 2_\n";
-	std::cout << "3_WriteReadAging: Write LBA 0 and 99 and test all data is written with right data. Repeat 200 times. ex: 3_WriteReadAging or 3_\n";
-
-	std::cout << "help done\n";
+	std::cout << "============ TC information ============\n";
+	std::cout << std::left << std::setw(40)  << "1_FullWriteAndReadCompare"	<< "Write all LBA and test all data is written with right data.\n";
+	std::cout << "  ex: 1_FullWriteAndReadCompare or 1_\n";
+	std::cout << std::left << std::setw(40) << "2_PartialLBAWrite" << "Write 5 LBAs and test all data is written with right data.Repeat 30 times.\n";
+	std::cout << "  ex: 2_PartialLBAWrite or 2_\n";
+	std::cout << std::left << std::setw(40) << "3_WriteReadAging" << "Write LBA 0 and 99 and test all data is written with right data.Repeat 200 times.\n";
+	std::cout << "  ex: 3_WriteReadAging or 3_\n";
 }
