@@ -18,17 +18,17 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
-bool ITestShell::isWriteDataValid(const string& commandLine)
+#define HEX_PREFIX	("0x")
+bool ITestShell::isWriteDataValid(const string& writeData)
 {
-	vector<string> commandToken = splitBySpace(commandLine);
 	// check the data input starts with "0x"
-	if (commandToken[2].substr(0, 2) != "0x") {
+	if (writeData.substr(0, 2) != HEX_PREFIX) {
 		return false;
 	}
 
 	// check the data range after "0x". 
-	for (size_t i = 2; i < commandToken[2].length(); ++i) {
-		char c = commandToken[2][i];
+	for (size_t i = 2; i < writeData.length(); ++i) {
+		char c = writeData[i];
 		// should be one of those "A~F", "0~9"
 		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
 			return false;
@@ -50,7 +50,7 @@ bool ITestShell::isWriteCommandValid(const string& commandLine) {
 		return false;
 	}
 
-	if (!isWriteDataValid(commandLine)) {
+	if (!isWriteDataValid(commandToken[2])) {
 		return false;
 	}
 
