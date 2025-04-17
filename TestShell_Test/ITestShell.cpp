@@ -196,7 +196,7 @@ uint32_t ITestShell::fullRead()
 	return readData;
 }
 
-bool ITestShell::readCompare(int lba, uint32_t expected) {
+bool ITestShell::readCompare(int lba, const uint32_t expected) {
 	int data = read(lba);
 
 	if (data == expected)
