@@ -1,9 +1,9 @@
 #include "TestShellApp.h"
-#include "TestShell.h"
+#include "TestShellDevice.h"
 
 int main()
 {
-	TestShellApp app{ new TestShell()};
+	TestShellApp app{ new TestShellDevice()};
 
 	app.run();
 

@@ -38,7 +38,7 @@
     <ClCompile Include="TestShellTest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TestShellMock.cpp">
+    <ClCompile Include="ITestShell.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

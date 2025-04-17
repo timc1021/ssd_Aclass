@@ -13,11 +13,13 @@ typedef enum {
 
 class ITestShell {
 public:
-	virtual COMMAND_RESULT handleCommand(string commandLine) = 0;
+	COMMAND_RESULT handleCommand(string commandLine);
+	vector<string> splitBySpace(const string& input);
+	void fullWrite(uint32_t data);
+	COMMAND_RESULT exit();
+	uint32_t fullRead();
+	void help();
+
 	virtual void write(int lba, uint32_t data) = 0;
-	virtual void fullWrite(uint32_t data) = 0;
-	virtual uint32_t read(int lba) = 0;
-	virtual uint32_t fullRead() = 0;
-	virtual void help() = 0;
-	virtual COMMAND_RESULT exit() = 0;
+	virtual uint32_t read(int lb) = 0;
 };

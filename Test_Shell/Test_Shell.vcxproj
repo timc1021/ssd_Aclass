@@ -182,16 +182,18 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\TestShell_Test\ITestShell.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TestShell.cpp" />
+    <ClCompile Include="TestShellDevice.cpp" />
     <ClCompile Include="TestShellApp.cpp" />
     <ClCompile Include="TestShellScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Inc\ITestShell.h" />
-    <ClInclude Include="TestShell.h" />
+    <ClInclude Include="TestShellDevice.h" />
     <ClInclude Include="TestShellApp.h" />
     <ClInclude Include="TestShellScript.h" />
+    <ClInclude Include="Type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
