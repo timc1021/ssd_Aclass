@@ -20,6 +20,11 @@ public:
 	uint32_t fullRead();
 	void help();
 
+	bool readCompare(int lba, uint32_t expected);
+	bool fullWriteAndReadCompare();
+	bool partialLBAWrite();
+	bool writeReadAging();
+
 	virtual void write(int lba, uint32_t data) = 0;
 	virtual uint32_t read(int lb) = 0;
 };

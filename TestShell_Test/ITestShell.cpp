@@ -58,6 +58,15 @@ COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
 	else if (commandToken[0] == "fullWrite") {
 		fullWrite(0xAAAABBBB); // TODO
 	}
+	else if (commandToken[0] == "1_FullWriteAndReadCompare" || commandToken[0] == "1_") {
+		fullWriteAndReadCompare();
+	}
+	else if (commandToken[0] == "2_PartialLBAWrite" || commandToken[0] == "2_") {
+		partialLBAWrite();
+	}
+	else if (commandToken[0] == "3_WriteReadAging" || commandToken[0] == "3_") {
+		writeReadAging();
+	}
 	else if (commandToken[0] == "help") {
 		help();
 	}
@@ -119,6 +128,30 @@ uint32_t ITestShell::fullRead()
 	}
 
 	return result;
+}
+
+bool ITestShell::readCompare(int lba, uint32_t expected) {
+	int data = read(lba);
+
+	if (data == expected)
+		return true;
+	else
+		return false;
+}
+
+bool ITestShell::fullWriteAndReadCompare() {
+
+	return true;
+}
+
+bool ITestShell::partialLBAWrite() {
+
+	return true;
+}
+
+bool ITestShell::writeReadAging() {
+
+	return true;
 }
 
 void ITestShell::help()

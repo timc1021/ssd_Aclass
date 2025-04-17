@@ -80,6 +80,32 @@ TEST_F(TestShellFixture, writeWithInvalidData) {
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
+TEST_F(TestShellFixture, readCompare) {
+	int lba = 10;
+	uint32_t expected = 0x1234abcd;
+
+	EXPECT_CALL(mock, read(lba))
+		.Times(1)
+		.WillOnce(Return(expected));
+
+	EXPECT_TRUE(mock.readCompare(lba, expected));
+}
+
+TEST_F(TestShellFixture, fullWriteAndReadCompare) {
+
+	EXPECT_TRUE(mock.fullWriteAndReadCompare());
+}
+
+TEST_F(TestShellFixture, partialLBAWrite) {
+
+	EXPECT_TRUE(mock.partialLBAWrite());
+}
+
+TEST_F(TestShellFixture, writeReadAging) {
+
+	EXPECT_TRUE(mock.writeReadAging());
+}
+
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
