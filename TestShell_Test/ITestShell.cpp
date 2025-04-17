@@ -17,7 +17,7 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
-bool ITestShell::isWriteDataValid(string& commandLine)
+bool ITestShell::isWriteDataValid(const string& commandLine)
 {
 	vector<string> commandToken = splitBySpace(commandLine);
 	// check the data input starts with "0x"
@@ -36,7 +36,7 @@ bool ITestShell::isWriteDataValid(string& commandLine)
 	return true;
 }
 
-bool ITestShell::isWriteCommandValid(string& commandLine) {
+bool ITestShell::isWriteCommandValid(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken.size() != 3) {
@@ -56,7 +56,7 @@ bool ITestShell::isWriteCommandValid(string& commandLine) {
 	return true;
 }
 
-bool ITestShell::isReadCommandValid(string& commandLine) {
+bool ITestShell::isReadCommandValid(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken.size() != 2) {
@@ -70,7 +70,7 @@ bool ITestShell::isReadCommandValid(string& commandLine) {
 	return true;
 }
 
-bool ITestShell::isValidLBA(vector<string>& commandToken)
+bool ITestShell::isValidLBA(const vector<string>& commandToken)
 {
 	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0) {
 		return false;
@@ -79,7 +79,7 @@ bool ITestShell::isValidLBA(vector<string>& commandToken)
 	return true;
 }
 
-bool ITestShell::isCommandValid(string & commandLine) {
+bool ITestShell::isCommandValid(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken[0] == "read") {
@@ -93,7 +93,7 @@ bool ITestShell::isCommandValid(string & commandLine) {
 	}
 }
 
-COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
+COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (!isCommandValid(commandLine)) {
