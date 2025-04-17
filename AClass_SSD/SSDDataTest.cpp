@@ -16,7 +16,7 @@ public:
 };
 class SSDDataTest : public Test {
 public:
-	std::string data = "0xffffff10\n0x00000020";
+	std::string data = "0xffffff10\n0x00000020\n";
 	std::vector<unsigned int> data2Int = { 0xffffff10 ,0x00000020 };
 	std::string emptyData = "";
 	unsigned int emptyData2Int = 0x00000000;
@@ -42,4 +42,18 @@ TEST_F(SSDDataTest, ThrowExceptionWhenReadLBAWithInvalidLBAValue) {
 
 	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
 	EXPECT_THROW({ ssd.readLBA(102); }, std::invalid_argument);
+}
+TEST_F(SSDDataTest, EmptySSDDataAndWriteLBA) {
+
+	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
+	EXPECT_CALL(dataMock, saveToFile(StartsWith("0xffffff10\n"))).Times(1);
+
+	ssd.writeLBA(0, 0xffffff10);
+}
+TEST_F(SSDDataTest, NotEmptySSDDataAndWriteLBA) {
+
+	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
+	EXPECT_CALL(dataMock, saveToFile(StartsWith("0x00000000\n0xffffff10\n"))).Times(1);
+
+	ssd.writeLBA(1, 0xffffff10);
 }
