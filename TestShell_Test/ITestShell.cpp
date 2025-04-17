@@ -18,19 +18,32 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
-#define HEX_PREFIX	("0x")
+#define HEX_PREFIX			("0x")
+#define HEX_PREFIX_LENGTH	(2)
+
+bool ITestShell::isCapitalLetter(const char c) {
+	if (c >= 'A' && c <= 'F') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 bool ITestShell::isWriteDataValid(const string& writeData)
 {
 	// check the data input starts with "0x"
-	if (writeData.substr(0, 2) != HEX_PREFIX) {
+	if (writeData.substr(0, HEX_PREFIX_LENGTH) != HEX_PREFIX) {
 		return false;
 	}
 
 	// check the data range after "0x". 
-	for (size_t i = 2; i < writeData.length(); ++i) {
-		char c = writeData[i];
+	for (char c : writeData.substr(HEX_PREFIX_LENGTH)) {
 		// should be one of those "A~F", "0~9"
-		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
+		if (std::isdigit(c) || isCapitalLetter(c)) {
+			continue;
+		}
+		else {
 			return false;
 		}
 	}
