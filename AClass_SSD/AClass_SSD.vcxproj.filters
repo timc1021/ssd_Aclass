@@ -18,10 +18,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Data.cpp">
+    <ClCompile Include="FileTextIO.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DataTest.cpp">
+    <ClCompile Include="FileTextIOTest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -33,6 +33,12 @@
     <ClCompile Include="SSDControllerTest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Command.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandTest.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -41,16 +47,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Data.h">
+    <ClInclude Include="FileTextIO.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SSDController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DataInterface.h">
+    <ClInclude Include="FileTextIOInterface.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SSDControllerInterface.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Command.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

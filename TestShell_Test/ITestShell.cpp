@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "ITestShell.h"
 
 vector<string> ITestShell::splitBySpace(const string& input) {
@@ -17,45 +18,98 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
-COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
+bool ITestShell::isWriteDataValid(const string& commandLine)
+{
+	vector<string> commandToken = splitBySpace(commandLine);
+	// check the data input starts with "0x"
+	if (commandToken[2].substr(0, 2) != "0x") {
+		return false;
+	}
+
+	// check the data range after "0x". 
+	for (size_t i = 2; i < commandToken[2].length(); ++i) {
+		char c = commandToken[2][i];
+		// should be one of those "A~F", "0~9"
+		if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool ITestShell::isWriteCommandValid(const string& commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
+
+	if (commandToken.size() != 3) {
+		return false;
+	}
+	if (!isValidLBA(commandToken)) {
+		return false;
+	}
+	if (commandToken[2].length() != 10) {
+		return false;
+	}
+
+	if (!isWriteDataValid(commandLine)) {
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isReadCommandValid(const string& commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
+
+	if (commandToken.size() != 2) {
+		return false;
+	}
+
+	if (!isValidLBA(commandToken)) {
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isValidLBA(const vector<string>& commandToken)
+{
+	if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0) {
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isCommandValid(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 
 	if (commandToken[0] == "read") {
-		if (commandToken.size() != 2)
-			return COMMAND_INVALID_PARAM;
-		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-			return COMMAND_INVALID_PARAM;
+		return isReadCommandValid(commandLine);
+	}
+	else if (commandToken[0] == "write") {
+		return (isWriteCommandValid(commandLine));
+	}
+	else {
+		return true;
+	}
+}
 
+COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
+	vector<string> commandToken = splitBySpace(commandLine);
+
+	if (!isCommandValid(commandLine)) {
+		return COMMAND_INVALID_PARAM; 
+	}
+	if (commandToken[0] == "read") {
 		read(std::stoi(commandToken[1]));
 	}
 	else if (commandToken[0] == "write") {
-		if (commandToken.size() != 3)
-			return COMMAND_INVALID_PARAM;
-		if (std::stoi(commandToken[1]) >= 100 || std::stoi(commandToken[1]) < 0)
-			return COMMAND_INVALID_PARAM;
-		if (commandToken[2].length() != 10)
-			return COMMAND_INVALID_PARAM;
-
-		// check the data input starts with "0x"
-		if (commandToken[2].substr(0, 2) != "0x") {
-			return COMMAND_INVALID_PARAM;
-		}
-
-		// check the data range after "0x". 
-		for (size_t i = 2; i < commandToken[2].length(); ++i) {
-			char c = commandToken[2][i];
-			// should be one of those "A~F", "0~9"
-			if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
-				return COMMAND_INVALID_PARAM;
-			}
-		}
-
 		write(std::stoi(commandToken[1]), static_cast<unsigned int>(std::stoul(commandToken[2], nullptr, 16)));
 	}
-	else if (commandToken[0] == "fullRead") {
+	else if (commandToken[0] == "fullread") {
 		fullRead();
 	}
-	else if (commandToken[0] == "fullWrite") {
+	else if (commandToken[0] == "fullwrite") {
 		fullWrite(0xAAAABBBB); // TODO
 	}
 	else if (commandToken[0] == "1_FullWriteAndReadCompare" || commandToken[0] == "1_") {
@@ -79,15 +133,9 @@ COMMAND_RESULT ITestShell::handleCommand(string commandLine) {
 	return COMMAND_SUCCESS;
 }
 
-void ITestShell::write(int lba, uint32_t data)
-{
-	// TODO : system("ssd.exe");
-	std::cout << "write done, lba : " << lba << ", data : " << data << std::endl;
-}
-
 void ITestShell::fullWrite(uint32_t data)
 {
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < MAX_LBA_SIZE; i++) {
 		write(i, data);
 	}
 }
@@ -96,38 +144,15 @@ COMMAND_RESULT ITestShell::exit() {
 	return COMMAND_EXIT;
 }
 
-uint32_t ITestShell::read(int lba)
-{
-	int result = 0;
-	uint32_t read_data = 0;
-	// result = system("ssd.exe");
-
-	if (result == 0) {
-		std::cout << "read done, lba : " << lba << ", data : " << read_data << std::endl;
-	}
-	else {
-		return -1;
-	}
-	return read_data;
-}
-
 uint32_t ITestShell::fullRead()
 {
-	int result = 0;
-	uint32_t read_data = 0;
+	uint32_t readData = 0;
 
-	for (int lba = 0; lba < 100; lba++) {
-		read_data = read(lba);
+	for (int lba = 0; lba < MAX_LBA_SIZE; lba++) {
+		readData = read(lba);
 	}
 
-	if (result == 0) {
-		std::cout << "full read done\n";
-	}
-	else {
-		return -1;
-	}
-
-	return result;
+	return readData;
 }
 
 bool ITestShell::readCompare(int lba, uint32_t expected) {
@@ -212,16 +237,18 @@ void ITestShell::help()
 	std::cout << "ÆÀ¸í: A class\n";
 	std::cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";
 	std::cout << "============ command information (format: command : description) ============\n";
-	std::cout << "write (lba_num) (data): Write (data) at LBA(lba_num). ex: write 3 0xAAAABBBB\n";
-	std::cout << "read (lba_num): Read data at LBA(lba_num). ex: read 3\n";
-	std::cout << "exit: Exit from this program. ex: exit\n";
-	std::cout << "help: Display help information. ex: help\n";
-	std::cout << "fullwrite (data): Fill all LBA with (data). ex: fullwrite 0xAAAABBBB\n";
-	std::cout << "fullread: Read all LBA data and display. ex: fullread\n";
+	std::cout << std::left << std::setw(40) << "write (lba_num) (data)" << "Write(data) at LBA(lba_num).ex: write 3 0xAAAABBBB\n";
+	std::cout << std::left << std::setw(40) << "read (lba_num)" << "Read data at LBA(lba_num).ex: read 3\n";
+	std::cout << std::left << std::setw(40) << "exit" << "Exit from this program.ex: exit\n";
+	std::cout << std::left << std::setw(40) << "help" << "Display help information.ex: help\n";
+	std::cout << std::left << std::setw(40) << "fullwrite (data)" << "Fill all LBA with(data).ex: fullwrite 0xAAAABBBB\n";
+	std::cout << std::left << std::setw(40) << "fullread" << "Read all LBA data and display.ex: fullread\n";
 
-	std::cout << "1_FullWriteAndReadCompare: Write all LBA and test all data is written with right data. ex: 1_FullWriteAndReadCompare or 1_\n";
-	std::cout << "2_PartialLBAWrite: Write 5 LBAs and test all data is written with right data. Repeat 30 times. ex: 2_PartialLBAWrite or 2_\n";
-	std::cout << "3_WriteReadAging: Write LBA 0 and 99 and test all data is written with right data. Repeat 200 times. ex: 3_WriteReadAging or 3_\n";
-
-	std::cout << "help done\n";
+	std::cout << "============ TC information ============\n";
+	std::cout << std::left << std::setw(40)  << "1_FullWriteAndReadCompare"	<< "Write all LBA and test all data is written with right data.\n";
+	std::cout << "  ex: 1_FullWriteAndReadCompare or 1_\n";
+	std::cout << std::left << std::setw(40) << "2_PartialLBAWrite" << "Write 5 LBAs and test all data is written with right data.Repeat 30 times.\n";
+	std::cout << "  ex: 2_PartialLBAWrite or 2_\n";
+	std::cout << std::left << std::setw(40) << "3_WriteReadAging" << "Write LBA 0 and 99 and test all data is written with right data.Repeat 200 times.\n";
+	std::cout << "  ex: 3_WriteReadAging or 3_\n";
 }

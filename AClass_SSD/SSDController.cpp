@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <exception>
 
-SSDController::SSDController(DataInterface* data) : SSDControllerInterface(data) {}
+SSDController::SSDController(FileTextIOInterface* data) : SSDControllerInterface(data) {}
 
 void SSDController::writeLBA(int lba, uint32_t value) {
 	if (lba < 0 || lba >= LBA_SIZE) throw std::invalid_argument("LBA must be greater than or equal to 0 and less than 100");
@@ -16,9 +16,10 @@ void SSDController::writeLBA(int lba, uint32_t value) {
 	return;
 }
 
-unsigned int SSDController::readLBA(int lba) {
+uint32_t SSDController::readLBA(int lba) {
 	if (lba < 0 || lba >= LBA_SIZE) throw std::invalid_argument("LBA must be greater than or equal to 0 and less than 100");
 	if (ssdData.empty()) getSsdDataFromFile();
+
 	return ssdData[lba];
 }
 

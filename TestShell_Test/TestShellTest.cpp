@@ -1,3 +1,4 @@
+#include <iostream>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "TestShellApp.h"
@@ -8,6 +9,37 @@ using namespace std;
 
 class TestShellFixture : public Test {
 public:
+	void executeRead(int lba)
+	{
+		string command = "read " + to_string(lba);
+		executeCommand(command);
+	}
+
+	void executeWrite(int lba, int data)
+	{
+		ostringstream oss;
+		oss << "write " << lba << " 0x" << hex << uppercase << data;
+		string command = oss.str();
+		executeCommand(command);
+	}
+
+	void executefullread() {
+		string command = "fullread";
+		executeCommand(command);
+	}
+	void executeFullwrite(int data) {
+		ostringstream oss;
+		oss << "fullwrite " << "0x" << hex << uppercase << data;
+		string command = oss.str();
+		executeCommand(command);
+	}
+
+	void executeCommand(string command) {
+		input.str(command);
+		input.clear();
+		app.run(input, output);
+	}
+
 	TestShellMock mock;
 	TestShellApp app{ &mock };
 
@@ -20,18 +52,14 @@ TEST_F(TestShellFixture, read) {
 		.Times(1)
 		.WillOnce(Return(0));
 
-	input.str("read 0");
-	input.clear();
-	app.run(input, output);
+	executeRead(0);
 }
 
 TEST_F(TestShellFixture, write) {
 	EXPECT_CALL(mock, write(3, 0xAAAABBBB))
 		.Times(1);
 
-	input.str("write 3 0xAAAABBBB");
-	input.clear();
-	app.run(input, output);
+	executeWrite(3, 0xAAAABBBB);
 }
 
 TEST_F(TestShellFixture, fullRead) {
@@ -39,45 +67,38 @@ TEST_F(TestShellFixture, fullRead) {
 		.Times(100)
 		.WillRepeatedly(Return(0));
 
-	input.str("fullRead");
-	input.clear();
-	app.run(input, output);
+	executefullread();
 }
 
 TEST_F(TestShellFixture, fullWrite) {
 	EXPECT_CALL(mock, write(_, 0xAAAABBBB))
 		.Times(100);
 
-	input.str("fullWrite 0xAAAABBBB");
-	input.clear();
-	app.run(input, output);
+	executeFullwrite(0xAAAABBBB);
 }
 
 TEST_F(TestShellFixture, invalidCommand) {
-	input.str("invalidCommand");
-	input.clear();
-	app.run(input, output);
+	executeCommand("invalidCommand");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
 TEST_F(TestShellFixture, readWithInvalidLBA) {
-	input.str("read 100");
-	input.clear();
-	app.run(input, output);
+	executeCommand("read 100");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
 TEST_F(TestShellFixture, writeWithInvalidLBA) {
-	input.str("write 100 0xAAAAAAAA");
-	input.clear();
-	app.run(input, output);
+	executeCommand("write 100 0xAAAAAAAA");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
 TEST_F(TestShellFixture, writeWithInvalidData) {
-	input.str("write 1 invalid");
-	input.clear();
-	app.run(input, output);
+	executeCommand("write 1 invalid");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, writeWithInvalidData2) {
+	executeCommand("write 55 0xA!AABBBB");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
@@ -120,6 +141,26 @@ TEST_F(TestShellFixture, writeReadAging) {
 		.WillRepeatedly(Return(0x2345bcde));
 
 	EXPECT_TRUE(mock.writeReadAging());
+}
+
+TEST_F(TestShellFixture, writeWithWrongLengthData) {
+	executeCommand("write 55 0xAABBBB");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, readWithWrongCommandParaNum) {
+	executeCommand("read");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, writeWithWrongCommandParaNum) {
+	executeCommand("write 3 0xAAAABBBB 2");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, parseExitCommand) {
+	executeCommand("exit");
+	EXPECT_EQ(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
 int main() {
