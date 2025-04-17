@@ -31,6 +31,7 @@ public:
 	const int MAX_LBA_SIZE = 100;
 
 private:
+	bool isCapitalLetter(const char c);
 	bool isWriteDataValid(const string& commandLine);
 	bool isWriteCommandValid(const string& commandLine);
 	bool isReadCommandValid(const string& commandLine);
