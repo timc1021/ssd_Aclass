@@ -53,15 +53,21 @@ protected:
 
 // 테스트 1: Read 명령이 수행되면 readLBA 호출 후 포맷된 값이 saveToFile에 전달되어야 한다
 TEST_F(CommandTest, ExecuteReadCommand_SavesFormattedOutput) {
-    EXPECT_CALL(*mockSSD, readLBA(5)).WillOnce(Return(0x1234ABCD));
-    EXPECT_CALL(*mockOutputFile, saveToFile("0x1234ABCD"));
+    EXPECT_CALL(*mockSSD, readLBA(5))
+        .Times(1)
+        .WillOnce(Return(0x1234ABCD));
+
+    EXPECT_CALL(*mockOutputFile, saveToFile("0x1234ABCD"))
+        .Times(1);
 
     command->execute("R", 5);
 }
 
+
 // 테스트 2: Write 명령이 수행되면 정확한 LBA와 값으로 writeLBA가 호출되어야 한다
 TEST_F(CommandTest, ExecuteWriteCommand_CallsWriteLBA) {
-    EXPECT_CALL(*mockSSD, writeLBA(7, 0xABCDEF01));
+    EXPECT_CALL(*mockSSD, writeLBA(7, 0xABCDEF01))
+        .Times(1);
 
     command->execute("W", 7, "0xABCDEF01");
 }
