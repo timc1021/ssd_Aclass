@@ -135,22 +135,75 @@ bool ITestShell::readCompare(int lba, uint32_t expected) {
 
 	if (data == expected)
 		return true;
-	else
+	else {
+		std::cout << "LBA " << lba << " : expected : " << std::hex << expected << ", actual : " << data << std::endl;
 		return false;
+	}
 }
 
 bool ITestShell::fullWriteAndReadCompare() {
+	uint32_t data = 0x2345bcde;
+	bool result;
 
+	for (int i = 0; i < 100; i += 5) {
+		for (int j = 0; j < 5; j++) {
+			write(i + j, data);
+		}
+
+		for (int j = 0; j < 5; j++) {
+			result = readCompare(i + j, data);
+			if (result == false) {
+				std::cout << "FullWriteAndReadCompare FAIL\n";
+				return false;
+			}
+		}
+	}
+	std::cout << "FullWriteAndReadCompare PASS\n";
 	return true;
 }
 
 bool ITestShell::partialLBAWrite() {
+	uint32_t data = 0x2345bcde;
+	bool result;
+	int seq[5] = {4, 0, 3, 1, 2};
 
+	for (int i = 0; i < 30; i++) {
+		for (int j = 0; j < 5; j++) {
+			write(seq[j], data);
+		}
+		for (int j = 0; j < 5; j++) {
+			result = readCompare(j, data);
+			if (result == false) {
+				std::cout << "PartialLBAWrite FAIL\n";
+				return false;
+			}
+		}
+	}
+
+	std::cout << "PartialLBAWrite PASS\n";
 	return true;
 }
 
 bool ITestShell::writeReadAging() {
+	uint32_t data = 0x2345bcde;
+	bool result;
 
+	for (int i = 0; i < 200; i++) {
+		write(0, data);
+		write(99, data);
+
+		result = readCompare(0, data);
+		if (result == false) {
+			std::cout << "WriteReadAging FAIL\n";
+			return false;
+		}
+		result = readCompare(99, data);
+		if (result == false) {
+			std::cout << "WriteReadAging FAIL\n";
+			return false;
+		}
+	}
+	std::cout << "WriteReadAging PASS\n";
 	return true;
 }
 
