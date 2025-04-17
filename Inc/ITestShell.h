@@ -22,4 +22,7 @@ public:
 
 	virtual void write(int lba, uint32_t data) = 0;
 	virtual uint32_t read(int lb) = 0;
+
+private:
+	COMMAND_RESULT checkCommandError(string& commandLine);
 };
