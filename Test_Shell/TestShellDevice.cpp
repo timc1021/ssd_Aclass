@@ -49,7 +49,7 @@ uint32_t TestShellDevice::read(int lba)
 	getline(file, strReadData);  // 한 줄만 읽고 싶을 경우
 	file.close();
 
-	std::cout << "[read] LBA : " << std::setw(2) << std::setfill('0') << lba << " : " << strReadData << std::endl;
+	std::cout << "[read] LBA : " << std::right << std::setw(2) << std::setfill('0') << lba << " : " << strReadData << std::endl;
 
 	return stoi(strReadData, nullptr, 16);
 }
