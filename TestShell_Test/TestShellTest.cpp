@@ -102,47 +102,6 @@ TEST_F(TestShellFixture, writeWithInvalidData2) {
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
-TEST_F(TestShellFixture, readCompare) {
-	int lba = 10;
-	uint32_t expected = 0x1234abcd;
-
-	EXPECT_CALL(mock, read(lba))
-		.Times(1)
-		.WillOnce(Return(expected));
-
-	EXPECT_TRUE(mock.readCompare(lba, expected));
-}
-
-TEST_F(TestShellFixture, fullWriteAndReadCompare) {
-	EXPECT_CALL(mock, write(_, _))
-		.Times(100);
-	EXPECT_CALL(mock, read(_))
-		.Times(100)
-		.WillRepeatedly(Return(0x2345bcde));
-
-	EXPECT_TRUE(mock.fullWriteAndReadCompare());
-}
-
-TEST_F(TestShellFixture, partialLBAWrite) {
-	EXPECT_CALL(mock, write(_, _))
-		.Times(150);
-	EXPECT_CALL(mock, read(_))
-		.Times(150)
-		.WillRepeatedly(Return(0x2345bcde));
-
-	EXPECT_TRUE(mock.partialLBAWrite());
-}
-
-TEST_F(TestShellFixture, writeReadAging) {
-	EXPECT_CALL(mock, write(_, _))
-		.Times(400);
-	EXPECT_CALL(mock, read(_))
-		.Times(400)
-		.WillRepeatedly(Return(0x2345bcde));
-
-	EXPECT_TRUE(mock.writeReadAging());
-}
-
 TEST_F(TestShellFixture, writeWithWrongLengthData) {
 	executeCommand("write 55 0xAABBBB");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));

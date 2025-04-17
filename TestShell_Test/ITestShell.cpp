@@ -174,22 +174,29 @@ bool ITestShell::readCompare(int lba, uint32_t expected) {
 	if (data == expected)
 		return true;
 	else {
-		std::cout << "LBA " << lba << " : expected : " << std::hex << expected << ", actual : " << data << std::endl;
+		std::cout << "LBA " << lba << " : expected : 0x" << std::hex << expected << ", actual : 0x" << data << std::endl;
 		return false;
 	}
 }
 
+uint32_t getRandUint32()
+{
+	return (rand() | (rand() << 15) | ((rand() & 0x3) << 30));
+}
+
 bool ITestShell::fullWriteAndReadCompare() {
-	uint32_t data = 0x2345bcde;
+	uint32_t data;
 	bool result;
 
-	for (int i = 0; i < 100; i += 5) {
-		for (int j = 0; j < 5; j++) {
-			write(i + j, data);
+	for (int lba_base = 0; lba_base < ITestShell::MAX_LBA_SIZE; lba_base += 5) {
+		data = getRandUint32();
+
+		for (int lba_offset = 0; lba_offset < 5; lba_offset++) {
+			write(lba_base + lba_offset, data);
 		}
 
-		for (int j = 0; j < 5; j++) {
-			result = readCompare(i + j, data);
+		for (int lba_offset = 0; lba_offset < 5; lba_offset++) {
+			result = readCompare(lba_base + lba_offset, data);
 			if (result == false) {
 				std::cout << "FullWriteAndReadCompare FAIL\n";
 				return false;
@@ -201,19 +208,22 @@ bool ITestShell::fullWriteAndReadCompare() {
 }
 
 bool ITestShell::partialLBAWrite() {
-	uint32_t data = 0x2345bcde;
+	uint32_t data;
 	bool result;
 	int seq[5] = {4, 0, 3, 1, 2};
 
-	for (int i = 0; i < 30; i++) {
-		for (int j = 0; j < 5; j++) {
-			write(seq[j], data);
+	for (int loop = 0; loop < 30; loop++) {
+		data = getRandUint32();
+
+		for (int seq_idx = 0; seq_idx < 5; seq_idx++) {
+			write(seq[seq_idx], data);
 		}
-		for (int j = 0; j < 5; j++) {
-			result = readCompare(j, data);
+
+		for (int lba = 0; lba < 5; lba++) {
+			result = readCompare(lba, data);
 			if (result == false) {
 				std::cout << "PartialLBAWrite FAIL\n";
-				return false;
+				return result;
 			}
 		}
 	}
@@ -223,20 +233,15 @@ bool ITestShell::partialLBAWrite() {
 }
 
 bool ITestShell::writeReadAging() {
-	uint32_t data = 0x2345bcde;
-	bool result;
+	uint32_t data;
 
-	for (int i = 0; i < 200; i++) {
+	for (int loop = 0; loop < 200; loop++) {
+		data = getRandUint32();
+
 		write(0, data);
 		write(99, data);
 
-		result = readCompare(0, data);
-		if (result == false) {
-			std::cout << "WriteReadAging FAIL\n";
-			return false;
-		}
-		result = readCompare(99, data);
-		if (result == false) {
+		if (readCompare(0, data) == false || readCompare(99, data) == false) {
 			std::cout << "WriteReadAging FAIL\n";
 			return false;
 		}
