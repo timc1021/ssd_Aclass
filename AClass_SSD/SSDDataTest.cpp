@@ -30,13 +30,13 @@ TEST_F(SSDDataTest, initSSDDataAndReadLBA) {
 
 	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(data));
 
-	EXPECT_EQ(ssd.readLBA(0), golden[0]);
-	EXPECT_EQ(ssd.readLBA(1), golden[1]);
+	EXPECT_EQ(ssd.readLBA(0), data2Int[0]);
+	EXPECT_EQ(ssd.readLBA(1), data2Int[1]);
 }
 TEST_F(SSDDataTest, ReadLBAWhenDataIsEmpty) {
 
 	EXPECT_CALL(dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
-	EXPECT_EQ(ssd.readLBA(0), emptyDataInt);
+	EXPECT_EQ(ssd.readLBA(0), emptyData2Int);
 }
 TEST_F(SSDDataTest, ThrowExceptionWhenReadLBAWithInvalidLBAValue) {
 
