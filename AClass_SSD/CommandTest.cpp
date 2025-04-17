@@ -23,21 +23,16 @@ using namespace ::testing;
 
 class CommandTest : public Test {
 protected:
-    MockSSDController* mockSSD;
-    MockDataInterface* mockOutputFile;
-    Command* command;
+    std::shared_ptr<MockSSDController> mockSSD;
+    std::shared_ptr<MockDataInterface> mockOutputFile;
+    std::shared_ptr <Command> command;
 
     void SetUp() override {
-        mockSSD = new MockSSDController();
-        mockOutputFile = new MockDataInterface("ssd_output.txt");
-        command = new Command(*mockSSD, *mockOutputFile);
+        mockSSD = std::make_shared <MockSSDController>();
+        mockOutputFile = std::make_shared <MockDataInterface>("ssd_output.txt");
+        command = std::make_shared <Command>(mockSSD, mockOutputFile);
     }
 
-    void TearDown() override {
-        delete command;
-        delete mockSSD;
-        delete mockOutputFile;
-    }
 };
 TEST_F(CommandTest, ExecuteReadCommand_SavesFormattedOutput) {
     EXPECT_CALL(*mockSSD, readLBA(5))
