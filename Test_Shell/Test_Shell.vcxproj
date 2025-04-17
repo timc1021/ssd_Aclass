@@ -186,7 +186,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestShellDevice.cpp" />
     <ClCompile Include="TestShellApp.cpp" />
-    <ClCompile Include="TestShellScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Inc\ITestShell.h" />
