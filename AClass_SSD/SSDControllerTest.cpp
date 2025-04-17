@@ -4,7 +4,7 @@
 #include <exception>
 
 #include "DataInterface.h"
-#include "SSDData.h"
+#include "SSDController.h"
 
 using namespace ::testing;
 
@@ -21,7 +21,7 @@ public:
 	std::string emptyData = "";
 	unsigned int emptyData2Int = 0x00000000;
 	DataMock dataMock;
-	SSDData ssd;
+	SSDController ssd;
 
 	SSDDataTest() : dataMock("test.txt"), ssd(&dataMock) {}
 };

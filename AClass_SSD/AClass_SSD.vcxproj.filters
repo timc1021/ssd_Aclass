@@ -27,10 +27,10 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SSDData.cpp">
+    <ClCompile Include="SSDController.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SSDDataTest.cpp">
+    <ClCompile Include="SSDControllerTest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc">
@@ -44,10 +44,13 @@
     <ClInclude Include="Data.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SSDData.h">
+    <ClInclude Include="SSDController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DataInterface.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SSDControllerInterface.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

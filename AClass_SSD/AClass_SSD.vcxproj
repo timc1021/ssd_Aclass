@@ -181,15 +181,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SSDDataTest.cpp" />
-    <ClCompile Include="SSDData.cpp" />
+    <ClCompile Include="SSDControllerTest.cpp" />
+    <ClCompile Include="SSDController.cpp" />
     <ClCompile Include="Data.cpp" />
     <ClCompile Include="DataTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataInterface.h" />
-    <ClInclude Include="SSDData.h" />
+    <ClInclude Include="SSDControllerInterface.h" />
+    <ClInclude Include="SSDController.h" />
     <ClInclude Include="Data.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
