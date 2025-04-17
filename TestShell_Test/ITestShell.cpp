@@ -110,7 +110,7 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 		fullRead();
 	}
 	else if (commandToken[0] == "fullwrite") {
-		fullWrite(0xAAAABBBB); // TODO
+		fullWrite(static_cast<unsigned int>(std::stoul(commandToken[1], nullptr, 16)));
 	}
 	else if (commandToken[0] == "1_FullWriteAndReadCompare" || commandToken[0] == "1_") {
 		fullWriteAndReadCompare();
