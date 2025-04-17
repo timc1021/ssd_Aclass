@@ -255,7 +255,7 @@ void ITestShell::help()
 	std::cout << "ÆÀ¸í: A class\n";
 	std::cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";
 	std::cout << "============ command information (format: command : description) ============\n";
-	std::cout << std::left << std::setw(40) << "write (lba_num) (data)" << "Write(data) at LBA(lba_num).ex: write 3 0xAAAABBBB\n";
+	std::cout << std::left << std::setw(40) << std::setfill(' ') << "write (lba_num) (data)" << "Write(data) at LBA(lba_num).ex: write 3 0xAAAABBBB\n";
 	std::cout << std::left << std::setw(40) << "read (lba_num)" << "Read data at LBA(lba_num).ex: read 3\n";
 	std::cout << std::left << std::setw(40) << "exit" << "Exit from this program.ex: exit\n";
 	std::cout << std::left << std::setw(40) << "help" << "Display help information.ex: help\n";
