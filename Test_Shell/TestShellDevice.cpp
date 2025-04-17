@@ -1,19 +1,53 @@
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include "TestShellDevice.h"
 
 void TestShellDevice::write(int lba, uint32_t data)
 {
-	// TODO : system("ssd.exe");
-	std::cout << "write done, lba : " << lba << ", data : " << data << std::endl;
+	std::ostringstream cmd;
+	cmd << "ssd.exe WRITE " << lba << " " << data;
+
+	// system call
+	int retCode = std::system(cmd.str().c_str());
+	if (retCode != 0) {
+		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
+	}
+	else {
+		std::cout << "write done, lba : " << lba << ", data : " << data << std::endl;
+	}
+
 }
 
 uint32_t TestShellDevice::read(int lba)
 {
-	uint32_t readDate = 0;
+	string strReadData;
+	uint32_t readData = 0;
 
-	// result = system("ssd.exe");
 
-	std::cout << "read done, lba : " << lba << ", data : " << readDate << std::endl;
+	std::ostringstream cmd;
+	cmd << "ssd.exe READ " << lba;
 
-	return readDate;
+	// system call
+	int retCode = std::system(cmd.str().c_str());
+	if (retCode != 0) {
+		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
+
+		return -1;
+	}
+
+	// 출력 파일 열기
+	std::ifstream file("ssd_output.txt");
+	if (!file.is_open()) {
+		std::cerr << "Failed to open ssd_output.txt" << std::endl;
+		return -2;
+	}
+
+	getline(file, strReadData);  // 한 줄만 읽고 싶을 경우
+	file.close();
+
+
+	std::cout << "read done, lba : " << lba << ", data : " << strReadData << std::endl;
+	
+	return stoi(strReadData, nullptr, 16);
 }
