@@ -170,6 +170,9 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	else if (command == "3_WriteReadAging" || command == "3_") {
 		writeReadAging();
 	}
+	else if (command == "4_EraseAndWriteAging" || command == "4_") {
+		eraseAndWriteAging();
+	}
 	else if (command == "help") {
 		help();
 	}
@@ -290,6 +293,32 @@ bool ITestShell::writeReadAging() {
 	return true;
 }
 
+bool ITestShell::eraseAndWriteAging() {
+	uint32_t write_data = getRandUint32();
+	uint32_t overwrite_data = getRandUint32();
+	bool result = false;
+
+	eraseRange(0, 2);
+
+	for (int loop = 0; loop < 30; loop++) {
+		for (int lba_base = 2; lba_base + 2 < ITestShell::MAX_LBA_SIZE; lba_base += 2) {
+			write(lba_base, write_data);
+			write(lba_base, overwrite_data);
+			eraseRange(lba_base, lba_base + 2);
+
+			for (int lba_offset = 0; lba_offset < 3; lba_offset++) {
+				if (readCompare(lba_base + lba_offset, 0) == false) {
+					cout << "EraseAndWriteAging FAIL\n";
+					return false;
+				}
+			}
+		}
+	}
+
+	cout << "EraseAndWriteAging PASS\n";
+	return true;
+}
+
 void ITestShell::help()
 {
 	using std::left;
@@ -308,7 +337,8 @@ void ITestShell::help()
 	cout << left << setfill(' ') << setw(35) << "fullread" << "Read all LBA data and display.ex: fullread\n";
 
 	cout << "\n=============================== TC command ===============================\n";
-	cout << left << setfill(' ') << setw(35)  << "1_FullWriteAndReadCompare or 1_"	<< "Write all LBA and test all data is written with right data.\n";
+	cout << left << setfill(' ') << setw(35) << "1_FullWriteAndReadCompare or 1_" << "Write all LBA and test all data is written with right data.\n";
 	cout << left << setfill(' ') << setw(35) << "2_PartialLBAWrite or 2_" << "Write 5 LBAs and test all data is written with right data.Repeat 30 times.\n";
-	cout << left << setfill(' ') << setw(35) << "3_WriteReadAging of 3_" << "Write LBA 0 and 99 and test all data is written with right data.Repeat 200 times.\n";
+	cout << left << setfill(' ') << setw(35) << "3_WriteReadAging or 3_" << "Write LBA 0 and 99 and test all data is written with right data. Repeat 200 times.\n";
+	cout << left << setfill(' ') << setw(35) << "4_EraseAndWriteAging or 4_" << "For each 3 LBAs, write and erase and test. Repeat 30 times.\n";
 }

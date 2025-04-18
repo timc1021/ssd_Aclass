@@ -24,6 +24,7 @@ public:
 	bool fullWriteAndReadCompare();
 	bool partialLBAWrite();
 	bool writeReadAging();
+	bool eraseAndWriteAging();
 
 	virtual void write(const int lba, const uint32_t data) = 0;
 	virtual uint32_t read(const int lba) = 0;
@@ -56,5 +57,7 @@ private:
 	"2_",
 	"3_WriteReadAging",
 	"3_",
+	"4_EraseAndWriteAging",
+	"4_",
 	};
 };
