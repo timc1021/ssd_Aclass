@@ -28,6 +28,18 @@ typedef enum {
 	TOKEN_FULLREAD_NUM = 1,
 } FULLREAD_TOKEN;
 
+typedef enum {
+	TOKEN_ERASE_LBA = 1,
+	TOKEN_ERASE_SIZE,
+	TOKEN_ERASE_NUM,
+} ERASE_TOKEN;
+
+typedef enum {
+	TOKEN_ERASE_RANGE_START_LBA = 1,
+	TOKEN_ERASE_RANGE_END_LBA,
+	TOKEN_ERASE_RANGNE_NUM,
+} ERASE_RANGE_TOKEN;
+
 vector<string> ITestShell::splitBySpace(const string& input) {
 	vector<string> tokens;
 	size_t start = 0, end;
@@ -106,6 +118,28 @@ bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 	return true;
 }
 
+bool ITestShell::isEraseCommandValid(const vector<string> commandToken)
+{
+	string command = commandToken[TOKEN_COMMAND];
+
+	if (commandToken.size() != TOKEN_ERASE_NUM) {
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isEraseRangeCommandValid(const vector<string> commandToken)
+{
+	string command = commandToken[TOKEN_COMMAND];
+
+	if (commandToken.size() != TOKEN_ERASE_RANGNE_NUM) {
+		return false;
+	}
+
+	return true;
+}
+
 bool ITestShell::isLBAValid(const string& lba)
 {
 	int iLba = std::stoi(lba);
@@ -156,10 +190,18 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 		fullWrite(static_cast<unsigned int>(std::stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
 	}
 	else if (command == "erase") {
-		erase(1, 5); // TODO
+			if (!isEraseCommandValid(commandToken)) {
+			return COMMAND_INVALID_PARAM;
+		}
+
+		erase(stoi(commandToken[TOKEN_ERASE_LBA]), stoi(commandToken[TOKEN_ERASE_SIZE]));
 	}
 	else if (command == "erase_range") {
-		eraseRange(1, 6); // TODO
+		if (!isEraseRangeCommandValid(commandToken)) {
+			return COMMAND_INVALID_PARAM;
+		}
+
+		eraseRange(stoi(commandToken[TOKEN_ERASE_RANGE_START_LBA]), stoi(commandToken[TOKEN_ERASE_RANGE_END_LBA])); // TODO
 	}
 	else if (command == "1_FullWriteAndReadCompare" || command == "1_") {
 		fullWriteAndReadCompare();
