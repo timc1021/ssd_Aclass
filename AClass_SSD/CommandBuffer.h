@@ -2,11 +2,51 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <sstream>
+#include <exception>
 #include "FileTextIO.h"
+
+class CommandValue {
+public:
+	static const int WRITE = 1;
+	static const int READ = 2;
+	static const int ERASE = 3;
+
+	std::string strFUllCommand;
+	int command;
+	int LBA;
+	uint32_t value;
+
+	CommandValue(const std::string& input) {
+		setCommand(input);
+	}
+	void setCommand(const std::string& input) {
+		std::istringstream iss(input);
+		std::string valueStr;
+		char chCommad;
+		strFUllCommand = input;
+
+		if (!(iss >> chCommad >> LBA >> valueStr)) {
+			return;
+		}
+		if (chCommad == 'w' || chCommad == 'W') {
+			command = WRITE;
+			value = std::stoul(valueStr, nullptr, 16);
+		}
+		else if (chCommad == 'e' || chCommad == 'E') {
+			command = ERASE;
+			value = std::stoi(valueStr);
+		}
+		else if (chCommad == 'r' || chCommad == 'R') {
+			command = READ;
+			value = 0;
+		}
+	}
+};
 
 class CommandBuffer {
 private:
-	std::vector<std::string> buffer;
+	std::vector<CommandValue> buffer;
 	const int maxBufferSize = 5;
 	const std::string bufferDir = "./buffer";
 
@@ -17,7 +57,7 @@ public:
 	CommandBuffer();
 	~CommandBuffer();
 
-	void addCommandToBuffer(std::string command);
+	void addCommandToBuffer(CommandValue command);
 	void flush();
 	void printBuffer() const;
 };
