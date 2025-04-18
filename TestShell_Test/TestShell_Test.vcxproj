@@ -180,11 +180,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Interface\ITestShell.h" />
+    <ClInclude Include="..\Test_Shell\Logger.h" />
     <ClInclude Include="..\Test_Shell\TestShellApp.h" />
     <ClInclude Include="TestShellMock.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Interface\ITestShell.cpp" />
+    <ClCompile Include="..\Test_Shell\Logger.cpp" />
     <ClCompile Include="..\Test_Shell\TestShellApp.cpp" />
     <ClCompile Include="TestShellTest.cpp" />
   </ItemGroup>
