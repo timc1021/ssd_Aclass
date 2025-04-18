@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <unordered_map>
+//#include "ITestScript.h"
 
 using std::string;
 using std::vector;
@@ -15,9 +17,14 @@ typedef enum {
 	COMMAND_EXIT,
 } COMMAND_RESULT;
 
+class ITestScript;
+
 class ITestShell {
 public:
 	COMMAND_RESULT handleCommand(const string& commandLine);
+	COMMAND_RESULT handleShellCommand(const vector<string> commandToken);
+	COMMAND_RESULT handleTestScript(const string& tcName);
+	bool IsExistTestScript(const string& command);
 	vector<string> splitBySpace(const string& input);
 	void fullWrite(const uint32_t data);
 	uint32_t fullRead();
@@ -25,7 +32,6 @@ public:
 	COMMAND_RESULT exit();
 
 	bool readCompare(const int lba, const uint32_t expected);
-	bool fullWriteAndReadCompare();
 	bool partialLBAWrite();
 	bool writeReadAging();
 	bool eraseAndWriteAging();
@@ -33,6 +39,14 @@ public:
 	virtual void write(const int lba, const uint32_t data) = 0;
 	virtual uint32_t read(const int lba) = 0;
 	virtual void erase(const int lba, const int size) = 0;
+	virtual void registerCommand(const std::string& command, ITestScript* script) = 0;
+	virtual bool readCompareRange(int start_lba, int end_lba, uint32_t data) = 0;
+	//virtual void test() = 0;
+
+
+	void eraseRange(const int startLba, const int endLba);
+
+	std::unordered_map<string, ITestScript*> testScriptCommand;
 
 private:
 	bool isWriteDataValid(const string& commandLine);
@@ -43,9 +57,7 @@ private:
 	bool isCommandValid(const vector<string> commandToken);
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
-	bool readCompareRange(const int start_lba, const int end_lba, const uint32_t data);
 	void writeLBAs(const vector<int>lba, const uint32_t data);
-	void eraseRange(const int startLba, const int endLba);
 
 	COMMAND_RESULT handleRead(const vector<string> commandToken);
 	COMMAND_RESULT handleFullread(void);
@@ -63,13 +75,14 @@ private:
 	"erase_range",
 	"help",
 	"exit",
-	"1_FullWriteAndReadCompare",
-	"1_",
-	"2_PartialLBAWrite",
-	"2_",
-	"3_WriteReadAging",
-	"3_",
-	"4_EraseAndWriteAging",
-	"4_",
+	//"1_FullWriteAndReadCompare",
+	//"1_",
+	//"2_PartialLBAWrite",
+	//"2_",
+	//"3_WriteReadAging",
+	//"3_",
+	//"4_EraseAndWriteAging",
+	//"4_",
 	};
+
 };
