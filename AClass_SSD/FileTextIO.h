@@ -6,8 +6,8 @@
 class FileTextIO : public FileTextIOInterface {
 
 public:
-    FileTextIO(std::string fileName);
+	FileTextIO(std::string fileName);
 
-    std::string loadFromFile() override;
-    void saveToFile(const std::string data) const override;
+	std::string loadFromFile() override;
+	void saveToFile(const std::string data) const override;
 };

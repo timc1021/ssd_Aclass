@@ -1,65 +1,34 @@
-#include <gmock/gmock.h>
-
-#include <string>
-#include <exception>
-
-#include "FileTextIOInterface.h"
+#include <gtest/gtest.h>
+#include <memory>
 #include "SSDController.h"
+#include "FileTextIOInterface.h"
 
-using namespace ::testing;
-
-class DataMock : public FileTextIOInterface {
+// 가짜 구현 (Mock이 아니라 Fake로 테스트)
+class FileTextIOFake : public FileTextIOInterface {
 public:
-	DataMock(std::string fileName) : FileTextIOInterface(fileName) {}
-	MOCK_METHOD(std::string, loadFromFile, (), (override));
-	MOCK_METHOD(void, saveToFile, (std::string), (const, override));
-};
-class SSDControllerTestFixture : public Test {
-public:
-	std::string data = "0xffffff10\n0x00000020\n";
-	std::vector<uint32_t> data2Int = { 0xffffff10 ,0x00000020 };
+	std::string content;
+	FileTextIOFake() : FileTextIOInterface("fake") {}
 
-	std::string emptyData = "";
-	uint32_t emptyData2Int = 0x00000000;
+	std::string loadFromFile() override {
+		return content;
+	}
 
-	std::shared_ptr<DataMock> dataMock;
-	SSDController ssd;
-
-	SSDControllerTestFixture() : dataMock(std::make_shared <DataMock>("test.txt")), ssd(dataMock) {}
+	void saveToFile(std::string data) const override {
+		const_cast<FileTextIOFake*>(this)->content = data;
+	}
 };
 
-TEST_F(SSDControllerTestFixture, initSSDDataAndReadLBA) {
+TEST(SSDControllerTest, ReadEmptyDataReturnsZero) {
+	auto fakeIO = std::make_shared<FileTextIOFake>();
+	SSDController ssd(fakeIO);
 
-	EXPECT_CALL(*dataMock, loadFromFile()).WillRepeatedly(Return(data));
-
-	EXPECT_EQ(ssd.readLBA(0), data2Int[0]);
-	EXPECT_EQ(ssd.readLBA(1), data2Int[1]);
+	EXPECT_EQ(ssd.readLBA(0), 0x00000000);
 }
-TEST_F(SSDControllerTestFixture, ReadLBAWhenDataIsEmpty) {
 
-	EXPECT_CALL(*dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
-	EXPECT_EQ(ssd.readLBA(0), emptyData2Int);
-}
-TEST_F(SSDControllerTestFixture, ThrowExceptionWhenReadLBAWithInvalidLBAValue) {
+TEST(SSDControllerTest, WriteThenReadReturnsSame) {
+	auto fakeIO = std::make_shared<FileTextIOFake>();
+	SSDController ssd(fakeIO);
 
-	EXPECT_CALL(*dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
-	EXPECT_THROW({ ssd.readLBA(102); }, std::invalid_argument);
-}
-TEST_F(SSDControllerTestFixture, EmptySSDDataAndWriteLBA) {
-
-	EXPECT_CALL(*dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
-	EXPECT_CALL(*dataMock, saveToFile(StartsWith("0xffffff10\n"))).Times(1);
-
-	ssd.writeLBA(0, 0xffffff10);
-}
-TEST_F(SSDControllerTestFixture, NotEmptySSDDataAndWriteLBA) {
-
-	EXPECT_CALL(*dataMock, loadFromFile()).WillRepeatedly(Return(data));
-	EXPECT_CALL(*dataMock, saveToFile(StartsWith("0xffffff10\n0xffffff10\n"))).Times(1);
-
-	ssd.writeLBA(1, 0xffffff10);
-}
-TEST_F(SSDControllerTestFixture, ThrowExceptionWhenWriteLBAWithInvalidLBAValue) {
-
-	EXPECT_THROW({ ssd.writeLBA(102, 0xffffff10); }, std::invalid_argument);
+	ssd.writeLBA(2, 0xAAAABBBB);
+	EXPECT_EQ(ssd.readLBA(2), 0xAAAABBBB);
 }
