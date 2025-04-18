@@ -27,9 +27,24 @@ public:
 		string command = "fullread";
 		executeCommand(command);
 	}
+
 	void executeFullwrite(int data) {
 		ostringstream oss;
 		oss << "fullwrite " << "0x" << hex << uppercase << data;
+		string command = oss.str();
+		executeCommand(command);
+	}
+
+	void executeErase(int lba, int size) {
+		ostringstream oss;
+		oss << "erase " << lba << size;
+		string command = oss.str();
+		executeCommand(command);
+	}
+
+	void executeEraseRange(int startLba, int endLba) {
+		ostringstream oss;
+		oss << "erase_range " << startLba << endLba;
 		string command = oss.str();
 		executeCommand(command);
 	}
@@ -75,6 +90,20 @@ TEST_F(TestShellFixture, fullWrite) {
 		.Times(100);
 
 	executeFullwrite(0xAAAABBBB);
+}
+
+TEST_F(TestShellFixture, erase) {
+	EXPECT_CALL(mock, erase(1, 5))
+		.Times(1);
+
+	executeErase(1, 5);
+}
+
+TEST_F(TestShellFixture, eraseRange) {
+	EXPECT_CALL(mock, eraseRange(1, 6))
+		.Times(1);
+
+	executeEraseRange(1, 6);
 }
 
 TEST_F(TestShellFixture, invalidCommand) {

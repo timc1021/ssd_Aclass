@@ -27,6 +27,8 @@ public:
 
 	virtual void write(const int lba, const uint32_t data) = 0;
 	virtual uint32_t read(const int lba) = 0;
+	virtual void erase(const int lba, const int size) = 0;
+	virtual void eraseRange(const int startLba, const int endLba) = 0;
 
 	const int MAX_LBA_SIZE = 100;
 	const int START_LBA = 0;
@@ -44,6 +46,8 @@ private:
 	"write",
 	"fullread",
 	"fullwrite",
+	"erase",
+	"erase_range",
 	"help",
 	"exit",
 	"1_FullWriteAndReadCompare",
