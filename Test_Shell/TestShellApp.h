@@ -9,6 +9,7 @@ public:
 
 	void run(std::istream& in = std::cin, std::ostream& out = std::cout);
 	void init();
+	void runner(char* argv);
 
 	ITestShell* testShell;
 };

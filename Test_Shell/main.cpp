@@ -1,11 +1,16 @@
 #include "TestShellApp.h"
 #include "TestShellDevice.h"
 
-int main()
+int main(int argc, char* argv[])
 {
 	TestShellApp app{ new TestShellDevice()};
 
-	app.run();
+	if (argc == 2) {
+		app.runner(argv[1]);
+	}
+	else {
+		app.run();
+	}
 
 	return 0;
 }
