@@ -99,6 +99,7 @@ std::string Logger::formatLogLine(const LogEntry& log) {
 }
 
 std::string Logger::getTimestampedFileName() {
+    std::filesystem::create_directories(logDir);
     std::time_t now = std::time(nullptr);
     std::tm timeInfo;
 
@@ -115,7 +116,7 @@ std::string Logger::getTimestampedFileName() {
         << std::setw(2) << std::setfill('0') << timeInfo.tm_sec << "s"
         << ".log";
 
-    return oss.str();
+    return logDir + "/" + oss.str();
 }
 
 bool Logger::isFileSizeOverTenKb(const std::string& filePath) {

@@ -34,6 +34,7 @@ private:
     std::string oldLogFilename = "";
     void compressOldLogFile(std::string lastLogFile);
     // 마지막 로그 파일명 // until_260307_17h_12m_11s.log 
+    const std::string logDir = "log"; // 로그 디렉토리 경로
     bool isExistOldLogFile();
     void setOldLogFilename(std::string filename);
     std::string getOldLogFilename(void);
