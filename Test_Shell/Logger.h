@@ -21,10 +21,20 @@ public:
     void writeLogToFile(const LogEntry& log);
     std::string formatLogLine(const LogEntry& log);
 
+    std::string getTimestampedFileName();
+    bool isFileSizeOverTenKb(const std::string& filePath);
+    void renameFile(const std::string& oldName, const std::string& newName);
 
+    
 private:
     std::vector<LogEntry> logs;
     size_t currentSize = 0;
     bool currentMode = 1; // TODO
     const std::string LOGFILE = "latest.txt";
+    std::string oldLogFilename = "";
+    void compressOldLogFile(std::string lastLogFile);
+    // 마지막 로그 파일명 // until_260307_17h_12m_11s.log 
+    bool isExistOldLogFile();
+    void setOldLogFilename(std::string filename);
+    std::string getOldLogFilename(void);
 };

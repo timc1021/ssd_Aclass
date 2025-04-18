@@ -8,6 +8,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cstdio>
+#include <filesystem>
 
 Logger& Logger::getInstance() {
     static Logger instance;
@@ -46,6 +47,19 @@ bool Logger::addLog(const std::string& funcName, const std::string& msg) {
         printSingleLog(entry);
     }
 
+    if (isFileSizeOverTenKb(LOGFILE) == true) {
+        std::string newFilename = getTimestampedFileName();
+    
+        renameFile(LOGFILE, newFilename);
+
+        if (isExistOldLogFile() == true) {
+            compressOldLogFile(getOldLogFilename());
+            setOldLogFilename(newFilename);
+        }
+        else {
+            setOldLogFilename(newFilename);
+        }
+    }
     writeLogToFile(entry);
 
     return true;
@@ -82,4 +96,74 @@ std::string Logger::formatLogLine(const LogEntry& log) {
     oss << ": " << msg;
 
     return oss.str();
+}
+
+std::string Logger::getTimestampedFileName() {
+    std::time_t now = std::time(nullptr);
+    std::tm timeInfo;
+
+    localtime_s(&timeInfo, &now);
+
+    std::ostringstream oss;
+    oss << "until_"
+        << std::setw(2) << std::setfill('0') << (timeInfo.tm_year % 100)   // YY
+        << std::setw(2) << std::setfill('0') << (timeInfo.tm_mon + 1)      // MM
+        << std::setw(2) << std::setfill('0') << timeInfo.tm_mday           // DD
+        << "_"
+        << std::setw(2) << std::setfill('0') << timeInfo.tm_hour << "h_"
+        << std::setw(2) << std::setfill('0') << timeInfo.tm_min << "m_"
+        << std::setw(2) << std::setfill('0') << timeInfo.tm_sec << "s"
+        << ".log";
+
+    return oss.str();
+}
+
+bool Logger::isFileSizeOverTenKb(const std::string& filePath) {
+    const long MAX_LOG_SIZE = 10240; // 10KB
+    //const long MAX_LOG_SIZE = 1; // test 용
+
+
+    struct stat fileStat;
+    if (stat(filePath.c_str(), &fileStat) != 0) {
+        // 파일이 존재하지 않거나 오류
+        return false;
+    }
+
+    return fileStat.st_size >= MAX_LOG_SIZE;
+}
+
+void Logger::renameFile(const std::string& oldName, const std::string& newName) {
+    if (std::rename(oldName.c_str(), newName.c_str()) != 0) {
+        std::perror(("Failed to rename " + oldName + " to " + newName).c_str());
+    }
+    else {
+        std::cout << "Renamed " << oldName << " → " << newName << std::endl;
+    }
+}
+
+void Logger::compressOldLogFile(std::string lastLogFile) {
+    std::filesystem::path oldLogPath(lastLogFile); // 주어진 파일명을 경로로 변환 
+    std::filesystem::path zipName = oldLogPath;
+    zipName.replace_extension(".zip"); // .txt를 .zip으로 변경
+
+        // 파일 이름 변경 (압축된 파일로 가정하고 이름 변경)
+    std::filesystem::rename(oldLogPath, zipName);
+}
+
+
+bool Logger::isExistOldLogFile()
+{
+    if (oldLogFilename == "")
+        return false;
+    else
+        return true;
+}
+
+void Logger::setOldLogFilename(std::string filename)
+{
+    oldLogFilename = filename;
+}
+
+std::string Logger::getOldLogFilename(void) {
+    return oldLogFilename;
 }

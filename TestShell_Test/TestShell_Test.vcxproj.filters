@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Inc\ITestShell.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="TestShellMock.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="..\Test_Shell\TestShellApp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Interface\ITestShell.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
