@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="TestScript">
+      <UniqueIdentifier>{2a27b207-80e0-4dee-bdf8-1069a9e5ef32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -39,6 +42,9 @@
     <ClCompile Include="..\Interface\ITestShell.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ITestScript.cpp">
+      <Filter>TestScript</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestShellDevice.h">
@@ -58,6 +64,12 @@
     </ClInclude>
     <ClInclude Include="..\Interface\ITestShell.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ITestScript.h">
+      <Filter>TestScript</Filter>
+    </ClInclude>
+    <ClInclude Include="FullWriteAndReadCompare.h">
+      <Filter>TestScript</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

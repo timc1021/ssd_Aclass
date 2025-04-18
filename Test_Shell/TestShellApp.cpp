@@ -1,7 +1,13 @@
 #include <iostream>
-#include "TestShellApp.h"
-#include "Logger.h"
 #include <fstream>
+#include <windows.h>
+#include <filesystem>
+#include <string>
+#include <vector>
+
+#include "TestShellApp.h"
+#include "ITestScript.h"
+#include "Logger.h"
 
 void TestShellApp::run(std::istream& in, std::ostream& out)
 {
@@ -32,6 +38,22 @@ void TestShellApp::run(std::istream& in, std::ostream& out)
 void TestShellApp::init()
 {
     Logger::getInstance().initLogFile();
+
+    for (const auto& entry : std::filesystem::directory_iterator("./scripts")) {
+        if (entry.path().extension() == ".dll") {
+            HMODULE dll = LoadLibrary(entry.path().c_str());
+            if (!dll) continue;
+
+            using CreateFn = ITestScript * (*)();
+            CreateFn create = (CreateFn)GetProcAddress(dll, "create");
+            if (!create) continue;
+
+            ITestScript* script = create();
+            for (const std::string& cmd : script->names()) {
+                testShell->registerCommand(cmd, script);  // 명령어 등록
+            }
+        }
+    }
 }
 
 void TestShellApp::runner(char* argv)
