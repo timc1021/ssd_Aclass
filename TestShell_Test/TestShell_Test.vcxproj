@@ -184,8 +184,8 @@
     <ClInclude Include="TestShellMock.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Interface\ITestShell.cpp" />
     <ClCompile Include="..\Test_Shell\TestShellApp.cpp" />
-    <ClCompile Include="ITestShell.cpp" />
     <ClCompile Include="TestShellTest.cpp" />
   </ItemGroup>
   <ItemGroup>
