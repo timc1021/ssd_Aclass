@@ -39,6 +39,7 @@ void TestShellApp::init()
 {
     Logger::getInstance().initLogFile();
 
+    // init dll
     for (const auto& entry : std::filesystem::directory_iterator("./scripts")) {
         if (entry.path().extension() == ".dll") {
             HMODULE dll = LoadLibrary(entry.path().c_str());
@@ -50,7 +51,7 @@ void TestShellApp::init()
 
             ITestScript* script = create();
             for (const std::string& cmd : script->names()) {
-                testShell->registerCommand(cmd, script);  // 명령어 등록
+                // testShell->registerCommand(cmd, script);  // 명령어 등록
             }
         }
     }
