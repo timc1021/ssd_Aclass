@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <string>
 #include "SSDControllerInterface.h"
 #include "FileTextIOInterface.h"
 
@@ -13,6 +14,7 @@ public:
 private:
 	void executeWrite(int lba, const std::string& valueHex);
 	void executeRead(int lba);
+	void executeErase(int lba, int size);
 
 	std::shared_ptr<SSDControllerInterface> ssd;
 	std::shared_ptr<FileTextIOInterface> outputFile;
