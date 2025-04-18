@@ -8,6 +8,7 @@ public:
 	TestShellApp(ITestShell* testShell) : testShell(testShell) {}
 
 	void run(std::istream& in = std::cin, std::ostream& out = std::cout);
+	void init();
 
 	ITestShell* testShell;
 };

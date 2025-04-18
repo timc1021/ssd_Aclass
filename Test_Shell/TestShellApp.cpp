@@ -1,8 +1,11 @@
 #include <iostream>
 #include "TestShellApp.h"
+#include "Logger.h"
 
 void TestShellApp::run(std::istream& in, std::ostream& out)
 {
+    init();
+
     while (true) {
         std::string command;
 
@@ -23,4 +26,9 @@ void TestShellApp::run(std::istream& in, std::ostream& out)
 
         out << "\n";
     }
+}
+
+void TestShellApp::init()
+{
+    Logger::getInstance().initLogFile();
 }

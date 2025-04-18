@@ -33,7 +33,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gmock\gmock-all.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\TestShell_Test\ITestShell.cpp">
+    <ClCompile Include="Logger.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Interface\ITestShell.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,10 +50,13 @@
     <ClInclude Include="TestShellApp.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\Inc\ITestShell.h">
+    <ClInclude Include="Type.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Type.h">
+    <ClInclude Include="Logger.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Interface\ITestShell.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
