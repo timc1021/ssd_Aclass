@@ -37,19 +37,33 @@ void CommandBuffer::loadInitialFiles() {
 	}
 
 	for (const auto& entry : fs::directory_iterator(bufferDir)) {
-		if (entry.is_regular_file()) {
-			buffer.push_back(entry.path().filename().stem().string());
+		std::string filename = entry.path().filename().stem().string();
+		if (!filename.empty() && filename.substr(1) != "empty") {
+			buffer.push_back(filename.substr(1));
 		}
 	}
 }
-
 void CommandBuffer::createTxtFilesOnDestruction() const {
 	if (!fs::exists(bufferDir)) {
 		fs::create_directory(bufferDir);
 	}
+	else {
+		for (const auto& entry : fs::directory_iterator(bufferDir)) {
+			if (entry.is_regular_file()) {
+				fs::remove(entry.path());
+			}
+		}
+	}
 
-	for (const auto& name : buffer) {
-		std::string path = bufferDir + "/" + name + ".txt";
+	for (int i = 0; i < buffer.size(); i++) {
+		std::string path = bufferDir + "/" + std::to_string(i) + buffer[i] + ".txt";
+		std::ofstream ofs(path);
+		ofs.close();
+	}
+
+	for (size_t i = buffer.size(); i < maxBufferSize; ++i) {
+		std::string filename = std::to_string(i) + "empty.txt";
+		std::string path = bufferDir + "/" + filename;
 		std::ofstream ofs(path);
 		ofs.close();
 	}
