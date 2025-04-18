@@ -41,6 +41,8 @@ private:
 	bool isFullwriteCommandValid(const vector<string> commandToken);
 	bool isLBAValid(const string& lba);
 	bool isCommandValid(const vector<string> commandToken);
+	bool isEraseCommandValid(const vector<string> commandToken);
+	bool isEraseRangeCommandValid(const vector<string> commandToken);
 
 	const vector<string> commandList = {
 	"read",
