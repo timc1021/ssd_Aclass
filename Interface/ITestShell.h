@@ -33,7 +33,6 @@ public:
 	virtual void write(const int lba, const uint32_t data) = 0;
 	virtual uint32_t read(const int lba) = 0;
 	virtual void erase(const int lba, const int size) = 0;
-	virtual void eraseRange(const int startLba, const int endLba) = 0;
 
 private:
 	bool isWriteDataValid(const string& commandLine);

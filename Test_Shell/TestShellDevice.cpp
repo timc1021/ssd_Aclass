@@ -62,16 +62,3 @@ void TestShellDevice::erase(const int lba, const int size)
 
 	return;
 }
-
-void TestShellDevice::eraseRange(const int startLba, const int endLba)
-{
-	std::ostringstream cmd;
-	cmd << "SSD.exe E " << startLba << " " << endLba;
-
-	int retCode = std::system(cmd.str().c_str());
-	if (retCode != 0) {
-		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
-	}
-
-	return;
-}

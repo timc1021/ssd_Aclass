@@ -323,14 +323,11 @@ COMMAND_RESULT ITestShell::handleEraseRange(const vector<string> commandToken)
 		int chunk = std::min(MAX_ERASE_LBA, size);
 		chunk = std::min(chunk, MAX_LBA_SIZE - currentLba);
 
-		int rangeStart = currentLba;
-		int rangeEnd = currentLba + chunk - 1;
-
 		std::ostringstream oss;
-		oss << "SUCCESS : erase(" << rangeStart << ", " << rangeEnd << ")";
+		oss << "SUCCESS : erase(" << currentLba << ", " << chunk << ")";
 		Logger::getInstance().addLog("ITestShell::handleEraseRange", oss.str());
 
-		eraseRange(rangeStart, rangeEnd);
+		erase(currentLba, chunk);
 
 		currentLba += chunk;
 		size -= chunk;
@@ -464,13 +461,13 @@ bool ITestShell::eraseAndWriteAging() {
 	uint32_t overwrite_data = getRandUint32();
 	const int loop_count = 30;
 
-	eraseRange(0, 2);
+	erase(0, 2);
 
 	for (int loop = 0; loop < loop_count; loop++) {
 		for (int lba_base = 2; lba_base + 2 < MAX_LBA_SIZE; lba_base += 2) {
 			write(lba_base, write_data);
 			write(lba_base, overwrite_data);
-			eraseRange(lba_base, lba_base + 2);
+			erase(lba_base, lba_base + 2);
 
 			if (readCompareRange(lba_base, lba_base + 2, 0) == false) {
 				cout << "EraseAndWriteAging FAIL\n";
