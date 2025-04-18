@@ -12,4 +12,3 @@ private:
 	void getSsdDataFromFile();
 	void saveSsdDataToFile();
 };
-
