@@ -44,6 +44,8 @@ private:
 	bool isCommandValid(const vector<string> commandToken);
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
+	bool readCompareRange(int start_lba, int end_lba, uint32_t data);
+	void writeLBAs(const vector<int>lba, uint32_t data);
 
 	COMMAND_RESULT handleRead(const vector<string> commandToken);
 	COMMAND_RESULT handleFullread(void);
