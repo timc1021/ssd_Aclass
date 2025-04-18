@@ -16,7 +16,7 @@ public:
 };
 class SSDControllerTestFixture : public Test {
 public:
-	std::string data = "0xffffff10\n0x00000020\n";
+	std::string data = "0xFFFFFF10\n0x00000020\n";
 	std::vector<uint32_t> data2Int = { 0xffffff10 ,0x00000020 };
 
 	std::string emptyData = "";
@@ -48,14 +48,14 @@ TEST_F(SSDControllerTestFixture, ThrowExceptionWhenReadLBAWithInvalidLBAValue) {
 TEST_F(SSDControllerTestFixture, EmptySSDDataAndWriteLBA) {
 
 	EXPECT_CALL(*dataMock, loadFromFile()).WillRepeatedly(Return(emptyData));
-	EXPECT_CALL(*dataMock, saveToFile(StartsWith("0xffffff10\n"))).Times(1);
+	EXPECT_CALL(*dataMock, saveToFile(StartsWith("0xFFFFFF10\n"))).Times(1);
 
 	ssd.writeLBA(0, 0xffffff10);
 }
 TEST_F(SSDControllerTestFixture, NotEmptySSDDataAndWriteLBA) {
 
 	EXPECT_CALL(*dataMock, loadFromFile()).WillRepeatedly(Return(data));
-	EXPECT_CALL(*dataMock, saveToFile(StartsWith("0xffffff10\n0xffffff10\n"))).Times(1);
+	EXPECT_CALL(*dataMock, saveToFile(StartsWith("0xFFFFFF10\0xFFFFFF10\n"))).Times(1);
 
 	ssd.writeLBA(1, 0xffffff10);
 }
