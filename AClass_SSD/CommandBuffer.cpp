@@ -23,8 +23,39 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 		return;
 	}
 
+	if (command.command == CommandValue::WRITE) {
+		for (auto i = 0;i < buffer.size();i++) {
+			if (buffer[i].LBA == command.LBA) {
+				buffer.erase(buffer.begin() + i);
+				i--;
+				continue;
+			}
+		}
+	}
+	else if (command.command == CommandValue::ERASE) {
+		for (auto i = 0;i < buffer.size();i++) {
+			if (buffer[i].command == CommandValue::WRITE) {
+				for (auto j = command.LBA; j < command.LBA + command.value; j++) {
+					if (j == buffer[i].LBA) {
+						buffer.erase(buffer.begin() + i);
+						i--;
+						break;
+					}
+				}
+			}
+			else if (buffer[i].command == CommandValue::ERASE) {
+				if (command.LBA <= buffer[i].LBA && buffer[i].LBA + buffer[i].value - 1 <= command.LBA + command.value - 1)
+				{
+					buffer.erase(buffer.begin() + i);
+					i--;
+				}
+				// To-Do: merge erase 추가 필요
+			}
+		}
+	}
 	buffer.push_back(command);
 }
+
 
 void CommandBuffer::printBuffer() const
 {

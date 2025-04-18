@@ -20,6 +20,9 @@ public:
 	CommandValue(const std::string& input) {
 		setCommand(input);
 	}
+	CommandValue(char command, int LBA, uint32_t value) : {
+		// TO-Do
+	}
 	void setCommand(const std::string& input) {
 		std::istringstream iss(input);
 		std::string valueStr;
@@ -29,15 +32,15 @@ public:
 		if (!(iss >> chCommad >> LBA >> valueStr)) {
 			return;
 		}
-		if (chCommad == 'w' || chCommad == 'W') {
+		if (chCommad == 'W') {
 			command = WRITE;
 			value = std::stoul(valueStr, nullptr, 16);
 		}
-		else if (chCommad == 'e' || chCommad == 'E') {
+		else if (chCommad == 'E') {
 			command = ERASE;
 			value = std::stoi(valueStr);
 		}
-		else if (chCommad == 'r' || chCommad == 'R') {
+		else if (chCommad == 'R') {
 			command = READ;
 			value = 0;
 		}
