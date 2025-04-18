@@ -100,7 +100,7 @@ TEST_F(TestShellFixture, erase) {
 }
 
 TEST_F(TestShellFixture, eraseRange) {
-	EXPECT_CALL(mock, eraseRange(1, 6))
+	EXPECT_CALL(mock, erase(1, 6))
 		.Times(1);
 
 	executeEraseRange(1, 6);
@@ -133,23 +133,23 @@ TEST_F(TestShellFixture, eraseWithMultiChunckWithMinusSize2) {
 }
 
 TEST_F(TestShellFixture, eraseRangeMultiChunck) {
-	EXPECT_CALL(mock, eraseRange(0, 9)).Times(1);
-	EXPECT_CALL(mock, eraseRange(10, 19)).Times(1);
-	EXPECT_CALL(mock, eraseRange(20, 29)).Times(1);
-	EXPECT_CALL(mock, eraseRange(30, 39)).Times(1);
-	EXPECT_CALL(mock, eraseRange(40, 49)).Times(1);
-	EXPECT_CALL(mock, eraseRange(50, 59)).Times(1);
-	EXPECT_CALL(mock, eraseRange(60, 69)).Times(1);
-	EXPECT_CALL(mock, eraseRange(70, 79)).Times(1);
-	EXPECT_CALL(mock, eraseRange(80, 89)).Times(1);
-	EXPECT_CALL(mock, eraseRange(90, 99)).Times(1);
+	EXPECT_CALL(mock, erase(0, 10)).Times(1);
+	EXPECT_CALL(mock, erase(10, 10)).Times(1);
+	EXPECT_CALL(mock, erase(20, 10)).Times(1);
+	EXPECT_CALL(mock, erase(30, 10)).Times(1);
+	EXPECT_CALL(mock, erase(40, 10)).Times(1);
+	EXPECT_CALL(mock, erase(50, 10)).Times(1);
+	EXPECT_CALL(mock, erase(60, 10)).Times(1);
+	EXPECT_CALL(mock, erase(70, 10)).Times(1);
+	EXPECT_CALL(mock, erase(80, 10)).Times(1);
+	EXPECT_CALL(mock, erase(90, 10)).Times(1);
 	executeEraseRange(0, 99);
 }
 
 TEST_F(TestShellFixture, eraseRangeSameStartWithEnd) {
-	EXPECT_CALL(mock, eraseRange(99, 99)).Times(1);
+	EXPECT_CALL(mock, erase(99, 1)).Times(1);
 	executeEraseRange(99, 99);
-	EXPECT_CALL(mock, eraseRange(95, 95)).Times(1);
+	EXPECT_CALL(mock, erase(95, 1)).Times(1);
 	executeEraseRange(95, 95);
 }
 
