@@ -143,14 +143,23 @@ void Logger::renameFile(const std::string& oldName, const std::string& newName) 
 }
 
 void Logger::compressOldLogFile(std::string lastLogFile) {
-    std::filesystem::path oldLogPath(lastLogFile); // 주어진 파일명을 경로로 변환 
-    std::filesystem::path zipName = oldLogPath;
-    zipName.replace_extension(".zip"); // .txt를 .zip으로 변경
+    try {
+        std::filesystem::path oldLogPath(lastLogFile);
+        std::filesystem::path zipName = oldLogPath;
+        zipName.replace_extension(".zip");
 
-        // 파일 이름 변경 (압축된 파일로 가정하고 이름 변경)
-    std::filesystem::rename(oldLogPath, zipName);
+        if (!std::filesystem::exists(oldLogPath)) {
+            std::cerr << "Old log file does not exist: " << oldLogPath << std::endl;
+            return; // 존재하지 않으면 압축 시도 X
+        }
+
+        std::filesystem::rename(oldLogPath, zipName);
+    }
+    catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Failed to compress log file: " << e.what() << std::endl;
+        std::abort(); // 혹은 recover 가능하면 return;
+    }
 }
-
 
 bool Logger::isExistOldLogFile()
 {
