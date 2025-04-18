@@ -7,6 +7,8 @@ using std::vector;
 
 class TestShellDevice : public ITestShell {
 public:
-	void write(const int lba, const uint32_t data);
-	uint32_t read(const int lba);
+	void write(const int lba, const uint32_t data) override;
+	uint32_t read(const int lba) override;
+	void erase(const int lba, const int size) override;
+	void eraseRange(const int startLba, const int endLba) override;
 };

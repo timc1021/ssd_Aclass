@@ -155,6 +155,12 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 
 		fullWrite(static_cast<unsigned int>(std::stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
 	}
+	else if (command == "erase") {
+		erase(1, 5); // TODO
+	}
+	else if (command == "erase_range") {
+		eraseRange(1, 6); // TODO
+	}
 	else if (command == "1_FullWriteAndReadCompare" || command == "1_") {
 		fullWriteAndReadCompare();
 	}

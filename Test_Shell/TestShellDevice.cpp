@@ -49,3 +49,11 @@ uint32_t TestShellDevice::read(const int lba)
 
 	return stoul(strReadData, nullptr, 0);
 }
+
+void TestShellDevice::erase(const int lba, const int size)
+{
+}
+
+void TestShellDevice::eraseRange(const int startLba, const int endLba)
+{
+}
