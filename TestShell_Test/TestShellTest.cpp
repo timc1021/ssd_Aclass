@@ -37,14 +37,14 @@ public:
 
 	void executeErase(int lba, int size) {
 		ostringstream oss;
-		oss << "erase " << lba << size;
+		oss << "erase " << lba << " " << size;
 		string command = oss.str();
 		executeCommand(command);
 	}
 
 	void executeEraseRange(int startLba, int endLba) {
 		ostringstream oss;
-		oss << "erase_range " << startLba << endLba;
+		oss << "erase_range " << startLba << " " << endLba;
 		string command = oss.str();
 		executeCommand(command);
 	}
