@@ -5,6 +5,10 @@
 using std::string;
 using std::vector;
 
+#define MAX_ERASE_LBA (10)
+#define MAX_LBA_SIZE  (100)
+#define START_LBA     (0)
+
 typedef enum {
 	COMMAND_SUCCESS,
 	COMMAND_INVALID_PARAM,
@@ -31,9 +35,6 @@ public:
 	virtual void erase(const int lba, const int size) = 0;
 	virtual void eraseRange(const int startLba, const int endLba) = 0;
 
-	const int MAX_LBA_SIZE = 100;
-	const int START_LBA = 0;
-
 private:
 	bool isWriteDataValid(const string& commandLine);
 	bool isWriteCommandValid(const vector<string> commandToken);
@@ -43,6 +44,13 @@ private:
 	bool isCommandValid(const vector<string> commandToken);
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
+
+	COMMAND_RESULT handleRead(const vector<string> commandToken);
+	COMMAND_RESULT handleFullread(void);
+	COMMAND_RESULT handleWrite(const vector<string> commandToken);
+	COMMAND_RESULT handleFullwrite(const vector<string> commandToken);
+	COMMAND_RESULT handleErase(const vector<string> commandToken);
+	COMMAND_RESULT handleEraseRange(const vector<string> commandToken);
 
 	const vector<string> commandList = {
 	"read",

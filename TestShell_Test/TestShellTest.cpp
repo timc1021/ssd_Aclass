@@ -106,6 +106,67 @@ TEST_F(TestShellFixture, eraseRange) {
 	executeEraseRange(1, 6);
 }
 
+TEST_F(TestShellFixture, eraseWithMultiChunck) {
+
+	EXPECT_CALL(mock, erase(2, 10)).Times(1);
+	EXPECT_CALL(mock, erase(12, 10)).Times(1);
+	EXPECT_CALL(mock, erase(22, 10)).Times(1);
+	EXPECT_CALL(mock, erase(32, 6)).Times(1);
+	executeErase(2, 36);
+}
+
+TEST_F(TestShellFixture, eraseMultiChunckWithBigSize) {
+	EXPECT_CALL(mock, erase(85, 10)).Times(1);
+	EXPECT_CALL(mock, erase(95, 5)).Times(1);
+	executeErase(85, 100);
+}
+
+TEST_F(TestShellFixture, eraseWithMultiChunckWithMinusSize) {
+	EXPECT_CALL(mock, erase(0, 4)).Times(1);
+	executeErase(3, -10);
+}
+
+TEST_F(TestShellFixture, eraseWithMultiChunckWithMinusSize2) {
+	EXPECT_CALL(mock, erase(41, 10)).Times(1);
+	EXPECT_CALL(mock, erase(38, 3)).Times(1);
+	executeErase(50, -13);
+}
+
+TEST_F(TestShellFixture, eraseRangeMultiChunck) {
+	EXPECT_CALL(mock, eraseRange(0, 9)).Times(1);
+	EXPECT_CALL(mock, eraseRange(10, 19)).Times(1);
+	EXPECT_CALL(mock, eraseRange(20, 29)).Times(1);
+	EXPECT_CALL(mock, eraseRange(30, 39)).Times(1);
+	EXPECT_CALL(mock, eraseRange(40, 49)).Times(1);
+	EXPECT_CALL(mock, eraseRange(50, 59)).Times(1);
+	EXPECT_CALL(mock, eraseRange(60, 69)).Times(1);
+	EXPECT_CALL(mock, eraseRange(70, 79)).Times(1);
+	EXPECT_CALL(mock, eraseRange(80, 89)).Times(1);
+	EXPECT_CALL(mock, eraseRange(90, 99)).Times(1);
+	executeEraseRange(0, 99);
+}
+
+TEST_F(TestShellFixture, eraseRangeSameStartWithEnd) {
+	EXPECT_CALL(mock, eraseRange(99, 99)).Times(1);
+	executeEraseRange(99, 99);
+	EXPECT_CALL(mock, eraseRange(95, 95)).Times(1);
+	executeEraseRange(95, 95);
+}
+
+TEST_F(TestShellFixture, eraseRangeWithInvalidRange) {
+	executeCommand("erase_range 40 10");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase_range -1 10");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase_range 1 200");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, eraseWithInvalidRange) {
+	executeCommand("erase_range -1 10");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
 TEST_F(TestShellFixture, invalidCommand) {
 	executeCommand("invalidCommand");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));

@@ -24,6 +24,9 @@
     <ClInclude Include="..\Interface\ITestShell.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="..\Test_Shell\Logger.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Test_Shell\TestShellApp.cpp">
@@ -39,6 +42,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="..\Interface\ITestShell.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test_Shell\Logger.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
