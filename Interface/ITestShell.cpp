@@ -29,18 +29,6 @@ typedef enum {
 	TOKEN_FULLREAD_NUM = 1,
 } FULLREAD_TOKEN;
 
-typedef enum {
-	TOKEN_ERASE_LBA = 1,
-	TOKEN_ERASE_SIZE,
-	TOKEN_ERASE_NUM,
-} ERASE_TOKEN;
-
-typedef enum {
-	TOKEN_ERASE_RANGE_START_LBA = 1,
-	TOKEN_ERASE_RANGE_END_LBA,
-	TOKEN_ERASE_RANGNE_NUM,
-} ERASE_RANGE_TOKEN;
-
 vector<string> ITestShell::splitBySpace(const string& input) {
 	vector<string> tokens;
 	size_t start = 0, end;
@@ -119,28 +107,6 @@ bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 	return true;
 }
 
-bool ITestShell::isEraseCommandValid(const vector<string> commandToken)
-{
-	string command = commandToken[TOKEN_COMMAND];
-
-	if (commandToken.size() != TOKEN_ERASE_NUM) {
-		return false;
-	}
-
-	return true;
-}
-
-bool ITestShell::isEraseRangeCommandValid(const vector<string> commandToken)
-{
-	string command = commandToken[TOKEN_COMMAND];
-
-	if (commandToken.size() != TOKEN_ERASE_RANGNE_NUM) {
-		return false;
-	}
-
-	return true;
-}
-
 bool ITestShell::isLBAValid(const string& lba)
 {
 	int iLba = std::stoi(lba);
@@ -165,7 +131,7 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
 	string command = commandToken[TOKEN_COMMAND];
 
-	Logger::getins .addLog("Shell.release", "Bye bye.");
+	Logger::getInstance().addLog("Shell.release", "Bye bye.");
 
 	if (!isCommandValid(commandToken)) {
 		return COMMAND_INVALID_PARAM; 
@@ -193,18 +159,10 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 		fullWrite(static_cast<unsigned int>(std::stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
 	}
 	else if (command == "erase") {
-			if (!isEraseCommandValid(commandToken)) {
-			return COMMAND_INVALID_PARAM;
-		}
-
-		erase(stoi(commandToken[TOKEN_ERASE_LBA]), stoi(commandToken[TOKEN_ERASE_SIZE]));
+		erase(1, 5); // TODO
 	}
 	else if (command == "erase_range") {
-		if (!isEraseRangeCommandValid(commandToken)) {
-			return COMMAND_INVALID_PARAM;
-		}
-
-		eraseRange(stoi(commandToken[TOKEN_ERASE_RANGE_START_LBA]), stoi(commandToken[TOKEN_ERASE_RANGE_END_LBA])); // TODO
+		eraseRange(1, 6); // TODO
 	}
 	else if (command == "1_FullWriteAndReadCompare" || command == "1_") {
 		fullWriteAndReadCompare();
@@ -214,9 +172,6 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	}
 	else if (command == "3_WriteReadAging" || command == "3_") {
 		writeReadAging();
-	}
-	else if (command == "4_EraseAndWriteAging" || command == "4_") {
-		eraseAndWriteAging();
 	}
 	else if (command == "help") {
 		help();
@@ -338,32 +293,6 @@ bool ITestShell::writeReadAging() {
 	return true;
 }
 
-bool ITestShell::eraseAndWriteAging() {
-	uint32_t write_data = getRandUint32();
-	uint32_t overwrite_data = getRandUint32();
-	bool result = false;
-
-	eraseRange(0, 2);
-
-	for (int loop = 0; loop < 30; loop++) {
-		for (int lba_base = 2; lba_base + 2 < ITestShell::MAX_LBA_SIZE; lba_base += 2) {
-			write(lba_base, write_data);
-			write(lba_base, overwrite_data);
-			eraseRange(lba_base, lba_base + 2);
-
-			for (int lba_offset = 0; lba_offset < 3; lba_offset++) {
-				if (readCompare(lba_base + lba_offset, 0) == false) {
-					cout << "EraseAndWriteAging FAIL\n";
-					return false;
-				}
-			}
-		}
-	}
-
-	cout << "EraseAndWriteAging PASS\n";
-	return true;
-}
-
 void ITestShell::help()
 {
 	using std::left;
@@ -382,8 +311,7 @@ void ITestShell::help()
 	cout << left << setfill(' ') << setw(35) << "fullread" << "Read all LBA data and display.ex: fullread\n";
 
 	cout << "\n=============================== TC command ===============================\n";
-	cout << left << setfill(' ') << setw(35) << "1_FullWriteAndReadCompare or 1_" << "Write all LBA and test all data is written with right data.\n";
+	cout << left << setfill(' ') << setw(35)  << "1_FullWriteAndReadCompare or 1_"	<< "Write all LBA and test all data is written with right data.\n";
 	cout << left << setfill(' ') << setw(35) << "2_PartialLBAWrite or 2_" << "Write 5 LBAs and test all data is written with right data.Repeat 30 times.\n";
-	cout << left << setfill(' ') << setw(35) << "3_WriteReadAging or 3_" << "Write LBA 0 and 99 and test all data is written with right data. Repeat 200 times.\n";
-	cout << left << setfill(' ') << setw(35) << "4_EraseAndWriteAging or 4_" << "For each 3 LBAs, write and erase and test. Repeat 30 times.\n";
+	cout << left << setfill(' ') << setw(35) << "3_WriteReadAging of 3_" << "Write LBA 0 and 99 and test all data is written with right data.Repeat 200 times.\n";
 }

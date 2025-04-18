@@ -142,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Interface;..\Test_Shell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -182,13 +182,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\TestShell_Test\ITestShell.cpp" />
+    <ClCompile Include="..\Interface\ITestShell.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestShellDevice.cpp" />
     <ClCompile Include="TestShellApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Inc\ITestShell.h" />
+    <ClInclude Include="..\Interface\ITestShell.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="TestShellDevice.h" />
     <ClInclude Include="TestShellApp.h" />
     <ClInclude Include="TestShellScript.h" />
