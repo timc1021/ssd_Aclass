@@ -9,6 +9,11 @@ using namespace std;
 
 class TestShellFixture : public Test {
 public:
+
+	TestShellFixture() {
+		EXPECT_CALL(mock, registerCommand(_, _)).Times(::testing::AnyNumber());
+	}
+
 	void executeRead(int lba)
 	{
 		string command = "read " + to_string(lba);
@@ -220,6 +225,7 @@ TEST_F(TestShellFixture, parseExitCommand) {
 }
 
 TEST_F(TestShellFixture, flushCommand) {
+	EXPECT_CALL(mock, flush()).Times(1);
 	executeCommand("flush");
 	EXPECT_EQ(std::string::npos, output.str().find("INVALID COMMAND"));
 }
