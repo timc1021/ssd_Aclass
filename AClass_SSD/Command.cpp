@@ -17,33 +17,26 @@ void Command::execute(const std::string& cmdTypeRaw, int lba, const std::string&
 	std::transform(valueHex.begin(), valueHex.end(), valueHex.begin(), ::toupper);
 
 	if (cmdType == "W") {
-		if (valueHex.length() != 10 || valueHex.substr(0, 2) != "0X") {
+		if (valueHex.length() != 10 || valueHex.substr(0, 2) != "0X")
 			throw std::invalid_argument("Invalid hex format. Must be '0x' followed by 8 hex digits.");
-		}
 
-		std::string fullCmd = "W " + std::to_string(lba) + " " + valueHex;
-		buffer->addCommandToBuffer(CommandValue(fullCmd));
+		uint32_t value = std::stoul(valueHex, nullptr, 16);
+		buffer->addCommandToBuffer(CommandValue('W', lba, value));
 	}
 	else if (cmdType == "E") {
 		int size = std::stoi(valueHex);
-		if (size < 1 || size > 10) {
+		if (size < 1 || size > 10)
 			throw std::invalid_argument("Invalid erase size. Must be between 1 and 10.");
-		}
 
-		std::string fullCmd = "E " + std::to_string(lba) + " " + std::to_string(size);
-		buffer->addCommandToBuffer(CommandValue(fullCmd));
+		buffer->addCommandToBuffer(CommandValue('E', lba, size));
 	}
 	else if (cmdType == "F") {
 		buffer->flush();
 	}
 	else if (cmdType == "R") {
 		uint32_t value;
-		if (buffer->getBufferedValueIfExists(lba, value)) {
-			// Fast Read
-		}
-		else {
+		if (buffer->getBufferedValueIfExists(lba, value) == false)
 			value = ssd->readLBA(lba);
-		}
 
 		std::ostringstream oss;
 		oss << "0x" << std::setfill('0') << std::setw(8)

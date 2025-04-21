@@ -9,24 +9,35 @@
 #include "CommandBuffer.h"
 #include "Command.h"
 
+std::shared_ptr<ICommandExecutor> createCommandExecutor(
+	std::shared_ptr<SSDControllerInterface> ssd,
+	std::shared_ptr<FileTextIOInterface> output,
+	std::shared_ptr<CommandBuffer> buffer)
+{
+	return std::make_shared<Command>(ssd, output, buffer);
+}
+
 int main(int argc, char* argv[]) {
+	if (argc < 2) {
+		std::cerr << "Usage: SSD.exe <Command> <LBA> [Value]\n";
+		return 1;
+	}
+
 	std::string cmdType = argv[1];
 	std::transform(cmdType.begin(), cmdType.end(), cmdType.begin(), ::toupper);
-
 	int lba = argc > 2 ? std::stoi(argv[2]) : 0;
-
 	std::string value = (argc == 4) ? argv[3] : "";
 	std::transform(value.begin(), value.end(), value.begin(), ::toupper);
 
-	std::shared_ptr<FileTextIOInterface> nand = std::make_shared<FileTextIO>("ssd_nand.txt");
-	std::shared_ptr<FileTextIOInterface> output = std::make_shared<FileTextIO>("ssd_output.txt");
-	std::shared_ptr<SSDControllerInterface> ssd = std::make_shared<SSDController>(nand);
-	std::shared_ptr<CommandBuffer> buffer = std::make_shared<CommandBuffer>(ssd);
+	auto nand = std::make_shared<FileTextIO>("ssd_nand.txt");
+	auto output = std::make_shared<FileTextIO>("ssd_output.txt");
+	auto ssd = std::make_shared<SSDController>(nand);
+	auto buffer = std::make_shared<CommandBuffer>(ssd);
 
-	Command command(ssd, output, buffer);
+	auto executor = createCommandExecutor(ssd, output, buffer);
 
 	try {
-		command.execute(cmdType, lba, value);
+		executor->execute(cmdType, lba, value);
 	}
 	catch (const std::exception& e) {
 		output->saveToFile("ERROR");
