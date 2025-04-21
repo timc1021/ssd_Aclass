@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <unordered_map>
 
-using std::string;
-using std::vector;
+using namespace std;
 
 #define MAX_ERASE_LBA (10)
 #define MAX_LBA_SIZE  (100)
@@ -13,27 +13,39 @@ using std::vector;
 typedef enum {
 	COMMAND_SUCCESS,
 	COMMAND_INVALID_PARAM,
+	COMMAND_TC_FAIL,
 	COMMAND_EXIT,
 } COMMAND_RESULT;
+
+class ITestScript;
 
 class ITestShell {
 public:
 	COMMAND_RESULT handleCommand(const string& commandLine);
+	COMMAND_RESULT handleShellCommand(const vector<string> commandToken);
+	COMMAND_RESULT handleTestScript(const string& tcName);
+	bool IsExistTestScript(const string& command);
 	vector<string> splitBySpace(const string& input);
 	void fullWrite(const uint32_t data);
 	uint32_t fullRead();
 	void help();
 	COMMAND_RESULT exit();
-
 	bool readCompare(const int lba, const uint32_t expected);
-	bool fullWriteAndReadCompare();
+	
+#if 0
 	bool partialLBAWrite();
 	bool writeReadAging();
 	bool eraseAndWriteAging();
+#endif
 
 	virtual void write(const int lba, const uint32_t data) = 0;
 	virtual uint32_t read(const int lba) = 0;
 	virtual void erase(const int lba, const int size) = 0;
+	virtual void registerCommand(const string& command, ITestScript* script) = 0;
+	virtual bool readCompareRange(int start_lba, int end_lba, uint32_t data) = 0;
+
+	void eraseRange(const int startLba, const int endLba);
+	void setScript(const string& command, ITestScript* script);
 
 private:
 	bool isWriteDataValid(const string& commandLine);
@@ -44,9 +56,7 @@ private:
 	bool isCommandValid(const vector<string> commandToken);
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
-	bool readCompareRange(const int start_lba, const int end_lba, const uint32_t data);
 	void writeLBAs(const vector<int>lba, const uint32_t data);
-	void eraseRange(const int startLba, const int endLba);
 
 	COMMAND_RESULT handleRead(const vector<string> commandToken);
 	COMMAND_RESULT handleFullread(void);
@@ -55,6 +65,7 @@ private:
 	COMMAND_RESULT handleErase(const vector<string> commandToken);
 	COMMAND_RESULT handleEraseRange(const vector<string> commandToken);
 
+	unordered_map<string, ITestScript*> testScriptCommand;
 	const vector<string> commandList = {
 	"read",
 	"write",
@@ -64,13 +75,5 @@ private:
 	"erase_range",
 	"help",
 	"exit",
-	"1_FullWriteAndReadCompare",
-	"1_",
-	"2_PartialLBAWrite",
-	"2_",
-	"3_WriteReadAging",
-	"3_",
-	"4_EraseAndWriteAging",
-	"4_",
 	};
 };

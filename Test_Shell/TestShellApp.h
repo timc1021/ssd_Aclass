@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 #include "ITestShell.h"
 
 class TestShellApp
@@ -12,4 +13,5 @@ public:
 	void runner(char* argv);
 
 	ITestShell* testShell;
+	//std::vector<HMODULE> loadedDlls;  // TestShellApp의 멤버로 선언
 };
