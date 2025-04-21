@@ -301,3 +301,14 @@ TEST_F(CommandBufferTest, tc13) {
 	buffer.flush();
 	EXPECT_EQ(buffer.printBuffer(), "");
 }
+
+TEST_F(CommandBufferTest, tc14) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 95 5";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 95 5\n");
+}

@@ -71,7 +71,8 @@ std::string CommandBuffer::printBuffer() const
 
 void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
 {
-	for (int i = 0, minLBA = -1; i < CommandValue::MAX_NUM_LBA; i++) {
+	int minLBA = -1;
+	for (int i = 0; i < CommandValue::MAX_NUM_LBA; i++) {
 		if (checkBuffer[i] == CommandValue::ERASE && minLBA == -1)
 		{
 			minLBA = i;
@@ -96,6 +97,11 @@ void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
 				flush();
 			buffer.insert(buffer.begin(), mergedCommand);
 		}
+	}
+	if (minLBA != -1) {
+		int len = CommandValue::MAX_NUM_LBA - minLBA;
+		CommandValue merged(CommandValue::ERASE, minLBA, len);
+		buffer.insert(buffer.begin(), merged);
 	}
 }
 
