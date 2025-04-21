@@ -398,6 +398,23 @@ TEST_F(CommandBufferTest, tc17) {
 	command.setCommand(strCommand);
 	buffer.addCommandToBuffer(command);
 	EXPECT_EQ(buffer.printBuffer(), "E 89 10\nE 29 10\nW 99 0x11112222\n");
+
+	strCommand = "W 32 0xFFFFAAAA";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 10\nE 29 10\nW 99 0x11112222\nW 32 0xFFFFAAAA\n");
+
+	strCommand = "E 39 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 10\nE 39 10\nE 29 10\nW 99 0x11112222\nW 32 0xFFFFAAAA\n");
+
+	uint32_t result;
+	buffer.getBufferedValueIfExists(29, result);
+	EXPECT_EQ(result, 0x00000000);
+
+	buffer.getBufferedValueIfExists(99, result);
+	EXPECT_EQ(result, 0x11112222);
 }
 
 TEST_F(CommandBufferTest, tc18) {
