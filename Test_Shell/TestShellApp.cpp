@@ -42,15 +42,11 @@ bool TestShellApp::init()
     Logger::getInstance().initLogFile();
 
     using CreateFn = ITestScript * (*)();
-    const std::string scriptFolder = "../scripts";
+
+    if (!isValidDllFolderPath()) return false;
 
     try {
-        if (!std::filesystem::exists(scriptFolder)) {
-            std::cerr << "scripts 폴더가 존재하지 않습니다: " << scriptFolder << std::endl;
-            return false;
-        }
-
-        for (const auto& entry : std::filesystem::directory_iterator(scriptFolder)) {
+        for (const auto& entry : std::filesystem::directory_iterator(scriptPath)) {
             if (entry.path().extension() == ".dll") {
                 HMODULE dll = LoadLibraryA(entry.path().string().c_str());
                 if (!dll) {
@@ -86,6 +82,15 @@ bool TestShellApp::init()
         return false;
     }
 
+    return true;
+}
+
+bool TestShellApp::isValidDllFolderPath()
+{
+    if (!std::filesystem::exists(scriptPath)) {
+        std::cerr << "scripts 폴더가 존재하지 않습니다: " << scriptPath << std::endl;
+        return false;
+    }
     return true;
 }
 

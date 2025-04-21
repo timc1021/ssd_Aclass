@@ -5,10 +5,6 @@
 #include "ITestScript.h"
 #include "Logger.h"
 
-using std::cout;
-using std::isdigit;
-using std::stoi;
-
 #define HEX_PREFIX			("0x")
 #define HEX_PREFIX_LENGTH	(2)
 #define TOKEN_COMMAND		(0)
@@ -210,7 +206,7 @@ bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 
 bool ITestShell::isLBAValid(const string& lba)
 {
-	int iLba = std::stoi(lba);
+	int iLba = stoi(lba);
 
 	if (iLba >= MAX_LBA_SIZE || iLba < START_LBA) {
 		ADD_LOG("ITestShell::isLBAValid", "ERROR");
@@ -276,7 +272,7 @@ COMMAND_RESULT ITestShell::handleWrite(const vector<string> commandToken)
 	if (!isWriteCommandValid(commandToken))
 		return COMMAND_INVALID_PARAM;
 
-	write(stoi(commandToken[TOKEN_WRITE_LBA]), static_cast<unsigned int>(std::stoul(commandToken[TOKEN_WRITE_DATA], nullptr, 0)));
+	write(stoi(commandToken[TOKEN_WRITE_LBA]), static_cast<unsigned int>(stoul(commandToken[TOKEN_WRITE_DATA], nullptr, 0)));
 
 	return COMMAND_SUCCESS;
 }
@@ -286,7 +282,7 @@ COMMAND_RESULT ITestShell::handleFullwrite(const vector<string> commandToken)
 	if (!isFullwriteCommandValid(commandToken))
 		return COMMAND_INVALID_PARAM;
 
-	fullWrite(static_cast<unsigned int>(std::stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
+	fullWrite(static_cast<unsigned int>(stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
 
 	return COMMAND_SUCCESS;
 }
@@ -299,15 +295,15 @@ COMMAND_RESULT ITestShell::handleErase(const vector<string> commandToken)
 	int lba = stoi(commandToken[TOKEN_ERASE_LBA]);
 	int size = stoi(commandToken[TOKEN_ERASE_SIZE]);
 
-	std::ostringstream oss;
+	ostringstream oss;
 
 	if (size > 0) {
 
 		int currentLba = lba;
 
 		while (size > 0 && currentLba < MAX_LBA_SIZE) {
-			int chunk = std::min(MAX_ERASE_LBA, size);
-			chunk = std::min(chunk, MAX_LBA_SIZE - currentLba);
+			int chunk = min(MAX_ERASE_LBA, size);
+			chunk = min(chunk, MAX_LBA_SIZE - currentLba);
 
 			erase(currentLba, chunk);
 
@@ -320,7 +316,7 @@ COMMAND_RESULT ITestShell::handleErase(const vector<string> commandToken)
 		int currentLba = lba;
 
 		while (absSize > 0 && currentLba >= 0) {
-			int chunk = std::min({ MAX_ERASE_LBA, absSize, currentLba + 1 });
+			int chunk = min({ MAX_ERASE_LBA, absSize, currentLba + 1 });
 			erase(currentLba - chunk + 1, chunk);
 
 			currentLba -= chunk;
@@ -349,8 +345,8 @@ COMMAND_RESULT ITestShell::handleEraseRange(const vector<string> commandToken)
 	int currentLba = startLba;
 
 	while (size > 0 && currentLba < MAX_LBA_SIZE) {
-		int chunk = std::min(MAX_ERASE_LBA, size);
-		chunk = std::min(chunk, MAX_LBA_SIZE - currentLba);
+		int chunk = min(MAX_ERASE_LBA, size);
+		chunk = min(chunk, MAX_LBA_SIZE - currentLba);
 
 		erase(currentLba, chunk);
 
@@ -401,10 +397,6 @@ COMMAND_RESULT ITestShell::exit() {
 
 void ITestShell::help()
 {
-	using std::left;
-	using std::setw;
-	using std::setfill;
-
 	ADD_LOG("ITestShell::help", "print HELP message");
 
 	cout << "ÆÀ¸í: A class\n";

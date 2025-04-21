@@ -92,7 +92,6 @@ void TestShellDevice::writeLBAs(const vector<int>lba, const uint32_t data) {
 	}
 }
 
-
 bool TestShellDevice::readCompare(int lba, const uint32_t expected) {
 	int data;
 
@@ -109,7 +108,6 @@ bool TestShellDevice::readCompare(int lba, const uint32_t expected) {
 		return false;
 	}
 }
-
 
 void TestShellDevice::eraseRange(const int startLba, const int endLba) {
 	vector<string> cmd;

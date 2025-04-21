@@ -39,9 +39,7 @@ bool Logger::addLog(const std::string& funcName, const std::string& msg) {
 
     logs.push_back(entry);
 
-    if (currentMode == 1) { // TODO
-        printSingleLog(entry);
-    }
+    printSingleLog(entry);
 
     if (isFileSizeOverTenKb(LOGFILE) == true) {
         std::string newFilename = getTimestampedFileName();
@@ -103,9 +101,9 @@ std::string Logger::getTimestampedFileName() {
 
     std::ostringstream oss;
     oss << "until_"
-        << std::setw(2) << std::setfill('0') << (timeInfo.tm_year % 100)   // YY
-        << std::setw(2) << std::setfill('0') << (timeInfo.tm_mon + 1)      // MM
-        << std::setw(2) << std::setfill('0') << timeInfo.tm_mday           // DD
+        << std::setw(2) << std::setfill('0') << (timeInfo.tm_year % 100)
+        << std::setw(2) << std::setfill('0') << (timeInfo.tm_mon + 1) 
+        << std::setw(2) << std::setfill('0') << timeInfo.tm_mday
         << "_"
         << std::setw(2) << std::setfill('0') << timeInfo.tm_hour << "h_"
         << std::setw(2) << std::setfill('0') << timeInfo.tm_min << "m_"
@@ -116,13 +114,8 @@ std::string Logger::getTimestampedFileName() {
 }
 
 bool Logger::isFileSizeOverTenKb(const std::string& filePath) {
-    const long MAX_LOG_SIZE = 10240; // 10KB
-    //const long MAX_LOG_SIZE = 1; // test 용
-
-
     struct stat fileStat;
-    if (stat(filePath.c_str(), &fileStat) != 0) {
-        // 파일이 존재하지 않거나 오류
+    if (stat(filePath.c_str(), &fileStat) != 0) {      
         return false;
     }
     return fileStat.st_size >= MAX_LOG_SIZE;
@@ -145,14 +138,14 @@ void Logger::compressOldLogFile(std::string lastLogFile) {
 
         if (!std::filesystem::exists(oldLogPath)) {
             std::cerr << "Old log file does not exist: " << oldLogPath << std::endl;
-            return; // 존재하지 않으면 압축 시도 X
+            return;
         }
 
         std::filesystem::rename(oldLogPath, zipName);
     }
     catch (const std::filesystem::filesystem_error& e) {
         std::cerr << "Failed to compress log file: " << e.what() << std::endl;
-        std::abort(); // 혹은 recover 가능하면 return;
+        std::abort();
     }
 }
 
