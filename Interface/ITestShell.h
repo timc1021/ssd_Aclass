@@ -2,21 +2,13 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "ICommand.h"
 
 using namespace std;
 
 #define MAX_ERASE_LBA (10)
-#define MAX_LBA_SIZE  (100)
 #define START_LBA     (0)
 #define ADD_LOG		  (Logger::getInstance().addLog)
-
-typedef enum {
-	COMMAND_SUCCESS,
-	COMMAND_INVALID_PARAM,
-	COMMAND_TC_FAIL,
-	COMMAND_EXIT,
-	NOT_A_DEFAULT_COMMAND,
-} COMMAND_RESULT;
 
 class ITestScript;
 class ITestShell;
@@ -44,7 +36,7 @@ public:
 	virtual bool readCompare(const int lba, const uint32_t expected) = 0;
 	virtual void eraseRange(const int startLba, const int endLba) = 0;
 	virtual void flush() = 0;
-
+	void initCommands();
 	COMMAND_RESULT handleCommand(const string& commandLine);
 	COMMAND_RESULT handleShellCommand(const vector<string> commandToken);
 	COMMAND_RESULT handleTestScript(const string& tcName);
@@ -54,7 +46,7 @@ public:
 	uint32_t fullRead();
 	COMMAND_RESULT help(const vector<string> commandToken);
 	COMMAND_RESULT exit(const vector<string> commandToken);
-	COMMAND_RESULT handleRead(const vector<string> commandToken);
+	//COMMAND_RESULT handleRead(const vector<string> commandToken);
 	COMMAND_RESULT handleFullread(const vector<string> commandToken);
 	COMMAND_RESULT handleWrite(const vector<string> commandToken);
 	COMMAND_RESULT handleFullwrite(const vector<string> commandToken);
@@ -92,13 +84,25 @@ public:
 private:
 	bool isWriteDataValid(const string& commandLine);
 	bool isWriteCommandValid(const vector<string> commandToken);
-	bool isReadCommandValid(const vector<string> commandToken);
+	//bool isReadCommandValid(const vector<string> commandToken);
 	bool isFullwriteCommandValid(const vector<string> commandToken);
 	bool isLBAValid(const string& lba);
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
 	bool isFlushCommandValid(const vector<string> commandToken);
 
-	unordered_map<string, FuncPtr> testCommand;
+protected:
 	unordered_map<string, ITestScript*> testScriptCommand;
+	unordered_map<string, ICommand*> commandMap;
+	const vector<string> commandList = {
+	"read",
+	"write",
+	"fullread",
+	"fullwrite",
+	"erase",
+	"erase_range",
+	"flush",
+	"help",
+	"exit",
+	};
 };

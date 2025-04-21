@@ -4,27 +4,19 @@
 #include "ITestShell.h"
 #include "ITestScript.h"
 #include "Logger.h"
+#include "ReadCommand.h"
+#include "WriteCommand.h"
+#include "FlushCommand.h"
+#include "EraseCommand.h"
+#include "ExitCommand.h"
+#include "HelpCommand.h"
 
 #define HEX_PREFIX			("0x")
 #define HEX_PREFIX_LENGTH	(2)
 #define TOKEN_COMMAND		(0)
 #define DATA_LENGTH         (10)
 
-typedef enum {
-	TOKEN_WRITE_LBA = 1,
-	TOKEN_WRITE_DATA,
-	TOKEN_WRITE_NUM,
-} WRITE_TOKEN;
 
-typedef enum {
-	TOKEN_FULLWRITE_DATA = 1,
-	TOKEN_FULLWRITE_NUM,
-} FULLWRITE_TOKEN;
-
-typedef enum {
-	TOKEN_READ_LBA = 1,
-	TOKEN_READ_NUM,
-} READ_TOKEN;
 
 typedef enum {
 	TOKEN_FULLREAD_NUM = 1,
@@ -45,6 +37,19 @@ typedef enum {
 	TOKEN_ERASE_RANGE_END_LBA,
 	TOKEN_ERASE_RANGNE_NUM,
 } ERASE_RANGE_TOKEN;
+
+void ITestShell::initCommands()
+{
+	commandMap["read"] = new ReadCommand(this);
+	commandMap["write"] = new WriteCommand(this);
+	commandMap["fullwrite"] = new FullWriteCommand(this);
+	commandMap["fullread"] = new FullReadCommand(this);
+	commandMap["flush"] = new FlushCommand(this);
+	commandMap["exit"] = new ExitCommand(this);
+	commandMap["help"] = new HelpCommand(this);
+	commandMap["erase"] = new EraseCommand(this);
+	commandMap["erase_range"] = new EraseRangeCommand(this);
+}
 
 COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	vector<string> commandToken = splitBySpace(commandLine);
@@ -150,17 +155,6 @@ bool ITestShell::isWriteCommandValid(const vector<string> commandToken) {
 	return true;
 }
 
-bool ITestShell::isReadCommandValid(const vector<string> commandToken) {
-	if ((commandToken.size() != TOKEN_READ_NUM) ||
-		(!isLBAValid(commandToken[TOKEN_READ_LBA]))) {
-		ADD_LOG("ITestShell::isReadCommandValid", "ERROR");
-
-		return false;
-	}
-
-	return true;
-}
-
 bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 {
 	if ((commandToken.size() != TOKEN_FULLWRITE_NUM) ||
@@ -217,16 +211,6 @@ bool ITestShell::isFlushCommandValid(const vector<string> commandToken)
 		return false;
 
 	return true;
-}
-
-COMMAND_RESULT ITestShell::handleRead(const vector<string> commandToken)
-{
-	if (!isReadCommandValid(commandToken))
-		return COMMAND_INVALID_PARAM;
-
-	read(stoi(commandToken[TOKEN_READ_LBA]));
-
-	return COMMAND_SUCCESS;
 }
 
 COMMAND_RESULT ITestShell::handleFullread(const vector<string> commandToken)
