@@ -25,6 +25,9 @@ public:
 		mockSSD = std::make_shared<MockSSDController>();
 	}
 	void removeFilesAt(std::string dirPath) {
+		if (!fs::exists(dirPath)) {
+			return;
+		}
 		for (const auto& entry : fs::directory_iterator(dirPath)) {
 			if (entry.is_regular_file()) {
 				fs::remove(entry.path());
@@ -41,9 +44,7 @@ TEST_F(CommandBufferTest, tc) {
 	CommandValue command(strCommand);
 
 	buffer.printBuffer();
-
 	buffer.addCommandToBuffer(command);
-
 	EXPECT_EQ(buffer.printBuffer(), "W 20 0xABCDABCD\n");
 }
 
