@@ -11,7 +11,8 @@ CommandBuffer::CommandBuffer(std::shared_ptr<SSDControllerInterface> ssd) : ssd(
 	loadInitialFiles();
 }
 
-CommandBuffer::~CommandBuffer() {
+CommandBuffer::~CommandBuffer()
+{
 	createTxtFilesOnDestruction();
 }
 
@@ -35,7 +36,7 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 	}
 }
 
-void CommandBuffer::flush() 
+void CommandBuffer::flush()
 {
 	flushCommandsToSSD();
 	renameBufferFilesToEmpty();
@@ -43,45 +44,16 @@ void CommandBuffer::flush()
 	buffer.clear();
 }
 
-void CommandBuffer::renameBufferFilesToEmpty()
+
+bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const
 {
-	for (size_t i = 0; i < buffer.size(); ++i) {
-		std::string oldPath = bufferDir + "/" + buffer[i].getCommandStr() + ".txt";
-		std::string newName = "empty_" + std::to_string(i);
-		std::string newPath = bufferDir + "/" + newName + ".txt";
-
-		if (fs::exists(oldPath) && buffer[i].getCommandStr() != newName) {
-			fs::rename(oldPath, newPath);
-		}
-
-		buffer[i] = CommandValue(newName);
-	}
-}
-
-void CommandBuffer::flushCommandsToSSD()
-{
-	for (const auto& command : buffer) {
-		if (command.command == CommandValue::WRITE) {
-			ssd->writeLBA(command.LBA, command.value);
-		}
-		else if (command.command == CommandValue::ERASE) {
-			for (int i = 0; i < static_cast<int>(command.value); ++i) {
-				if (command.LBA + i >= 0 && command.LBA + i < 100) {
-					ssd->writeLBA(command.LBA + i, 0x00000000);
-				}
-			}
-		}
-	}
-}
-
-bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const {
 	for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
 		if (it->command == CommandValue::WRITE && it->LBA == lba) {
 			outValue = it->value;
 			return true;
 		}
 		else if (it->command == CommandValue::ERASE && lba >= it->LBA && lba < it->LBA + static_cast<int>(it->value)) {
-			outValue = 0x00000000;
+			outValue = CommandValue::EMPTY_VALUE;
 			return true;
 		}
 	}
@@ -208,5 +180,36 @@ void CommandBuffer::createTxtFilesOnDestruction() const {
 		std::string path = bufferDir + "/" + filename;
 		std::ofstream ofs(path);
 		ofs.close();
+	}
+}
+
+void CommandBuffer::renameBufferFilesToEmpty()
+{
+	for (size_t i = 0; i < buffer.size(); ++i) {
+		std::string oldPath = bufferDir + "/" + buffer[i].getCommandStr() + ".txt";
+		std::string newName = "empty_" + std::to_string(i);
+		std::string newPath = bufferDir + "/" + newName + ".txt";
+
+		if (fs::exists(oldPath) && buffer[i].getCommandStr() != newName) {
+			fs::rename(oldPath, newPath);
+		}
+
+		buffer[i] = CommandValue(newName);
+	}
+}
+
+void CommandBuffer::flushCommandsToSSD()
+{
+	for (const auto& command : buffer) {
+		if (command.command == CommandValue::WRITE) {
+			ssd->writeLBA(command.LBA, command.value);
+		}
+		else if (command.command == CommandValue::ERASE) {
+			for (int i = 0; i < static_cast<int>(command.value); ++i) {
+				if (command.LBA + i >= 0 && command.LBA + i < CommandValue::MAX_NUM_LBA) {
+					ssd->writeLBA(command.LBA + i, CommandValue::EMPTY_VALUE);
+				}
+			}
+		}
 	}
 }
