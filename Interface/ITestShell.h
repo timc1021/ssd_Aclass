@@ -8,6 +8,7 @@ using std::vector;
 #define MAX_ERASE_LBA (10)
 #define MAX_LBA_SIZE  (100)
 #define START_LBA     (0)
+#define ADD_LOG		  (Logger::getInstance().addLog)
 
 typedef enum {
 	COMMAND_SUCCESS,

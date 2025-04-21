@@ -28,7 +28,6 @@ public:
     
 private:
     std::vector<LogEntry> logs;
-    size_t currentSize = 0;
     bool currentMode = 1; // TODO
     const std::string LOGFILE = "latest.txt";
     std::string oldLogFilename = "";

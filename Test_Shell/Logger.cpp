@@ -25,9 +25,6 @@ void Logger::initLogFile() {
 
 bool Logger::addLog(const std::string& funcName, const std::string& msg) {
     size_t estimatedSize = sizeof(LogEntry) + msg.size();
-    if (currentSize + estimatedSize > MAX_LOG_SIZE + 512) {
-        return false;
-    }
 
     std::time_t t = std::time(nullptr);
     std::tm tm{};
@@ -41,7 +38,6 @@ bool Logger::addLog(const std::string& funcName, const std::string& msg) {
     entry.message = msg.substr(0, 512);
 
     logs.push_back(entry);
-    currentSize += estimatedSize;
 
     if (currentMode == 1) { // TODO
         printSingleLog(entry);
@@ -129,7 +125,6 @@ bool Logger::isFileSizeOverTenKb(const std::string& filePath) {
         // 파일이 존재하지 않거나 오류
         return false;
     }
-
     return fileStat.st_size >= MAX_LOG_SIZE;
 }
 
