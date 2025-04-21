@@ -10,30 +10,39 @@
 
 class CommandValue {
 public:
+	static const int NULL_COMMAND = 0;
 	static const int WRITE = 1;
 	static const int READ = 2;
 	static const int ERASE = 3;
 
 	int command;
+
+	static const int MAX_NUM_LBA = 100;
+
 	int LBA;
 	uint32_t value;
 
 	CommandValue(const std::string& input) {
 		setCommand(input);
 	}
-	CommandValue(char chCommad, int LBA, uint32_t value) {
-		if (chCommad == 'W') {
+	CommandValue(char chCommand, int LBA, uint32_t value) {
+		if (chCommand == 'W') {
 			command = WRITE;
 		}
-		else if (chCommad == 'E') {
+		else if (chCommand == 'E') {
 			command = ERASE;
 		}
-		else if (chCommad == 'R') {
+		else if (chCommand == 'R') {
 			command = READ;
 		}
 		else {
 			command = 0;
 		}
+		this->LBA = LBA;
+		this->value = value;
+	}
+	CommandValue(int command, int LBA, uint32_t value) {
+		this->command = command;
 		this->LBA = LBA;
 		this->value = value;
 	}
