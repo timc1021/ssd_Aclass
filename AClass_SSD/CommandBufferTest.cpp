@@ -66,8 +66,6 @@ TEST_F(CommandBufferTest, tc2) {
 
 TEST_F(CommandBufferTest, tc3) {
 	removeFilesAt("./buffer");
-	EXPECT_CALL(*mockSSD, writeLBA(::testing::_, ::testing::_)).Times(::testing::AtLeast(0));
-
 	CommandBuffer buffer(mockSSD);
 	std::string strCommand = "W 20 0xABCDABCD";
 	CommandValue command(strCommand);
@@ -284,4 +282,22 @@ TEST_F(CommandBufferTest, tc12) {
 	EXPECT_EQ(buffer.printBuffer(), "E 11 1\nE 1 10\n");
 	// E 1 10
 	// E 11 1
+}
+
+TEST_F(CommandBufferTest, tc13) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 10 3";
+	CommandValue command(strCommand);
+
+	EXPECT_CALL(*mockSSD, writeLBA(Ge(10), CommandValue::EMPTY_VALUE))
+		.Times(3);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 10 3\n");
+	// E 1 5
+
+	buffer.flush();
+	EXPECT_EQ(buffer.printBuffer(), "");
 }
