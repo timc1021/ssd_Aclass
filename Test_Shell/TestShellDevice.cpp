@@ -85,3 +85,17 @@ bool TestShellDevice::readCompareRange(int start_lba, int end_lba, uint32_t data
 
 	return result;
 }
+
+void TestShellDevice::flush(void) {
+	std::ostringstream cmd;
+	cmd << "SSD.exe F ";
+
+	ADD_LOG("ITestShell::erase", cmd.str());
+	int retCode = std::system(cmd.str().c_str());
+	if (retCode != 0) {
+		ADD_LOG("ITestShell::flush", "FAIL CODE : " + std::to_string(retCode));
+		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
+	}
+
+	return;
+}

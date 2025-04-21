@@ -43,6 +43,7 @@ public:
 	virtual void erase(const int lba, const int size) = 0;
 	virtual void registerCommand(const string& command, ITestScript* script) = 0;
 	virtual bool readCompareRange(int start_lba, int end_lba, uint32_t data) = 0;
+	virtual void flush() = 0;
 
 	void eraseRange(const int startLba, const int endLba);
 	void setScript(const string& command, ITestScript* script);
@@ -56,6 +57,7 @@ private:
 	bool isCommandValid(const vector<string> commandToken);
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
+	bool isFlushValid(const vector<string> commandToken);
 	void writeLBAs(const vector<int>lba, const uint32_t data);
 
 	COMMAND_RESULT handleRead(const vector<string> commandToken);
@@ -64,6 +66,7 @@ private:
 	COMMAND_RESULT handleFullwrite(const vector<string> commandToken);
 	COMMAND_RESULT handleErase(const vector<string> commandToken);
 	COMMAND_RESULT handleEraseRange(const vector<string> commandToken);
+	COMMAND_RESULT handleFlush(const vector<string> commandToken);
 
 	unordered_map<string, ITestScript*> testScriptCommand;
 	const vector<string> commandList = {
@@ -73,6 +76,7 @@ private:
 	"fullwrite",
 	"erase",
 	"erase_range",
+	"flush",
 	"help",
 	"exit",
 	};

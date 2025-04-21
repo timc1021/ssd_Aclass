@@ -49,6 +49,13 @@ public:
 		executeCommand(command);
 	}
 
+	void flush() {
+		ostringstream oss;
+		oss << "erase ";
+		string command = oss.str();
+		executeCommand(command);
+	}
+
 	void executeCommand(string command) {
 		input.str(command);
 		input.clear();
@@ -209,6 +216,11 @@ TEST_F(TestShellFixture, writeWithWrongCommandParaNum) {
 
 TEST_F(TestShellFixture, parseExitCommand) {
 	executeCommand("exit");
+	EXPECT_EQ(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, flushCommand) {
+	executeCommand("flush");
 	EXPECT_EQ(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
