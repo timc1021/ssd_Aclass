@@ -35,6 +35,68 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 	}
 }
 
+void CommandBuffer::flush() 
+{
+	flushCommandsToSSD();
+	renameBufferFilesToEmpty();
+
+	buffer.clear();
+}
+
+void CommandBuffer::renameBufferFilesToEmpty()
+{
+	for (size_t i = 0; i < buffer.size(); ++i) {
+		std::string oldPath = bufferDir + "/" + buffer[i].getCommandStr() + ".txt";
+		std::string newName = "empty_" + std::to_string(i);
+		std::string newPath = bufferDir + "/" + newName + ".txt";
+
+		if (fs::exists(oldPath) && buffer[i].getCommandStr() != newName) {
+			fs::rename(oldPath, newPath);
+		}
+
+		buffer[i] = CommandValue(newName);
+	}
+}
+
+void CommandBuffer::flushCommandsToSSD()
+{
+	for (const auto& command : buffer) {
+		if (command.command == CommandValue::WRITE) {
+			ssd->writeLBA(command.LBA, command.value);
+		}
+		else if (command.command == CommandValue::ERASE) {
+			for (int i = 0; i < static_cast<int>(command.value); ++i) {
+				if (command.LBA + i >= 0 && command.LBA + i < 100) {
+					ssd->writeLBA(command.LBA + i, 0x00000000);
+				}
+			}
+		}
+	}
+}
+
+bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const {
+	for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
+		if (it->command == CommandValue::WRITE && it->LBA == lba) {
+			outValue = it->value;
+			return true;
+		}
+		else if (it->command == CommandValue::ERASE && lba >= it->LBA && lba < it->LBA + static_cast<int>(it->value)) {
+			outValue = 0x00000000;
+			return true;
+		}
+	}
+	return false;
+}
+
+std::string CommandBuffer::printBuffer() const
+{
+	std::string result = "";
+	for (const auto& command : buffer) {
+		result += command.getCommandStr() + "\n";
+	}
+	return result;
+}
+
 void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
 {
 	for (int i = 0, minLBA = -1; i < CommandValue::MAX_NUM_LBA; i++) {
@@ -110,16 +172,6 @@ std::vector<int> CommandBuffer::initCheckBufferWith(CommandValue& command)
 	return checkBuffer;
 }
 
-
-std::string CommandBuffer::printBuffer() const
-{
-	std::string result = "";
-	for (const auto& command : buffer) {
-		result += command.getCommandStr() + "\n";
-	}
-	return result;
-}
-
 void CommandBuffer::loadInitialFiles() {
 	if (!fs::exists(bufferDir)) {
 		return;
@@ -157,45 +209,4 @@ void CommandBuffer::createTxtFilesOnDestruction() const {
 		std::ofstream ofs(path);
 		ofs.close();
 	}
-}
-void CommandBuffer::flush() {
-	for (const auto& command : buffer) {
-		if (command.command == CommandValue::WRITE) {
-			ssd->writeLBA(command.LBA, command.value);
-		}
-		else if (command.command == CommandValue::ERASE) {
-			for (int i = 0; i < static_cast<int>(command.value); ++i) {
-				if (command.LBA + i >= 0 && command.LBA + i < 100) {
-					ssd->writeLBA(command.LBA + i, 0x00000000);
-				}
-			}
-		}
-	}
-
-	for (size_t i = 0; i < buffer.size(); ++i) {
-		std::string oldPath = bufferDir + "/" + buffer[i].getCommandStr() + ".txt";
-		std::string newName = "empty_" + std::to_string(i);
-		std::string newPath = bufferDir + "/" + newName + ".txt";
-
-		if (fs::exists(oldPath) && buffer[i].getCommandStr() != newName) {
-			fs::rename(oldPath, newPath);
-		}
-
-		buffer[i] = CommandValue(newName);
-	}
-
-	buffer.clear();
-}
-bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const {
-	for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
-		if (it->command == CommandValue::WRITE && it->LBA == lba) {
-			outValue = it->value;
-			return true;
-		}
-		else if (it->command == CommandValue::ERASE && lba >= it->LBA && lba < it->LBA + static_cast<int>(it->value)) {
-			outValue = 0x00000000;
-			return true;
-		}
-	}
-	return false;
 }

@@ -109,6 +109,9 @@ private:
 	void removeOverlappingWriteCommands(std::vector<int>& checkBuffer);
 	std::vector<int> initCheckBufferWith(CommandValue& command);
 
+	void renameBufferFilesToEmpty();
+	void flushCommandsToSSD();
+
 public:
 	CommandBuffer(std::shared_ptr<SSDControllerInterface> ssd);
 	~CommandBuffer();
@@ -116,6 +119,8 @@ public:
 	void addCommandToBuffer(CommandValue command);
 
 	void flush();
+
+
 
 	std::string printBuffer() const;
 	bool getBufferedValueIfExists(int lba, uint32_t& outValue) const;
