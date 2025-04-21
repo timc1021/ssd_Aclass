@@ -57,12 +57,13 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 				}
 				else if (buffer[i].LBA >= command.LBA && buffer[i].LBA - 1 <= command.LBA + command.value - 1)
 				{
+					buffer[i].value += buffer[i].LBA - command.LBA;
 					buffer[i].LBA = command.LBA;
 					merge_flag = true;
 				}
-				else if (buffer[i].LBA + buffer[i].value - 1 >= command.LBA + 1 && buffer[i].LBA + buffer[i].value - 1 <= command.LBA + (int)command.value - 1)
+				else if (buffer[i].LBA + buffer[i].value >= command.LBA && buffer[i].LBA + buffer[i].value - 1 <= command.LBA + command.value - 1)
 				{
-					buffer[i].value = command.LBA + command.value - buffer[i].LBA;
+					buffer[i].value += command.LBA + command.value - 1 - (buffer[i].LBA + buffer[i].value - 1);
 					merge_flag = true;
 				}
 			}
@@ -77,7 +78,7 @@ void CommandBuffer::printBuffer() const
 {
 	std::cout << "[Buffer Contents]\n";
 	for (const auto& command : buffer) {
-		std::cout << "- " << command.strFUllCommand << "\n";
+		std::cout << "- " << command.getCommandStr() << "\n";
 	}
 }
 
@@ -107,7 +108,7 @@ void CommandBuffer::createTxtFilesOnDestruction() const {
 	}
 
 	for (int i = 0; i < buffer.size(); i++) {
-		std::string path = bufferDir + "/" + std::to_string(i) + buffer[i].strFUllCommand + ".txt";
+		std::string path = bufferDir + "/" + std::to_string(i) + buffer[i].getCommandStr() + ".txt";
 		std::ofstream ofs(path);
 		ofs.close();
 	}
@@ -123,11 +124,11 @@ void CommandBuffer::flush() {
 	//To-do: ssd nand file should be modified!!
 
 	for (size_t i = 0; i < buffer.size(); ++i) {
-		std::string oldPath = bufferDir + "/" + buffer[i].strFUllCommand + ".txt";
+		std::string oldPath = bufferDir + "/" + buffer[i].getCommandStr() + ".txt";
 		std::string newName = "empty_" + std::to_string(i);
 		std::string newPath = bufferDir + "/" + newName + ".txt";
 
-		if (fs::exists(oldPath) && buffer[i].strFUllCommand != newName) {
+		if (fs::exists(oldPath) && buffer[i].getCommandStr() != newName) {
 			fs::rename(oldPath, newPath);
 		}
 
