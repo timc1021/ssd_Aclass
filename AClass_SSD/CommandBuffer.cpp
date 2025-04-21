@@ -38,24 +38,6 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 	removeOverwrittenSingleErase();
 }
 
-void CommandBuffer::removeOverwrittenSingleErase()
-{
-	std::vector<int> checkBuffer;
-	checkBuffer.resize(CommandValue::MAX_NUM_LBA, CommandValue::NULL_COMMAND);
-	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ) {
-		if (buf->command == CommandValue::WRITE) {
-			checkBuffer[buf->LBA] = CommandValue::WRITE;
-		}
-		else if (buf->command == CommandValue::ERASE && buf->value == 1) {
-			if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
-				buf = std::vector<CommandValue>::reverse_iterator(buffer.erase((buf + 1).base()));
-				continue;
-			}
-		}
-		buf++;
-	}
-}
-
 void CommandBuffer::flush()
 {
 	flushCommandsToSSD();
@@ -66,12 +48,12 @@ void CommandBuffer::flush()
 
 bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const
 {
-	for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
-		if (it->command == CommandValue::WRITE && it->LBA == lba) {
-			outValue = it->value;
+	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ++buf) {
+		if (buf->command == CommandValue::WRITE && buf->LBA == lba) {
+			outValue = buf->value;
 			return true;
 		}
-		else if (it->command == CommandValue::ERASE && lba >= it->LBA && lba < it->LBA + static_cast<int>(it->value)) {
+		else if (buf->command == CommandValue::ERASE && lba >= buf->LBA && lba < buf->LBA + static_cast<int>(buf->value)) {
 			outValue = CommandValue::EMPTY_VALUE;
 			return true;
 		}
@@ -86,6 +68,25 @@ std::string CommandBuffer::printBuffer() const
 		result += command.getCommandStr() + "\n";
 	}
 	return result;
+}
+
+void CommandBuffer::removeOverwrittenSingleErase()
+{
+	std::vector<int> checkBuffer;
+	checkBuffer.resize(CommandValue::MAX_NUM_LBA, CommandValue::NULL_COMMAND);
+
+	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ) {
+		if (buf->command == CommandValue::WRITE) {
+			checkBuffer[buf->LBA] = CommandValue::WRITE;
+		}
+		else if (buf->command == CommandValue::ERASE && buf->value == 1) {
+			if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
+				buf = std::vector<CommandValue>::reverse_iterator(buffer.erase((buf + 1).base()));
+				continue;
+			}
+		}
+		buf++;
+	}
 }
 
 void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
@@ -118,9 +119,8 @@ void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
 		}
 	}
 	if (minLBA != -1) {
-		int len = CommandValue::MAX_NUM_LBA - minLBA;
-		CommandValue merged(CommandValue::ERASE, minLBA, len);
-		buffer.insert(buffer.begin(), merged);
+		CommandValue mergedCommand(CommandValue::ERASE, minLBA, CommandValue::MAX_NUM_LBA - minLBA);
+		buffer.insert(buffer.begin(), mergedCommand);
 	}
 }
 
@@ -218,8 +218,6 @@ void CommandBuffer::renameBufferFilesToEmpty()
 		if (fs::exists(oldPath) && buffer[i].getCommandStr() != newName) {
 			fs::rename(oldPath, newPath);
 		}
-
-		buffer[i] = CommandValue(newName);
 	}
 }
 
