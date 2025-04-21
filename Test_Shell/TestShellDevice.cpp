@@ -39,14 +39,14 @@ uint32_t TestShellDevice::read(const int lba)
 		ADD_LOG("ITestShell::read", "FAIL CODE: " + std::to_string(retCode));
 		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
 
-		return -1;
+		return 0;
 	}
 
 	std::ifstream file("ssd_output.txt");
 	if (!file.is_open()) {
 		ADD_LOG("ITestShell::read", "file open FAIL");
 		std::cerr << "Failed to open ssd_output.txt" << std::endl;
-		return -2;
+		return 0;
 	}
 
 	getline(file, strReadData);
