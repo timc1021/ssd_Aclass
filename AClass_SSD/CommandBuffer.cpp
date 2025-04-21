@@ -17,60 +17,73 @@ CommandBuffer::~CommandBuffer() {
 
 void CommandBuffer::addCommandToBuffer(CommandValue command)
 {
-	bool merge_flag = false;
+	int cmdCheckBuffer[CommandValue::MAX_NUM_LBA] = { CommandValue::NULL_COMMAND, };
+	int checkBuffer[CommandValue::MAX_NUM_LBA] = { CommandValue::NULL_COMMAND, };
 
 	if (buffer.size() >= maxBufferSize) {
 		flush();
 		buffer.push_back(command);
 		return;
 	}
+	if (command.command == CommandValue::WRITE)
+	{
+		checkBuffer[command.LBA] = CommandValue::WRITE;
+		cmdCheckBuffer[command.LBA] = CommandValue::WRITE;
+	}
+	else if (command.command == CommandValue::ERASE)
+	{
+		for (auto i = command.LBA; i < command.LBA + command.value; i++) {
+			checkBuffer[i] = CommandValue::ERASE;
+			cmdCheckBuffer[i] = CommandValue::ERASE;
+		}
+	}
 
-	if (command.command == CommandValue::WRITE) {
-		for (auto i = 0; i < buffer.size(); i++) {
-			if (buffer[i].LBA == command.LBA && buffer[i].command == CommandValue::WRITE) {
-				buffer.erase(buffer.begin() + i);
-				i--;
+
+	for (auto buf = buffer.begin(); buf != buffer.end(); ) {
+		if (buf->command == CommandValue::WRITE) {
+			if (cmdCheckBuffer[buf->LBA] != CommandValue::NULL_COMMAND) {
+				buf = buffer.erase(buf);
 				continue;
 			}
 		}
-	}
-	else if (command.command == CommandValue::ERASE) {
-		for (auto i = 0; i < buffer.size(); i++) {
-			if (buffer[i].command == CommandValue::WRITE) {
-				for (auto j = command.LBA; j < command.LBA + command.value; j++) {
-					if (j == buffer[i].LBA) {
-						buffer.erase(buffer.begin() + i);
-						i--;
-						break;
-					}
-				}
+		else if (buf->command == CommandValue::ERASE && command.command == CommandValue::ERASE) {
+			for (auto i = buf->LBA; i < buf->LBA + buf->value; i++) {
+				checkBuffer[i] = CommandValue::ERASE;
 			}
-			else if (buffer[i].command == CommandValue::ERASE) {
-				if (command.LBA <= buffer[i].LBA && buffer[i].LBA + buffer[i].value - 1 <= command.LBA + command.value - 1)
-				{
-					buffer.erase(buffer.begin() + i);
-					i--;
-				}
-				else if (command.LBA >= buffer[i].LBA && buffer[i].LBA + buffer[i].value - 1 >= command.LBA + command.value - 1)
-				{
-					merge_flag = true;
-				}
-				else if (buffer[i].LBA >= command.LBA && buffer[i].LBA - 1 <= command.LBA + command.value - 1)
-				{
-					buffer[i].value += buffer[i].LBA - command.LBA;
-					buffer[i].LBA = command.LBA;
-					merge_flag = true;
-				}
-				else if (buffer[i].LBA + buffer[i].value >= command.LBA && buffer[i].LBA + buffer[i].value - 1 <= command.LBA + command.value - 1)
-				{
-					buffer[i].value += command.LBA + command.value - 1 - (buffer[i].LBA + buffer[i].value - 1);
-					merge_flag = true;
-				}
+			buf = buffer.erase(buf);
+			continue;
+		}
+		buf++;
+	}
+
+	if (command.command == CommandValue::ERASE) {
+		for (int i = 0, minLBA = 0, maxLBA = 0; i < CommandValue::MAX_NUM_LBA; i++) {
+			if (checkBuffer[i] == CommandValue::ERASE && minLBA == 0)
+			{
+				minLBA = i;
+			}
+			else if (minLBA != 0 && i - minLBA > 10) {
+				CommandValue mergedCommand(CommandValue::ERASE, minLBA, 10);
+				minLBA += 10;
+
+				if (buffer.size() >= maxBufferSize)
+					flush();
+				buffer.insert(buffer.begin(), mergedCommand);
+			}
+			else if (minLBA != 0 && checkBuffer[i] != CommandValue::ERASE)
+			{
+				CommandValue mergedCommand(CommandValue::ERASE, minLBA, i - minLBA);
+				minLBA = 0;
+
+				if (buffer.size() >= maxBufferSize)
+					flush();
+				buffer.insert(buffer.begin(), mergedCommand);
 			}
 		}
 	}
-	if (merge_flag == false)
+	else if (command.command == CommandValue::WRITE) {
 		buffer.push_back(command);
+	}
 }
 
 
