@@ -117,10 +117,10 @@ void TestShellApp::runner(char* argv)
         std::cout.rdbuf(originalCoutBuffer);
 
         if (result == COMMAND_SUCCESS) {
-            std::cout << command << " Pass\n";
+            std::cout << "Pass\n";
         }
         else {
-            std::cout << "Fail\n";
+            std::cout << "Fail!\n";
             file.close();
             return;
         }
