@@ -6,6 +6,7 @@
 #include <exception>
 #include <iomanip>
 #include "FileTextIO.h"
+#include "SSDControllerInterface.h"
 
 class CommandValue {
 public:
@@ -89,12 +90,13 @@ private:
 	std::vector<CommandValue> buffer;
 	const int maxBufferSize = 5;
 	const std::string bufferDir = "./buffer";
+	std::shared_ptr<SSDControllerInterface> ssd;
 
 	void loadInitialFiles();
 	void createTxtFilesOnDestruction() const;
 
 public:
-	CommandBuffer();
+	CommandBuffer(std::shared_ptr<SSDControllerInterface> ssd);
 	~CommandBuffer();
 
 	void addCommandToBuffer(CommandValue command);
