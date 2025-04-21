@@ -17,6 +17,8 @@ CommandBuffer::~CommandBuffer() {
 
 void CommandBuffer::addCommandToBuffer(CommandValue command)
 {
+	bool merge_flag = false;
+
 	if (buffer.size() >= maxBufferSize) {
 		flush();
 		buffer.push_back(command);
@@ -25,7 +27,7 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 
 	if (command.command == CommandValue::WRITE) {
 		for (auto i = 0;i < buffer.size();i++) {
-			if (buffer[i].LBA == command.LBA) {
+			if (buffer[i].LBA == command.LBA && buffer[i].command == CommandValue::WRITE) {
 				buffer.erase(buffer.begin() + i);
 				i--;
 				continue;
@@ -49,11 +51,25 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 					buffer.erase(buffer.begin() + i);
 					i--;
 				}
-				// To-Do: merge erase 추가 필요
+				else if (command.LBA >= buffer[i].LBA && buffer[i].LBA + buffer[i].value - 1 >= command.LBA + command.value - 1)
+				{
+					merge_flag = true;
+				}
+				else if (buffer[i].LBA >= command.LBA && buffer[i].LBA - 1 <= command.LBA + command.value - 1)
+				{
+					buffer[i].LBA = command.LBA;
+					merge_flag = true;
+				}
+				else if (buffer[i].LBA + buffer[i].value - 1 >= command.LBA + 1 && buffer[i].LBA + buffer[i].value - 1 <= command.LBA + (int)command.value - 1)
+				{
+					buffer[i].value = command.LBA + command.value - buffer[i].LBA;
+					merge_flag = true;
+				}
 			}
 		}
 	}
-	buffer.push_back(command);
+	if (merge_flag == false)
+		buffer.push_back(command);
 }
 
 
