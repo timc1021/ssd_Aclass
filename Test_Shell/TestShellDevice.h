@@ -1,5 +1,6 @@
 #pragma once
 #include "ITestShell.h"
+#include "Logger.h"
 #include <vector>
 #include <string>
 using std::string;
