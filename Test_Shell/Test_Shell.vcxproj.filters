@@ -16,6 +16,9 @@
     <Filter Include="TestScript">
       <UniqueIdentifier>{348b3bfd-cc81-4f39-aa9e-8a398a57b4ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Command">
+      <UniqueIdentifier>{243eb8d5-4f7b-40ac-a5b2-3ad8a4682fdf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -42,6 +45,12 @@
     <ClCompile Include="..\Interface\ITestShell.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="CommandBase.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
+    <ClCompile Include="WriteCommand.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestShellDevice.h">
@@ -59,8 +68,35 @@
     <ClInclude Include="..\Interface\ITestShell.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ICommand.h">
+      <Filter>Command</Filter>
+    </ClInclude>
     <ClInclude Include="..\TestScript\ITestScript.h">
-      <Filter>TestScript</Filter>
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadCommand.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandBase.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="WriteCommand.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="EraseCommand.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="FlushCommand.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="ExitCommand.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpCommand.h">
+      <Filter>Command</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

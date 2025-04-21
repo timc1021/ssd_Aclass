@@ -156,7 +156,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Interface;..\Test_Shell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -184,18 +185,29 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Interface\ITestShell.cpp" />
+    <ClCompile Include="CommandBase.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestShellDevice.cpp" />
     <ClCompile Include="TestShellApp.cpp" />
+    <ClCompile Include="WriteCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Interface\ITestShell.h" />
     <ClInclude Include="..\TestScript\ITestScript.h" />
+    <ClInclude Include="CommandBase.h" />
+    <ClInclude Include="EraseCommand.h" />
+    <ClInclude Include="ExitCommand.h" />
+    <ClInclude Include="FlushCommand.h" />
+    <ClInclude Include="HelpCommand.h" />
+    <ClInclude Include="ICommand.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="ReadCommand.h" />
     <ClInclude Include="TestShellDevice.h" />
     <ClInclude Include="TestShellApp.h" />
     <ClInclude Include="TestShellScript.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="WriteCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,8 @@
 #include <sstream>
 #include <fstream>
 #include "TestShellDevice.h"
+
+#include "ReadCommand.h"
 #include <iomanip>
 
 
