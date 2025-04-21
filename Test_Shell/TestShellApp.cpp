@@ -104,7 +104,7 @@ void TestShellApp::runner(char* argv)
     if (result == false)
         return;
 
-    Logger::getInstance().setMode(1);
+    Logger::getInstance().setRunnerMode(true);
 
     std::ifstream file(file_name);
     if (!file.is_open()) {
@@ -116,13 +116,7 @@ void TestShellApp::runner(char* argv)
         getline(file, command);
         std::cout << command << "---   RUN   ...";
 
-        //std::streambuf* originalCoutBuffer = std::cout.rdbuf();
-        //std::cout.rdbuf(nullptr);
-
         result = testShell->handleCommand(command);
-
-        //std::cout.rdbuf(originalCoutBuffer);
-
         if (result == COMMAND_SUCCESS) {
             std::cout << "Pass\n";
         }
