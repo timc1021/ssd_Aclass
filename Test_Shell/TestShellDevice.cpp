@@ -79,3 +79,36 @@ bool TestShellDevice::readCompareRange(int start_lba, int end_lba, uint32_t data
 
 	return result;
 }
+
+void TestShellDevice::writeLBAs(const vector<int>lba, const uint32_t data) {
+	for (auto target_lba : lba) {
+		write(target_lba, data);
+	}
+}
+
+
+bool TestShellDevice::readCompare(int lba, const uint32_t expected) {
+	int data;
+
+	if (lba >= MAX_LBA_SIZE || lba < START_LBA) {
+		return false;
+	}
+
+	data = read(lba);
+
+	if (data == expected)
+		return true;
+	else {
+		std::cout << "LBA " << lba << " : expected : 0x" << std::hex << expected << ", actual : 0x" << data << std::endl;
+		return false;
+	}
+}
+
+
+void TestShellDevice::eraseRange(const int startLba, const int endLba) {
+	vector<string> cmd;
+	cmd.push_back("erase_range");
+	cmd.push_back(std::to_string(startLba));
+	cmd.push_back(std::to_string(endLba));
+	handleEraseRange(cmd);
+}
