@@ -18,6 +18,7 @@ public:
 	int command;
 
 	static const int MAX_NUM_LBA = 100;
+	static const uint32_t EMPTY_VALUE = 0x00000000;
 
 	int LBA;
 	uint32_t value;
