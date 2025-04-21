@@ -29,6 +29,7 @@ public:
 	virtual void writeLBAs(const vector<int>lba, const uint32_t data) = 0;
 	virtual bool readCompare(const int lba, const uint32_t expected) = 0;
 	virtual void eraseRange(const int startLba, const int endLba) = 0;
+	virtual void flush() = 0;
 
 	COMMAND_RESULT handleCommand(const string& commandLine);
 	COMMAND_RESULT handleShellCommand(const vector<string> commandToken);

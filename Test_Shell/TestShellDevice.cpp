@@ -118,3 +118,17 @@ void TestShellDevice::eraseRange(const int startLba, const int endLba) {
 	cmd.push_back(std::to_string(endLba));
 	handleEraseRange(cmd);
 }
+
+void TestShellDevice::flush(void)
+{
+	std::ostringstream cmd;
+
+	cmd << "SSD.exe F ";
+
+	ADD_LOG("ITestShell::flush", cmd.str());
+	int retCode = std::system(cmd.str().c_str());
+	if (retCode != 0) {
+		ADD_LOG("ITestShell::flush", "FAIL CODE: " + std::to_string(retCode));
+		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
+	}
+}
