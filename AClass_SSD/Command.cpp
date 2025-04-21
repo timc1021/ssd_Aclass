@@ -9,9 +9,12 @@ Command::Command(std::shared_ptr<SSDControllerInterface> ssd,
 	std::shared_ptr<CommandBuffer> buffer)
 	: ssd(ssd), outputFile(outputFile), buffer(buffer) {}
 
-void Command::execute(const std::string& cmdTypeRaw, int lba, const std::string& valueHex) {
+void Command::execute(const std::string& cmdTypeRaw, int lba, const std::string& valueHexRaw) {
 	std::string cmdType = cmdTypeRaw;
 	std::transform(cmdType.begin(), cmdType.end(), cmdType.begin(), ::toupper);
+
+	std::string valueHex = valueHexRaw;
+	std::transform(valueHex.begin(), valueHex.end(), valueHex.begin(), ::toupper);
 
 	if (cmdType == "W") {
 		if (valueHex.length() != 10 || valueHex.substr(0, 2) != "0X") {

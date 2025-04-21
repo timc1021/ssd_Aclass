@@ -6,7 +6,7 @@
 
 namespace fs = std::filesystem;
 
-CommandBuffer::CommandBuffer()
+CommandBuffer::CommandBuffer(std::shared_ptr<SSDControllerInterface> ssd) : ssd(std::move(ssd))
 {
 	loadInitialFiles();
 }
@@ -26,7 +26,7 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 	}
 
 	if (command.command == CommandValue::WRITE) {
-		for (auto i = 0;i < buffer.size();i++) {
+		for (auto i = 0; i < buffer.size(); i++) {
 			if (buffer[i].LBA == command.LBA && buffer[i].command == CommandValue::WRITE) {
 				buffer.erase(buffer.begin() + i);
 				i--;
@@ -35,7 +35,7 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 		}
 	}
 	else if (command.command == CommandValue::ERASE) {
-		for (auto i = 0;i < buffer.size();i++) {
+		for (auto i = 0; i < buffer.size(); i++) {
 			if (buffer[i].command == CommandValue::WRITE) {
 				for (auto j = command.LBA; j < command.LBA + command.value; j++) {
 					if (j == buffer[i].LBA) {
@@ -121,7 +121,18 @@ void CommandBuffer::createTxtFilesOnDestruction() const {
 	}
 }
 void CommandBuffer::flush() {
-	//To-do: ssd nand file should be modified!!
+	for (const auto& command : buffer) {
+		if (command.command == CommandValue::WRITE) {
+			ssd->writeLBA(command.LBA, command.value);
+		}
+		else if (command.command == CommandValue::ERASE) {
+			for (int i = 0; i < static_cast<int>(command.value); ++i) {
+				if (command.LBA + i >= 0 && command.LBA + i < 100) {
+					ssd->writeLBA(command.LBA + i, 0x00000000);
+				}
+			}
+		}
+	}
 
 	for (size_t i = 0; i < buffer.size(); ++i) {
 		std::string oldPath = bufferDir + "/" + buffer[i].getCommandStr() + ".txt";
@@ -132,7 +143,7 @@ void CommandBuffer::flush() {
 			fs::rename(oldPath, newPath);
 		}
 
-		buffer[i] = newName;
+		buffer[i] = CommandValue(newName);
 	}
 
 	buffer.clear();
