@@ -7,14 +7,14 @@
 
 class Command {
 private:
-    std::shared_ptr<SSDControllerInterface> ssd;
-    std::shared_ptr<FileTextIOInterface> outputFile;
-    std::shared_ptr<CommandBuffer> buffer;
+	std::shared_ptr<SSDControllerInterface> ssd;
+	std::shared_ptr<FileTextIOInterface> outputFile;
+	std::shared_ptr<CommandBuffer> buffer;
 
 public:
-    Command(std::shared_ptr<SSDControllerInterface> ssd,
-        std::shared_ptr<FileTextIOInterface> outputFile,
-        std::shared_ptr<CommandBuffer> buffer);
+	Command(std::shared_ptr<SSDControllerInterface> ssd,
+		std::shared_ptr<FileTextIOInterface> outputFile,
+		std::shared_ptr<CommandBuffer> buffer);
 
-    void execute(const std::string& cmdType, int lba, const std::string& valueHex = "");
+	void execute(const std::string& cmdType, int lba, const std::string& valueHex = "");
 };
