@@ -79,12 +79,20 @@ void CommandBuffer::removeOverwrittenSingleErase()
 		if (buf->command == CommandValue::WRITE) {
 			checkBuffer[buf->LBA] = CommandValue::WRITE;
 		}
-		else if (buf->command == CommandValue::ERASE && buf->value == 1) {
-			if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
+		else if (buf->command == CommandValue::ERASE ) {
+			if (buf->value == 1 && checkBuffer[buf->LBA] == CommandValue::WRITE) {
 				buf = std::vector<CommandValue>::reverse_iterator(buffer.erase((buf + 1).base()));
 				continue;
 			}
+			else if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
+				buf->LBA = buf->LBA + 1;
+				buf->value -= 1;
+			}
+			else if (checkBuffer[buf->LBA +buf->value -1] == CommandValue::WRITE) {
+				buf->value -= 1;
+			}
 		}
+
 		buf++;
 	}
 }
