@@ -26,13 +26,33 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 	std::vector<int> checkBuffer = initCheckBufferWith(command);
 
 	removeOverlappingWriteCommands(checkBuffer);
-	removeOverlappingEraseCommands(command, checkBuffer);
 
 	if (command.command == CommandValue::ERASE) {
+		setCheckBufferOnEraseCommands(checkBuffer);
 		mergeEraseRange(checkBuffer);
 	}
 	else if (command.command == CommandValue::WRITE) {
 		buffer.push_back(command);
+	}
+
+	removeOverwrittenSingleErase();
+}
+
+void CommandBuffer::removeOverwrittenSingleErase()
+{
+	std::vector<int> checkBuffer;
+	checkBuffer.resize(CommandValue::MAX_NUM_LBA, CommandValue::NULL_COMMAND);
+	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ) {
+		if (buf->command == CommandValue::WRITE) {
+			checkBuffer[buf->LBA] = CommandValue::WRITE;
+		}
+		else if (buf->command == CommandValue::ERASE && buf->value == 1) {
+			if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
+				buf = std::vector<CommandValue>::reverse_iterator(buffer.erase((buf + 1).base()));
+				continue;
+			}
+		}
+		buf++;
 	}
 }
 
@@ -43,7 +63,6 @@ void CommandBuffer::flush()
 
 	buffer.clear();
 }
-
 
 bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const
 {
@@ -105,10 +124,10 @@ void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
 	}
 }
 
-void CommandBuffer::removeOverlappingEraseCommands(CommandValue& command, std::vector<int>& checkBuffer)
+void CommandBuffer::setCheckBufferOnEraseCommands(std::vector<int>& checkBuffer)
 {
 	for (auto buf = buffer.begin(); buf != buffer.end(); ) {
-		if (buf->command == CommandValue::ERASE && command.command == CommandValue::ERASE) {
+		if (buf->command == CommandValue::ERASE) {
 			for (auto i = buf->LBA; i < buf->LBA + buf->value; i++) {
 				checkBuffer[i] = CommandValue::ERASE;
 			}

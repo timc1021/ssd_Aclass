@@ -313,3 +313,105 @@ TEST_F(CommandBufferTest, tc14) {
 	buffer.addCommandToBuffer(command);
 	EXPECT_EQ(buffer.printBuffer(), "E 95 5\n");
 }
+
+TEST_F(CommandBufferTest, tc15) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 89 5";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 5\n");
+
+	strCommand = "E 92 8";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 99 1\nE 89 10\n");
+}
+
+TEST_F(CommandBufferTest, tc16) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 20 9";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 20 9\n");
+
+	strCommand = "E 29 9";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 30 8\nE 20 10\n");
+
+	strCommand = "E 38 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 40 8\nE 30 10\nE 20 10\n");
+
+	strCommand = "E 46 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 50 6\nE 40 10\nE 30 10\nE 20 10\n");
+
+	strCommand = "E 56 9";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 60 5\nE 50 10\nE 40 10\nE 30 10\nE 20 10\n");
+
+	EXPECT_CALL(*mockSSD, writeLBA(Ge(20), CommandValue::EMPTY_VALUE))
+		.Times(45);
+	strCommand = "E 63 8";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	//EXPECT_EQ(buffer.printBuffer(), "E 60 5\nE 50 10\nE 40 10\nE 30 10\nE 20 10\n");
+	EXPECT_EQ(buffer.printBuffer(), "E 63 8\n");
+}
+
+TEST_F(CommandBufferTest, tc17) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "W 99 0x11112222";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "W 99 0x11112222\n");
+
+	strCommand = "E 29 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 29 10\nW 99 0x11112222\n");
+
+	strCommand = "E 98 2";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 98 2\nE 29 10\n");
+
+	strCommand = "W 99 0x11112222";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 98 2\nE 29 10\nW 99 0x11112222\n");
+
+	strCommand = "E 89 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 10\nE 29 10\nW 99 0x11112222\n");
+}
+
+TEST_F(CommandBufferTest, tc18) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 99 1";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 99 1\n");
+
+	strCommand = "W 99 0x11112222";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "W 99 0x11112222\n");
+}
