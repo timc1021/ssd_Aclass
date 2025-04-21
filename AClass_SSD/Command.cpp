@@ -19,13 +19,16 @@ void Command::execute(const std::string& cmdTypeRaw, int lba, const std::string&
 	if (cmdType == "W") {
 		if (valueHex.length() != 10 || valueHex.substr(0, 2) != "0X")
 			throw std::invalid_argument("Invalid hex format. Must be '0x' followed by 8 hex digits.");
-		buffer->addCommandToBuffer(CommandValue("W " + std::to_string(lba) + " " + valueHex));
+
+		uint32_t value = std::stoul(valueHex, nullptr, 16);
+		buffer->addCommandToBuffer(CommandValue('W', lba, value));
 	}
 	else if (cmdType == "E") {
 		int size = std::stoi(valueHex);
 		if (size < 1 || size > 10)
 			throw std::invalid_argument("Invalid erase size. Must be between 1 and 10.");
-		buffer->addCommandToBuffer(CommandValue("E " + std::to_string(lba) + " " + std::to_string(size)));
+
+		buffer->addCommandToBuffer(CommandValue('E', lba, size));
 	}
 	else if (cmdType == "F") {
 		buffer->flush();
