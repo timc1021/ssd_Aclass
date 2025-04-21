@@ -148,3 +148,16 @@ void CommandBuffer::flush() {
 
 	buffer.clear();
 }
+bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const {
+	for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
+		if (it->command == CommandValue::WRITE && it->LBA == lba) {
+			outValue = it->value;
+			return true;
+		}
+		else if (it->command == CommandValue::ERASE && lba >= it->LBA && lba < it->LBA + static_cast<int>(it->value)) {
+			outValue = 0x00000000;
+			return true;
+		}
+	}
+	return false;
+}
