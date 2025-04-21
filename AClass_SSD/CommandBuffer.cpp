@@ -57,12 +57,12 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 	}
 
 	if (command.command == CommandValue::ERASE) {
-		for (int i = 0, minLBA = 0, maxLBA = 0; i < CommandValue::MAX_NUM_LBA; i++) {
-			if (checkBuffer[i] == CommandValue::ERASE && minLBA == 0)
+		for (int i = 0, minLBA = -1; i < CommandValue::MAX_NUM_LBA; i++) {
+			if (checkBuffer[i] == CommandValue::ERASE && minLBA == -1)
 			{
 				minLBA = i;
 			}
-			else if (minLBA != 0 && i - minLBA > 10) {
+			else if (minLBA != -1 && i - minLBA > 10) {
 				CommandValue mergedCommand(CommandValue::ERASE, minLBA, 10);
 				minLBA += 10;
 
@@ -70,10 +70,10 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 					flush();
 				buffer.insert(buffer.begin(), mergedCommand);
 			}
-			else if (minLBA != 0 && checkBuffer[i] != CommandValue::ERASE)
+			else if (minLBA != -1 && checkBuffer[i] != CommandValue::ERASE)
 			{
 				CommandValue mergedCommand(CommandValue::ERASE, minLBA, i - minLBA);
-				minLBA = 0;
+				minLBA = -1;
 
 				if (buffer.size() >= maxBufferSize)
 					flush();
@@ -90,9 +90,7 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 std::string CommandBuffer::printBuffer() const
 {
 	std::string result = "";
-	std::cout << "[Buffer Contents]\n";
 	for (const auto& command : buffer) {
-		std::cout << command.getCommandStr() << "\n";
 		result += command.getCommandStr() + "\n";
 	}
 	return result;
