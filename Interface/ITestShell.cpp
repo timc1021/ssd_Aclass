@@ -41,6 +41,10 @@ typedef enum {
 } ERASE_TOKEN;
 
 typedef enum {
+	TOKEN_FLUSH_NUM = 1,
+} FLUSH_TOKEN;
+
+typedef enum {
 	TOKEN_ERASE_RANGE_START_LBA = 1,
 	TOKEN_ERASE_RANGE_END_LBA,
 	TOKEN_ERASE_RANGNE_NUM,
@@ -89,6 +93,9 @@ COMMAND_RESULT ITestShell::handleShellCommand(const vector<string> commandToken)
 	}
 	else if (command == "erase_range") {
 		result = handleEraseRange(commandToken);
+	}
+	else if (command == "flush") {
+		result = handleFlush(commandToken);
 	}
 	else if (command == "help") {
 		help();
@@ -239,6 +246,14 @@ bool ITestShell::isEraseRangeCommandValid(const vector<string> commandToken)
 	return true;
 }
 
+bool ITestShell::isFlushCommandValid(const vector<string> commandToken)
+{
+	if (commandToken.size() != TOKEN_FLUSH_NUM)
+		return false;
+
+	return true;
+}
+
 COMMAND_RESULT ITestShell::handleRead(const vector<string> commandToken)
 {
 	if (!isReadCommandValid(commandToken))
@@ -344,6 +359,14 @@ COMMAND_RESULT ITestShell::handleEraseRange(const vector<string> commandToken)
 	}
 
 	return COMMAND_SUCCESS;
+}
+
+COMMAND_RESULT ITestShell::handleFlush(const vector<string> commandToken)
+{
+	if (!isFlushCommandValid(commandToken))
+		return COMMAND_INVALID_PARAM;
+	flush();
+	return COMMAND_RESULT();
 }
 
 void ITestShell::setScript(const string& command, ITestScript* script)
