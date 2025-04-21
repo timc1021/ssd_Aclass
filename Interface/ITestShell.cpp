@@ -60,6 +60,7 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	}
 	else
 	{
+		ADD_LOG("ITestShell::handleCommand", "ERROR, Invalid Command");
 		result = COMMAND_INVALID_PARAM;
 	}
 
@@ -138,7 +139,6 @@ bool ITestShell::isCommandValid(const vector<string> commandToken) {
 	bool exists = find(commandList.begin(), commandList.end(), command) != commandList.end();
 
 	if (!exists) {
-		ADD_LOG("ITestShell::isCommandValid", "ERROR");
 		return false;
 	}
 
@@ -375,119 +375,6 @@ COMMAND_RESULT ITestShell::exit() {
 	ADD_LOG("ITestShell::exit", "exit");
 	return COMMAND_EXIT;
 }
-
-bool ITestShell::readCompare(int lba, const uint32_t expected) {
-	int data;
-
-	if (lba >= MAX_LBA_SIZE || lba < START_LBA) {
-		return false;
-	}
-
-	data = read(lba);
-
-	if (data == expected)
-		return true;
-	else {
-		std::ostringstream oss;
-		oss << "readCompare fail: LBA " << lba << " : expected : 0x" << std::hex << expected << ", actual : 0x" << data << std::endl;
-		ADD_LOG("ITestShell::readCompare", oss.str());
-		cout << oss.str();
-		return false;
-	}
-}
-
-void ITestShell::writeLBAs(const vector<int>lba, const uint32_t data) {
-	for (auto target_lba : lba) {
-		write(target_lba, data);
-	}
-}
-
-#if 0
-uint32_t getRandUint32()
-{
-	return (rand() | (rand() << 15) | ((rand() & 0x3) << 30));
-}
-
-bool ITestShell::partialLBAWrite() {
-	uint32_t data;
-	vector<int> seq = { 4, 0, 3, 1, 2 };
-	const int loop_count = 30;
-
-	ADD_LOG("ITestShell::partialLBAWrite", "start partialLBAWrite script");
-	for (int loop = 0; loop < loop_count; loop++) {
-		data = getRandUint32();
-
-		writeLBAs(seq, data);
-
-		if (readCompareRange(0, 4, data) == false) {
-			cout << "PartialLBAWrite FAIL\n";
-			return false;
-		}
-	}
-
-	ADD_LOG("ITestShell::partialLBAWrite", "partialLBAWrite script PASS");
-	cout << "PartialLBAWrite PASS\n";
-	return true;
-}
-
-bool ITestShell::writeReadAging() {
-	uint32_t data = 0;
-	vector<int>lba = { 0, 99 };
-	const int loop_count = 200;
-
-	ADD_LOG("ITestShell::writeReadAging", "start writeReadAging script");
-	for (int loop = 0; loop < loop_count; loop++) {
-		data = getRandUint32();
-
-		writeLBAs(lba, data);
-
-		if (readCompare(lba[0], data) == false || readCompare(lba[1], data) == false) {
-			cout << "WriteReadAging FAIL\n";
-			return false;
-		}
-	}
-	ADD_LOG("ITestShell::WriteReadAging", "WriteReadAging script PASS");
-	cout << "WriteReadAging PASS\n";
-	return true;
-}
-
-bool ITestShell::eraseAndWriteAging() {
-	uint32_t write_data = getRandUint32();
-	uint32_t overwrite_data = getRandUint32();
-	const int loop_count = 30;
-
-	ADD_LOG("ITestShell::eraseAndWriteAging", "start eraseAndWriteAging script");
-	eraseRange(0, 2);
-
-	for (int loop = 0; loop < loop_count; loop++) {
-		for (int lba_base = 2; lba_base + 2 < MAX_LBA_SIZE; lba_base += 2) {
-			write(lba_base, write_data);
-			write(lba_base, overwrite_data);
-
-			eraseRange(lba_base, lba_base + 2);
-
-			if (readCompareRange(lba_base, lba_base + 2, 0) == false) {
-				cout << "EraseAndWriteAging FAIL\n";
-				return false;
-			}
-		}
-	}
-
-	ADD_LOG("ITestShell::eraseAndWriteAging", "eraseAndWriteAging script PASS");
-	cout << "EraseAndWriteAging PASS\n";
-	return true;
-}
-
-#endif
-
-void ITestShell::eraseRange(const int startLba, const int endLba) {
-	vector<string> cmd;
-	cmd.push_back("erase_range");
-	cmd.push_back(std::to_string(startLba));
-	cmd.push_back(std::to_string(endLba));
-	handleEraseRange(cmd);
-}
-
 
 void ITestShell::help()
 {
