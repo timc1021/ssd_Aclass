@@ -387,7 +387,7 @@ bool ITestShell::readCompareRange(int start_lba, int end_lba, uint32_t data) {
 	return result;
 }
 
-void ITestShell::writeLBAs(const vector<int>lba, uint32_t data) {
+void ITestShell::writeLBAs(const vector<int>lba, const uint32_t data) {
 	for (auto target_lba : lba) {
 		write(target_lba, data);
 	}
@@ -456,18 +456,27 @@ bool ITestShell::writeReadAging() {
 	return true;
 }
 
+void ITestShell::eraseRange(const int startLba, const int endLba) {
+	vector<string> cmd;
+	cmd.push_back("erase_range");
+	cmd.push_back(std::to_string(startLba));
+	cmd.push_back(std::to_string(endLba));
+	handleEraseRange(cmd);
+}
+
 bool ITestShell::eraseAndWriteAging() {
 	uint32_t write_data = getRandUint32();
 	uint32_t overwrite_data = getRandUint32();
 	const int loop_count = 30;
 
-	erase(0, 2);
+	eraseRange(0, 2);
 
 	for (int loop = 0; loop < loop_count; loop++) {
 		for (int lba_base = 2; lba_base + 2 < MAX_LBA_SIZE; lba_base += 2) {
 			write(lba_base, write_data);
 			write(lba_base, overwrite_data);
-			erase(lba_base, lba_base + 2);
+
+			eraseRange(lba_base, lba_base + 2);
 
 			if (readCompareRange(lba_base, lba_base + 2, 0) == false) {
 				cout << "EraseAndWriteAging FAIL\n";
