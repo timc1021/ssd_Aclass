@@ -12,5 +12,8 @@ public:
 	void runner(char* argv);
 	bool init();
 
+	bool isValidDllFolderPath();
+
 	ITestShell* testShell;
+	const std::string scriptPath = "../scripts";
 };

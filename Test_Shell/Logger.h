@@ -20,20 +20,16 @@ public:
     void printSingleLog(const LogEntry& log);
     void writeLogToFile(const LogEntry& log);
     std::string formatLogLine(const LogEntry& log);
-
     std::string getTimestampedFileName();
     bool isFileSizeOverTenKb(const std::string& filePath);
     void renameFile(const std::string& oldName, const std::string& newName);
-
-    
+        
 private:
     std::vector<LogEntry> logs;
-    bool currentMode = 1; // TODO
     const std::string LOGFILE = "latest.txt";
     std::string oldLogFilename = "";
-    void compressOldLogFile(std::string lastLogFile);
-    // 마지막 로그 파일명 // until_260307_17h_12m_11s.log 
-    const std::string logDir = "log"; // 로그 디렉토리 경로
+    void compressOldLogFile(std::string lastLogFile); 
+    const std::string logDir = "log";
     bool isExistOldLogFile();
     void setOldLogFilename(std::string filename);
     std::string getOldLogFilename(void);
