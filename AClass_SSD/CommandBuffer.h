@@ -4,6 +4,7 @@
 #include <memory>
 #include <sstream>
 #include <exception>
+#include <iomanip>
 #include "FileTextIO.h"
 
 class CommandValue {
@@ -12,7 +13,6 @@ public:
 	static const int READ = 2;
 	static const int ERASE = 3;
 
-	std::string strFUllCommand;
 	int command;
 	int LBA;
 	uint32_t value;
@@ -20,14 +20,51 @@ public:
 	CommandValue(const std::string& input) {
 		setCommand(input);
 	}
-	CommandValue(char command, int LBA, uint32_t value) : {
-		// TO-Do
+	CommandValue(char chCommad, int LBA, uint32_t value) {
+		if (chCommad == 'W') {
+			command = WRITE;
+		}
+		else if (chCommad == 'E') {
+			command = ERASE;
+		}
+		else if (chCommad == 'R') {
+			command = READ;
+		}
+		else {
+			command = 0;
+		}
+		this->LBA = LBA;
+		this->value = value;
+	}
+	std::string getCommandStr() const
+	{
+		std::ostringstream oss;
+
+		switch (command) {
+		case WRITE: oss << "W"; break;
+		case READ:  oss << "R"; break;
+		case ERASE: oss << "E"; break;
+		default:    oss << "?"; break;
+		}
+
+		oss << " " << LBA;
+
+		if (command == WRITE)
+		{
+			oss << " 0x" << std::hex << std::uppercase << std::setw(8) << std::setfill('0') << value;
+		}
+		else if (command == ERASE)
+		{
+			oss << " " << static_cast<int>(value);
+		}
+
+		return oss.str();
+
 	}
 	void setCommand(const std::string& input) {
 		std::istringstream iss(input);
 		std::string valueStr;
 		char chCommad;
-		strFUllCommand = input;
 
 		if (!(iss >> chCommad >> LBA >> valueStr)) {
 			return;
