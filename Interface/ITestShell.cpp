@@ -366,7 +366,7 @@ COMMAND_RESULT ITestShell::handleFlush(const vector<string> commandToken)
 	if (!isFlushCommandValid(commandToken))
 		return COMMAND_INVALID_PARAM;
 	flush();
-	return COMMAND_RESULT();
+	return COMMAND_SUCCESS;
 }
 
 void ITestShell::setScript(const string& command, ITestScript* script)
