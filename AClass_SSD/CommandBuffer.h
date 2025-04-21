@@ -102,4 +102,5 @@ public:
 	void addCommandToBuffer(CommandValue command);
 	void flush();
 	void printBuffer() const;
+	bool getBufferedValueIfExists(int lba, uint32_t& outValue) const;
 };

@@ -37,7 +37,13 @@ void Command::execute(const std::string& cmdTypeRaw, int lba, const std::string&
 		buffer->flush();
 	}
 	else if (cmdType == "R") {
-		uint32_t value = ssd->readLBA(lba);
+		uint32_t value;
+		if (buffer->getBufferedValueIfExists(lba, value)) {
+			// Fast Read
+		}
+		else {
+			value = ssd->readLBA(lba);
+		}
 
 		std::ostringstream oss;
 		oss << "0x" << std::setfill('0') << std::setw(8)
