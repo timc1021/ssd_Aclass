@@ -104,11 +104,17 @@ private:
 	void loadInitialFiles();
 	void createTxtFilesOnDestruction() const;
 
+	void mergeEraseRange(std::vector<int>& checkBuffer);
+	void removeOverlappingEraseCommands(CommandValue& command, std::vector<int>& checkBuffer);
+	void removeOverlappingWriteCommands(std::vector<int>& checkBuffer);
+	std::vector<int> initCheckBufferWith(CommandValue& command);
+
 public:
 	CommandBuffer(std::shared_ptr<SSDControllerInterface> ssd);
 	~CommandBuffer();
 
 	void addCommandToBuffer(CommandValue command);
+
 	void flush();
 
 	std::string printBuffer() const;

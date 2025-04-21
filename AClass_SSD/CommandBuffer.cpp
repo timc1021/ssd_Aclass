@@ -17,36 +17,58 @@ CommandBuffer::~CommandBuffer() {
 
 void CommandBuffer::addCommandToBuffer(CommandValue command)
 {
-	int cmdCheckBuffer[CommandValue::MAX_NUM_LBA] = { CommandValue::NULL_COMMAND, };
-	int checkBuffer[CommandValue::MAX_NUM_LBA] = { CommandValue::NULL_COMMAND, };
-
 	if (buffer.size() >= maxBufferSize) {
 		flush();
 		buffer.push_back(command);
 		return;
 	}
-	if (command.command == CommandValue::WRITE)
-	{
-		checkBuffer[command.LBA] = CommandValue::WRITE;
-		cmdCheckBuffer[command.LBA] = CommandValue::WRITE;
+	std::vector<int> checkBuffer = initCheckBufferWith(command);
+
+	removeOverlappingWriteCommands(checkBuffer);
+	removeOverlappingEraseCommands(command, checkBuffer);
+
+	if (command.command == CommandValue::ERASE) {
+		mergeEraseRange(checkBuffer);
 	}
-	else if (command.command == CommandValue::ERASE)
-	{
-		for (auto i = command.LBA; i < command.LBA + command.value; i++) {
-			checkBuffer[i] = CommandValue::ERASE;
-			cmdCheckBuffer[i] = CommandValue::ERASE;
+	else if (command.command == CommandValue::WRITE) {
+		buffer.push_back(command);
+	}
+}
+
+void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
+{
+	for (int i = 0, minLBA = -1; i < CommandValue::MAX_NUM_LBA; i++) {
+		if (checkBuffer[i] == CommandValue::ERASE && minLBA == -1)
+		{
+			minLBA = i;
+		}
+		else if (minLBA != -1 && i - minLBA >= 10) {
+			CommandValue mergedCommand(CommandValue::ERASE, minLBA, 10);
+			minLBA += 10;
+
+			if (checkBuffer[minLBA] != CommandValue::ERASE)
+				minLBA = -1;
+
+			if (buffer.size() >= maxBufferSize)
+				flush();
+			buffer.insert(buffer.begin(), mergedCommand);
+		}
+		else if (minLBA != -1 && checkBuffer[i] != CommandValue::ERASE)
+		{
+			CommandValue mergedCommand(CommandValue::ERASE, minLBA, i - minLBA);
+			minLBA = -1;
+
+			if (buffer.size() >= maxBufferSize)
+				flush();
+			buffer.insert(buffer.begin(), mergedCommand);
 		}
 	}
+}
 
-
+void CommandBuffer::removeOverlappingEraseCommands(CommandValue& command, std::vector<int>& checkBuffer)
+{
 	for (auto buf = buffer.begin(); buf != buffer.end(); ) {
-		if (buf->command == CommandValue::WRITE) {
-			if (cmdCheckBuffer[buf->LBA] != CommandValue::NULL_COMMAND) {
-				buf = buffer.erase(buf);
-				continue;
-			}
-		}
-		else if (buf->command == CommandValue::ERASE && command.command == CommandValue::ERASE) {
+		if (buf->command == CommandValue::ERASE && command.command == CommandValue::ERASE) {
 			for (auto i = buf->LBA; i < buf->LBA + buf->value; i++) {
 				checkBuffer[i] = CommandValue::ERASE;
 			}
@@ -55,38 +77,37 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 		}
 		buf++;
 	}
+}
 
-	if (command.command == CommandValue::ERASE) {
-		for (int i = 0, minLBA = -1; i < CommandValue::MAX_NUM_LBA; i++) {
-			if (checkBuffer[i] == CommandValue::ERASE && minLBA == -1)
-			{
-				minLBA = i;
-			}
-			else if (minLBA != -1 && i - minLBA >= 10) {
-				CommandValue mergedCommand(CommandValue::ERASE, minLBA, 10);
-				minLBA += 10;
-
-				if (checkBuffer[minLBA] != CommandValue::ERASE)
-					minLBA = -1;
-
-				if (buffer.size() >= maxBufferSize)
-					flush();
-				buffer.insert(buffer.begin(), mergedCommand);
-			}
-			else if (minLBA != -1 && checkBuffer[i] != CommandValue::ERASE)
-			{
-				CommandValue mergedCommand(CommandValue::ERASE, minLBA, i - minLBA);
-				minLBA = -1;
-
-				if (buffer.size() >= maxBufferSize)
-					flush();
-				buffer.insert(buffer.begin(), mergedCommand);
+void CommandBuffer::removeOverlappingWriteCommands(std::vector<int>& checkBuffer)
+{
+	for (auto buf = buffer.begin(); buf != buffer.end(); ) {
+		if (buf->command == CommandValue::WRITE) {
+			if (checkBuffer[buf->LBA] != CommandValue::NULL_COMMAND) {
+				buf = buffer.erase(buf);
+				continue;
 			}
 		}
+		buf++;
 	}
-	else if (command.command == CommandValue::WRITE) {
-		buffer.push_back(command);
+}
+
+std::vector<int> CommandBuffer::initCheckBufferWith(CommandValue& command)
+{
+	std::vector<int> checkBuffer;
+	checkBuffer.resize(CommandValue::MAX_NUM_LBA, CommandValue::NULL_COMMAND);
+
+	if (command.command == CommandValue::WRITE)
+	{
+		checkBuffer[command.LBA] = CommandValue::WRITE;
 	}
+	else if (command.command == CommandValue::ERASE)
+	{
+		for (auto i = command.LBA; i < command.LBA + command.value; i++) {
+			checkBuffer[i] = CommandValue::ERASE;
+		}
+	}
+	return checkBuffer;
 }
 
 
