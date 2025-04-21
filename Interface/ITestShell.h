@@ -46,6 +46,7 @@ public:
 	COMMAND_RESULT handleFullwrite(const vector<string> commandToken);
 	COMMAND_RESULT handleErase(const vector<string> commandToken);
 	COMMAND_RESULT handleEraseRange(const vector<string> commandToken);
+	COMMAND_RESULT handleFlush(const vector<string> commandToken);
 
 	void setScript(const string& command, ITestScript* script);
 
@@ -58,6 +59,7 @@ private:
 	bool isCommandValid(const vector<string> commandToken);
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
+	bool isFlushCommandValid(const vector<string> commandToken);
 
 	unordered_map<string, ITestScript*> testScriptCommand;
 	const vector<string> commandList = {
@@ -67,6 +69,7 @@ private:
 	"fullwrite",
 	"erase",
 	"erase_range",
+	"flush",
 	"help",
 	"exit",
 	};
