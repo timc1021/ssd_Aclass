@@ -28,12 +28,9 @@ bool PartialLBAWrite::run()
 
 		shell->writeLBAs(seq, data);
 
-		if (shell->readCompareRange(0, 4, data) == false) {
-			cout << "PartialLBAWrite FAIL\n";
+		if (shell->readCompareRange(0, 4, data) == false) {			
 			return false;
 		}
 	}
-
-	cout << "PartialLBAWrite PASS\n";
 	return true;
 }

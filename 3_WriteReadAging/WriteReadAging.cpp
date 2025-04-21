@@ -27,10 +27,8 @@ bool WriteReadAging::run()
 		shell->writeLBAs(lba, data);
 
 		if (shell->readCompare(lba[0], data) == false || shell->readCompare(lba[1], data) == false) {
-			cout << "WriteReadAging FAIL\n";
 			return false;
 		}
 	}
-	cout << "WriteReadAging PASS\n";
 	return true;
 }

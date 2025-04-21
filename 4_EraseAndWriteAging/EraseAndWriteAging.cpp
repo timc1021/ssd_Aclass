@@ -25,13 +25,10 @@ bool EraseAndWriteAging::run()
 			shell->eraseRange(lba_base, lba_base + 2);
 
 			if (shell->readCompareRange(lba_base, lba_base + 2, 0) == false) {
-				cout << "EraseAndWriteAging FAIL\n";
 				return false;
 			}
 		}
 	}
-
-	cout << "EraseAndWriteAging PASS\n";
 	return true;
 }
 

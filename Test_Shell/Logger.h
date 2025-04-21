@@ -23,9 +23,11 @@ public:
     std::string getTimestampedFileName();
     bool isFileSizeOverTenKb(const std::string& filePath);
     void renameFile(const std::string& oldName, const std::string& newName);
-        
+    void setMode(bool runnerMode);
+    
 private:
     std::vector<LogEntry> logs;
+    bool isRunnerMode = false;
     const std::string LOGFILE = "latest.txt";
     std::string oldLogFilename = "";
     void compressOldLogFile(std::string lastLogFile); 

@@ -60,6 +60,9 @@ bool Logger::addLog(const std::string& funcName, const std::string& msg) {
 }
 
 void Logger::printSingleLog(const LogEntry& log) {
+    if (isRunnerMode == true)
+        return;
+
     std::cout << formatLogLine(log) << std::endl;
 }
 
@@ -126,8 +129,13 @@ void Logger::renameFile(const std::string& oldName, const std::string& newName) 
         std::perror(("Failed to rename " + oldName + " to " + newName).c_str());
     }
     else {
-        std::cout << "Renamed " << oldName << " ¡æ " << newName << std::endl;
+        addLog("Logger::renameFile", "Renamed " + oldName + "¡æ" + newName);
     }
+}
+
+void Logger::setMode(bool runnerMode)
+{
+    isRunnerMode = runnerMode;
 }
 
 void Logger::compressOldLogFile(std::string lastLogFile) {

@@ -29,10 +29,8 @@ bool FullWriteAndReadCompare::run()
 		}
 
 		if (shell->readCompareRange(lba_base, lba_base + 4, data) == false) {
-			std::cout << "FullWriteAndReadCompare FAIL\n";
 			return false;
 		}
 	}
-	std::cout << "FullWriteAndReadCompare PASS\n";
 	return true;
 }
