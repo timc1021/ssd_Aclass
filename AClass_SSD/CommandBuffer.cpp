@@ -62,9 +62,12 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 			{
 				minLBA = i;
 			}
-			else if (minLBA != -1 && i - minLBA > 10) {
+			else if (minLBA != -1 && i - minLBA >= 10) {
 				CommandValue mergedCommand(CommandValue::ERASE, minLBA, 10);
 				minLBA += 10;
+
+				if (checkBuffer[minLBA] != CommandValue::ERASE)
+					minLBA = -1;
 
 				if (buffer.size() >= maxBufferSize)
 					flush();

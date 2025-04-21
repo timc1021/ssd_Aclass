@@ -43,9 +43,8 @@ TEST_F(CommandBufferTest, tc) {
 	buffer.printBuffer();
 
 	buffer.addCommandToBuffer(command);
-	
+
 	EXPECT_EQ(buffer.printBuffer(), "W 20 0xABCDABCD\n");
-	// 기존에서 W 20 0xABCDABCD 가 추가되야함
 }
 
 TEST_F(CommandBufferTest, tc2) {
@@ -266,4 +265,23 @@ TEST_F(CommandBufferTest, tc11) {
 	buffer.addCommandToBuffer(command);
 	EXPECT_EQ(buffer.printBuffer(), "E 10 8\n");
 	// E 10 8
+}
+
+TEST_F(CommandBufferTest, tc12) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 1 5";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 1 5\n");
+	// E 1 5
+
+	strCommand = "E 2 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 11 1\nE 1 10\n");
+	// E 1 10
+	// E 11 1
 }
