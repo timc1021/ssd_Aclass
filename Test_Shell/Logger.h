@@ -3,12 +3,13 @@
 #include <vector>
 #include <ctime>
 
+using std::string;
 constexpr size_t MAX_LOG_SIZE = 10240; // 10KB
 
 struct LogEntry {
     std::tm timestamp;
     char functionName[64];
-    std::string message;
+    string message;
 };
 
 class Logger {
@@ -16,23 +17,25 @@ public:
     static Logger& getInstance();
 
     void initLogFile();
-    bool addLog(const std::string& funcName, const std::string& msg);
+    void addLog(const string& funcName, const string& msg);
+    void rotateLogFileIfNeeded();
+    LogEntry makeLogEntry(const string& funcName, const string& msg);
     void printSingleLog(const LogEntry& log);
     void writeLogToFile(const LogEntry& log);
-    std::string formatLogLine(const LogEntry& log);
-    std::string getTimestampedFileName();
-    bool isFileSizeOverTenKb(const std::string& filePath);
-    void renameFile(const std::string& oldName, const std::string& newName);
-    void setMode(bool runnerMode);
+    string formatLogLine(const LogEntry& log);
+    string getTimestampedFileName();
+    bool isFileSizeOverTenKb(const string& filePath);
+    void renameFile(const string& oldName, const string& newName);
+    void setRunnerMode(bool runnerMode);
     
 private:
     std::vector<LogEntry> logs;
     bool isRunnerMode = false;
-    const std::string LOGFILE = "latest.txt";
-    std::string oldLogFilename = "";
-    void compressOldLogFile(std::string lastLogFile); 
+    const string LOGFILE = "latest.txt";
+    string oldLogFilename = "";
+    void compressOldLogFile(string lastLogFile);
     const std::string logDir = "log";
     bool isExistOldLogFile();
-    void setOldLogFilename(std::string filename);
-    std::string getOldLogFilename(void);
+    void setOldLogFilename(string filename);
+    string getOldLogFilename(void);
 };

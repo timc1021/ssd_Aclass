@@ -83,8 +83,12 @@ COMMAND_RESULT ITestShell::handleTestScript(const string& tcName)
 	ITestScript* script = testScriptCommand.find(tcName)->second;
 	bool result = script->run();
 
-	if (result == false)
+	string msg = (result == true) ? "PASS" : "FAIL";
+	ADD_LOG("ITestShell::handleTestScript", msg);
+
+	if (result == false) {
 		return COMMAND_TC_FAIL;
+	}
 
 	return COMMAND_SUCCESS;
 }
