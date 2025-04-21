@@ -11,7 +11,9 @@
 
 void TestShellApp::run(std::istream& in, std::ostream& out)
 {
-    init();
+    bool result = init();
+    if (result == false)
+        return;
 
     while (true) {
         std::string command;
@@ -35,43 +37,56 @@ void TestShellApp::run(std::istream& in, std::ostream& out)
     }
 }
 
-void TestShellApp::init()
+bool TestShellApp::init()
 {
     Logger::getInstance().initLogFile();
 
     using CreateFn = ITestScript * (*)();
     const std::string scriptFolder = "../scripts";
 
-    // for debug
-    //std::cout << "현재 경로: " << std::filesystem::current_path() << std::endl;
+    try {
+        if (!std::filesystem::exists(scriptFolder)) {
+            std::cerr << "scripts 폴더가 존재하지 않습니다: " << scriptFolder << std::endl;
+            return false;
+        }
 
-    for (const auto& entry : std::filesystem::directory_iterator(scriptFolder)) {
-        if (entry.path().extension() == ".dll") {
-            HMODULE dll = LoadLibraryA(entry.path().string().c_str());
-            if (!dll) {
-                std::cerr << "Failed to load DLL: " << entry.path() << std::endl;
-                continue;
-            }
+        for (const auto& entry : std::filesystem::directory_iterator(scriptFolder)) {
+            if (entry.path().extension() == ".dll") {
+                HMODULE dll = LoadLibraryA(entry.path().string().c_str());
+                if (!dll) {
+                    std::cerr << "Failed to load DLL: " << entry.path() << std::endl;
+                    return false;;
+                }
 
-            CreateFn create = (CreateFn)GetProcAddress(dll, "create");
-            if (!create) {
-                std::cerr << "create() not found in: " << entry.path() << std::endl;
-                FreeLibrary(dll);
-                continue;
-            }
+                CreateFn create = (CreateFn)GetProcAddress(dll, "create");
+                if (!create) {
+                    std::cerr << "create() not found in: " << entry.path() << std::endl;
+                    FreeLibrary(dll);
+                    return false;;
+                }
 
-            ITestScript* script = create();
-            if (!script) {
-                std::cerr << "create() 호출은 성공했지만 nullptr을 반환함!\n";
-                continue;
-            }
+                ITestScript* script = create();
+                if (!script) {
+                    std::cerr << "create() 호출은 성공했지만 nullptr을 반환함: " << entry.path() << std::endl;
+                    FreeLibrary(dll);
+                    return false;;
+                }
 
-            script->setShell(testShell);
-            for (const std::string& cmd : script->names()) {
-                testShell->registerCommand(cmd, script);
+                script->setShell(testShell);
+                for (const std::string& cmd : script->names()) {
+                    testShell->registerCommand(cmd, script);
+                }
             }
         }
     }
+    catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "파일 시스템 예외 발생!\n";
+        std::cerr << "→ " << e.what() << "\n";
+        std::cerr << "→ 경로: " << e.path1() << "\n";
+        return false;
+    }
+
+    return true;
 }
 
 void TestShellApp::runner(char* argv)
@@ -80,7 +95,9 @@ void TestShellApp::runner(char* argv)
     std::string command;
     std::string file_name = argv;
 
-    init();
+    result = init();
+    if (result == false)
+        return;
 
     std::ifstream file(file_name);
     if (!file.is_open()) {
