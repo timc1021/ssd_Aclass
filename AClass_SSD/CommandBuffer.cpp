@@ -87,12 +87,15 @@ void CommandBuffer::addCommandToBuffer(CommandValue command)
 }
 
 
-void CommandBuffer::printBuffer() const
+std::string CommandBuffer::printBuffer() const
 {
+	std::string result = "";
 	std::cout << "[Buffer Contents]\n";
 	for (const auto& command : buffer) {
-		std::cout << "- " << command.getCommandStr() << "\n";
+		std::cout << command.getCommandStr() << "\n";
+		result += command.getCommandStr() + "\n";
 	}
+	return result;
 }
 
 void CommandBuffer::loadInitialFiles() {
