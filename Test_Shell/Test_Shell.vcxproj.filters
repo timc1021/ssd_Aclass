@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="TestScript">
+      <UniqueIdentifier>{348b3bfd-cc81-4f39-aa9e-8a398a57b4ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -50,14 +53,14 @@
     <ClInclude Include="TestShellApp.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Type.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="..\Interface\ITestShell.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TestScript\ITestScript.h">
+      <Filter>TestScript</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

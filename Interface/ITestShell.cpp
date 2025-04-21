@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 #include "ITestShell.h"
+#include "ITestScript.h"
 #include "Logger.h"
 
 using std::cout;
@@ -50,9 +51,25 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	string command = commandToken[TOKEN_COMMAND];
 	COMMAND_RESULT result = COMMAND_SUCCESS;
 
-	if (!isCommandValid(commandToken)) {
-		return COMMAND_INVALID_PARAM;
+	if (isCommandValid(commandToken)) {
+		result = handleShellCommand(commandToken);
 	}
+	else if (IsExistTestScript(command))
+	{
+		result = handleTestScript(command);
+	}
+	else
+	{
+		result = COMMAND_INVALID_PARAM;
+	}
+
+	return result;
+}
+
+COMMAND_RESULT ITestShell::handleShellCommand(const vector<string> commandToken)
+{
+	string command = commandToken[TOKEN_COMMAND];
+	COMMAND_RESULT result = COMMAND_SUCCESS;
 
 	if (command == "read") {
 		result = handleRead(commandToken);
@@ -72,26 +89,32 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	else if (command == "erase_range") {
 		result = handleEraseRange(commandToken);
 	}
-	else if (command == "1_FullWriteAndReadCompare" || command == "1_") {
-		fullWriteAndReadCompare();
-	}
-	else if (command == "2_PartialLBAWrite" || command == "2_") {
-		partialLBAWrite();
-	}
-	else if (command == "3_WriteReadAging" || command == "3_") {
-		writeReadAging();
-	}
-	else if (command == "4_EraseAndWriteAging" || command == "4_") {
-		eraseAndWriteAging();
-	}
 	else if (command == "help") {
 		help();
 	}
 	else if (command == "exit") {
 		result = exit();
 	}
-
 	return result;
+}
+
+COMMAND_RESULT ITestShell::handleTestScript(const string& tcName)
+{
+	ITestScript* script = testScriptCommand.find(tcName)->second;
+	bool result = script->run();
+
+	if (result == false)
+		return COMMAND_TC_FAIL;
+
+	return COMMAND_SUCCESS;
+}
+
+bool ITestShell::IsExistTestScript(const string& command)
+{
+	if (testScriptCommand.find(command) != testScriptCommand.end()) {
+		return true;
+	}
+	return false;
 }
 
 vector<string> ITestShell::splitBySpace(const string& input) {
@@ -133,7 +156,7 @@ bool ITestShell::isWriteDataValid(const string& writeData)
 
 	for (char c : writeData.substr(HEX_PREFIX_LENGTH)) {
 		if (isdigit(c) || isupper(c)) continue;
-		
+
 		Logger::getInstance().addLog("ITestShell::isWriteDataValid", "ERROR");
 
 		return false;
@@ -143,7 +166,7 @@ bool ITestShell::isWriteDataValid(const string& writeData)
 }
 
 bool ITestShell::isWriteCommandValid(const vector<string> commandToken) {
-	
+
 	if ((commandToken.size() != TOKEN_WRITE_NUM) ||
 		(!isLBAValid(commandToken[TOKEN_WRITE_LBA])) ||
 		(!isWriteDataValid(commandToken[TOKEN_WRITE_DATA]))) {
@@ -239,7 +262,7 @@ COMMAND_RESULT ITestShell::handleWrite(const vector<string> commandToken)
 		return COMMAND_INVALID_PARAM;
 
 	write(stoi(commandToken[TOKEN_WRITE_LBA]), static_cast<unsigned int>(std::stoul(commandToken[TOKEN_WRITE_DATA], nullptr, 0)));
-	
+
 	return COMMAND_SUCCESS;
 }
 
@@ -290,9 +313,9 @@ COMMAND_RESULT ITestShell::handleErase(const vector<string> commandToken)
 		while (absSize > 0 && currentLba >= 0) {
 			int chunk = std::min({ MAX_ERASE_LBA, absSize, currentLba + 1 });
 			erase(currentLba - chunk + 1, chunk);
-			
+
 			std::ostringstream oss;
-			oss << "erase(" << lba << ", " << chunk << ")\n" ;
+			oss << "erase(" << lba << ", " << chunk << ")\n";
 			Logger::getInstance().addLog("ITestShell::executeErase", oss.str());
 
 			currentLba -= chunk;
@@ -336,6 +359,11 @@ COMMAND_RESULT ITestShell::handleEraseRange(const vector<string> commandToken)
 	return COMMAND_SUCCESS;
 }
 
+void ITestShell::setScript(const string& command, ITestScript* script)
+{
+	testScriptCommand[command] = script;
+}
+
 void ITestShell::fullWrite(const uint32_t data)
 {
 	for (int i = 0; i < MAX_LBA_SIZE; i++) {
@@ -364,7 +392,7 @@ bool ITestShell::readCompare(int lba, const uint32_t expected) {
 	if (lba >= MAX_LBA_SIZE || lba < START_LBA) {
 		return false;
 	}
-	
+
 	data = read(lba);
 
 	if (data == expected)
@@ -375,51 +403,21 @@ bool ITestShell::readCompare(int lba, const uint32_t expected) {
 	}
 }
 
-bool ITestShell::readCompareRange(int start_lba, int end_lba, uint32_t data) {
-	bool result = false;
-
-	for (int i = start_lba; i <= end_lba; i++) {
-		result = readCompare(i, data);
-		if (result == false)
-			return result;
-	}
-
-	return result;
-}
-
 void ITestShell::writeLBAs(const vector<int>lba, const uint32_t data) {
 	for (auto target_lba : lba) {
 		write(target_lba, data);
 	}
 }
 
+#if 0
 uint32_t getRandUint32()
 {
 	return (rand() | (rand() << 15) | ((rand() & 0x3) << 30));
 }
 
-bool ITestShell::fullWriteAndReadCompare() {
-	uint32_t data;
-
-	for (int lba_base = 0; lba_base < MAX_LBA_SIZE; lba_base += 5) {
-		data = getRandUint32();
-
-		for (int lba_offset = 0; lba_offset < 5; lba_offset++) {
-			write(lba_base + lba_offset, data);
-		}
-
-		if (readCompareRange(lba_base, lba_base + 4, data) == false) {
-			cout << "FullWriteAndReadCompare FAIL\n";
-			return false;
-		}
-	}
-	cout << "FullWriteAndReadCompare PASS\n";
-	return true;
-}
-
 bool ITestShell::partialLBAWrite() {
 	uint32_t data;
-	vector<int> seq = {4, 0, 3, 1, 2};
+	vector<int> seq = { 4, 0, 3, 1, 2 };
 	const int loop_count = 30;
 
 	for (int loop = 0; loop < loop_count; loop++) {
@@ -446,7 +444,7 @@ bool ITestShell::writeReadAging() {
 		data = getRandUint32();
 
 		writeLBAs(lba, data);
-		
+
 		if (readCompare(lba[0], data) == false || readCompare(lba[1], data) == false) {
 			cout << "WriteReadAging FAIL\n";
 			return false;
@@ -454,14 +452,6 @@ bool ITestShell::writeReadAging() {
 	}
 	cout << "WriteReadAging PASS\n";
 	return true;
-}
-
-void ITestShell::eraseRange(const int startLba, const int endLba) {
-	vector<string> cmd;
-	cmd.push_back("erase_range");
-	cmd.push_back(std::to_string(startLba));
-	cmd.push_back(std::to_string(endLba));
-	handleEraseRange(cmd);
 }
 
 bool ITestShell::eraseAndWriteAging() {
@@ -488,6 +478,17 @@ bool ITestShell::eraseAndWriteAging() {
 	cout << "EraseAndWriteAging PASS\n";
 	return true;
 }
+
+#endif
+
+void ITestShell::eraseRange(const int startLba, const int endLba) {
+	vector<string> cmd;
+	cmd.push_back("erase_range");
+	cmd.push_back(std::to_string(startLba));
+	cmd.push_back(std::to_string(endLba));
+	handleEraseRange(cmd);
+}
+
 
 void ITestShell::help()
 {

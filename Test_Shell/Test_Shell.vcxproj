@@ -142,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Interface;..\Test_Shell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Interface;..\Test_Shell;..\TestScript;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -191,11 +191,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Interface\ITestShell.h" />
+    <ClInclude Include="..\TestScript\ITestScript.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="TestShellDevice.h" />
     <ClInclude Include="TestShellApp.h" />
     <ClInclude Include="TestShellScript.h" />
-    <ClInclude Include="Type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,6 +4,11 @@
 #include "TestShellDevice.h"
 #include <iomanip>
 
+
+void TestShellDevice::registerCommand(const std::string& command, ITestScript* script) {
+	setScript(command, script);
+}
+
 void TestShellDevice::write(const int lba, const uint32_t data)
 {
 	std::ostringstream cmd;
@@ -61,4 +66,16 @@ void TestShellDevice::erase(const int lba, const int size)
 	}
 
 	return;
+}
+
+bool TestShellDevice::readCompareRange(int start_lba, int end_lba, uint32_t data) {	
+	bool result = false;
+
+	for (int i = start_lba; i <= end_lba; i++) {
+		result = readCompare(i, data);
+		if (result == false)
+			return result;
+	}
+
+	return result;
 }
