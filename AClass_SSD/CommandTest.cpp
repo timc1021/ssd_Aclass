@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <memory>
+#include <filesystem>
 #include "Command.h"
 #include "SSDControllerInterface.h"
 #include "FileTextIOInterface.h"
@@ -34,6 +35,8 @@ protected:
 	std::unique_ptr<Command> command;
 
 	void SetUp() override {
+		std::filesystem::remove_all("./buffer");
+
 		auto dummyIO = std::make_shared<MockDataInterface>("test.txt");
 		mockSSD = std::make_shared<MockSSDController>(dummyIO);
 		mockOutputFile = std::make_shared<MockDataInterface>("output.txt");

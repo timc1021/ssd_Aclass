@@ -3,7 +3,6 @@
 #include <memory>
 #include <algorithm>
 
-#include "FileTextIOInterface.h"
 #include "FileTextIO.h"
 #include "SSDController.h"
 #include "CommandBuffer.h"
@@ -18,14 +17,10 @@ std::shared_ptr<ICommandExecutor> createCommandExecutor(
 }
 
 int main(int argc, char* argv[]) {
-	if (argc < 2) {
-		std::cerr << "Usage: SSD.exe <Command> <LBA> [Value]\n";
-		return 1;
-	}
-
 	std::string cmdType = argv[1];
 	std::transform(cmdType.begin(), cmdType.end(), cmdType.begin(), ::toupper);
-	int lba = argc > 2 ? std::stoi(argv[2]) : 0;
+
+	int lba = (argc > 2) ? std::stoi(argv[2]) : 0;
 	std::string value = (argc == 4) ? argv[3] : "";
 	std::transform(value.begin(), value.end(), value.begin(), ::toupper);
 
