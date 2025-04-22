@@ -116,8 +116,7 @@ void TestShellApp::runner(char* argv)
         return;
     }
 
-    while(!file.eof()) {
-        getline(file, command);
+    while(getline(file, command)) {
         std::cout << command << "---   RUN   ...";
 
         result = testShell->handleCommand(command);
