@@ -48,7 +48,7 @@ public:
 	COMMAND_RESULT handleCommand(const string& commandLine);
 	COMMAND_RESULT handleShellCommand(const vector<string> commandToken);
 	COMMAND_RESULT handleTestScript(const string& tcName);
-	bool IsExistTestScript(const string& command);
+	bool isExistTestScript(const string& command);
 	vector<string> splitBySpace(const string& input);
 	void fullWrite(const uint32_t data);
 	uint32_t fullRead();
@@ -98,6 +98,8 @@ private:
 	bool isEraseCommandValid(const vector<string> commandToken);
 	bool isEraseRangeCommandValid(const vector<string> commandToken);
 	bool isFlushCommandValid(const vector<string> commandToken);
+	bool isValidInteger(const string& str);
+	bool isValidUnsignedLong(const string& str);
 
 	unordered_map<string, FuncPtr> testCommand;
 	unordered_map<string, ITestScript*> testScriptCommand;

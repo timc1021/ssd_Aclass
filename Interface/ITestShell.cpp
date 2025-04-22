@@ -43,7 +43,7 @@ typedef enum {
 typedef enum {
 	TOKEN_ERASE_RANGE_START_LBA = 1,
 	TOKEN_ERASE_RANGE_END_LBA,
-	TOKEN_ERASE_RANGNE_NUM,
+	TOKEN_ERASE_RANGE_NUM,
 } ERASE_RANGE_TOKEN;
 
 COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
@@ -54,7 +54,7 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	result = handleShellCommand(commandToken);
 
 	if (result == NOT_A_DEFAULT_COMMAND) {
-		if (IsExistTestScript(command))
+		if (isExistTestScript(command))
 		{
 			result = handleTestScript(command);
 		}
@@ -93,7 +93,7 @@ COMMAND_RESULT ITestShell::handleTestScript(const string& tcName)
 	return COMMAND_SUCCESS;
 }
 
-bool ITestShell::IsExistTestScript(const string& command)
+bool ITestShell::isExistTestScript(const string& command)
 {
 	if (testScriptCommand.find(command) != testScriptCommand.end()) {
 		return true;
@@ -117,24 +117,51 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 	return tokens;
 }
 
+bool ITestShell::isValidInteger(const string& str) {
+	int number;
+
+	try {
+		number = stoi(str);
+	}
+	catch (invalid_argument e) {
+		ADD_LOG("ITestShell::isValidInteger", "ERROR");
+		return false;
+	}
+
+	return true;
+}
+
+bool ITestShell::isValidUnsignedLong(const string& str) {
+	uint32_t number;
+
+	try {
+		number = stoul(str);
+	}
+	catch (invalid_argument e) {
+		ADD_LOG("ITestShell::isValidUnsignedLong", "ERROR");
+		return false;
+	}
+
+	return true;
+}
+
 bool ITestShell::isWriteDataValid(const string& writeData)
 {
 	if ((writeData.length() != DATA_LENGTH) ||
-		(writeData.substr(0, HEX_PREFIX_LENGTH) != HEX_PREFIX)) {
+		(writeData.substr(0, HEX_PREFIX_LENGTH) != HEX_PREFIX) ||
+		(isValidUnsignedLong(writeData) == false)) {
 		ADD_LOG("ITestShell::isWriteDataValid", "ERROR");
-
 		return false;
 	}
 
 	for (char c : writeData.substr(HEX_PREFIX_LENGTH)) {
 		if (isdigit(c) || isupper(c)) continue;
-
 		ADD_LOG("ITestShell::isWriteDataValid", "ERROR");
-
 		return false;
 	}
 
 	return true;
+
 }
 
 bool ITestShell::isWriteCommandValid(const vector<string> commandToken) {
@@ -142,7 +169,7 @@ bool ITestShell::isWriteCommandValid(const vector<string> commandToken) {
 	if ((commandToken.size() != TOKEN_WRITE_NUM) ||
 		(!isLBAValid(commandToken[TOKEN_WRITE_LBA])) ||
 		(!isWriteDataValid(commandToken[TOKEN_WRITE_DATA]))) {
-		ADD_LOG("ITestShell::isReadCommandValid", "ERROR");
+		ADD_LOG("ITestShell::isWriteCommandValid", "ERROR");
 
 		return false;
 	}
@@ -175,7 +202,12 @@ bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 
 bool ITestShell::isLBAValid(const string& lba)
 {
-	int iLba = stoi(lba);
+	int iLba;
+
+	if (isValidInteger(lba) == false)
+		return false;
+
+	iLba = stoi(lba);
 
 	if (iLba >= MAX_LBA_SIZE || iLba < START_LBA) {
 		ADD_LOG("ITestShell::isLBAValid", "ERROR");
@@ -189,7 +221,8 @@ bool ITestShell::isLBAValid(const string& lba)
 bool ITestShell::isEraseCommandValid(const vector<string> commandToken)
 {
 	if ((commandToken.size() != TOKEN_ERASE_NUM) ||
-		(!isLBAValid(commandToken[TOKEN_ERASE_LBA]))) {
+		(!isLBAValid(commandToken[TOKEN_ERASE_LBA])) ||
+		!isValidInteger(commandToken[TOKEN_ERASE_SIZE])) {
 		ADD_LOG("ITestShell::isEraseCommandValid", "ERROR");
 
 		return false;
@@ -200,7 +233,7 @@ bool ITestShell::isEraseCommandValid(const vector<string> commandToken)
 
 bool ITestShell::isEraseRangeCommandValid(const vector<string> commandToken)
 {
-	if ((commandToken.size() != TOKEN_ERASE_RANGNE_NUM) ||
+	if ((commandToken.size() != TOKEN_ERASE_RANGE_NUM) ||
 		(!isLBAValid(commandToken[TOKEN_ERASE_RANGE_START_LBA])) ||
 		(!isLBAValid(commandToken[TOKEN_ERASE_RANGE_END_LBA]))) {
 		ADD_LOG("ITestShell::isEraseRangeCommandValid", "ERROR");
