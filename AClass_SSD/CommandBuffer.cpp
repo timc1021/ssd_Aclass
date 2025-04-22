@@ -89,16 +89,17 @@ void CommandBuffer::removeOverwrittenSingleErase()
 			else if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
 				for (auto i = buf->LBA; i < buf->LBA + buf->value; i++) {
 					if (checkBuffer[i] == CommandValue::NULL_COMMAND) {
-						buf->LBA = i;
 						buf->value -= (i - buf->LBA);
+						buf->LBA = i;
+						break;
 					}
 				}
 			}
 			else if (checkBuffer[buf->LBA + buf->value - 1] == CommandValue::WRITE) {
-				buf->value -= 1;
-				for (auto i = buf->LBA + buf->value; i >= buf->LBA; i--) {
+				for (auto i = buf->LBA + buf->value - 1; i >= buf->LBA; i--) {
 					if (checkBuffer[i] == CommandValue::NULL_COMMAND) {
 						buf->value -= (buf->LBA + buf->value - 1 - i);
+						break;
 					}
 				}
 			}
