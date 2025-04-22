@@ -16,7 +16,7 @@ class Logger {
 public:
     static Logger& getInstance();
 
-    void initLogFile();
+    bool initLogFile();
     void addLog(const string& funcName, const string& msg);
     void rotateLogFileIfNeeded();
     LogEntry makeLogEntry(const string& funcName, const string& msg);

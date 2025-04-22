@@ -7,8 +7,10 @@ COMMAND_RESULT EraseCommand::execute(const std::vector<std::string>& tokens)
         return COMMAND_INVALID_PARAM;
     }        
 
-    int lba = std::stoi(tokens[TOKEN_ERASE_LBA]);
-    int size = std::stoi(tokens[TOKEN_ERASE_SIZE]);
+    int lba = 0;
+    int size = 0;
+    tryParseInt32(tokens[TOKEN_ERASE_LBA], lba);
+    tryParseInt32(tokens[TOKEN_ERASE_SIZE], size);
 
     if (size > 0) {
 

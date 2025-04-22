@@ -79,7 +79,13 @@ bool ITestShell::IsShellCommand(const vector<string> commandToken)
 
 COMMAND_RESULT ITestShell::executeTestScript(const string& tcName)
 {
-	ITestScript* script = testScriptCommand.find(tcName)->second;
+	auto it = testScriptCommand.find(tcName);
+	if (it == testScriptCommand.end()) {
+		return COMMAND_INVALID_PARAM;
+	}
+
+	ITestScript* script = it->second;
+
 	bool result = script->run();
 
 	string msg = (result == true) ? "PASS" : "FAIL";

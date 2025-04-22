@@ -17,11 +17,20 @@ Logger& Logger::getInstance() {
 	return instance;
 }
 
-void Logger::initLogFile() {
-	std::ofstream file(LOGFILE, std::ios::trunc);
-	if (!file.is_open()) {
+bool Logger::initLogFile() {
+	try {
+		std::filesystem::create_directories(logDir);
+		std::ofstream file(LOGFILE, std::ios::trunc);
+		if (!file.is_open()) {
+			throw std::ios_base::failure("Failed to open log file: " + LOGFILE);
+		}
+
+		return true;
+	}
+	catch (const std::exception& e) {
 		std::cerr << "Failed to initialize log.txt.\n";
-		return;
+
+		return false;
 	}
 }
 
