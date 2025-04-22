@@ -75,21 +75,32 @@ void CommandBuffer::removeOverwrittenSingleErase()
 	std::vector<int> checkBuffer;
 	checkBuffer.resize(CommandValue::MAX_NUM_LBA, CommandValue::NULL_COMMAND);
 
-	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ) {
+	for (auto buf = buffer.begin(); buf != buffer.end(); buf++) {
 		if (buf->command == CommandValue::WRITE) {
 			checkBuffer[buf->LBA] = CommandValue::WRITE;
 		}
-		else if (buf->command == CommandValue::ERASE ) {
+	}
+	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ) {
+		if (buf->command == CommandValue::ERASE) {
 			if (buf->value == 1 && checkBuffer[buf->LBA] == CommandValue::WRITE) {
 				buf = std::vector<CommandValue>::reverse_iterator(buffer.erase((buf + 1).base()));
 				continue;
 			}
 			else if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
-				buf->LBA = buf->LBA + 1;
-				buf->value -= 1;
+				for (auto i = buf->LBA; i < buf->LBA + buf->value; i++) {
+					if (checkBuffer[i] == CommandValue::NULL_COMMAND) {
+						buf->LBA = i;
+						buf->value -= (i - buf->LBA);
+					}
+				}
 			}
-			else if (checkBuffer[buf->LBA +buf->value -1] == CommandValue::WRITE) {
+			else if (checkBuffer[buf->LBA + buf->value - 1] == CommandValue::WRITE) {
 				buf->value -= 1;
+				for (auto i = buf->LBA + buf->value; i >= buf->LBA; i--) {
+					if (checkBuffer[i] == CommandValue::NULL_COMMAND) {
+						buf->value -= (buf->LBA + buf->value - 1 - i);
+					}
+				}
 			}
 		}
 
