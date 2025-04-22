@@ -7,8 +7,10 @@ COMMAND_RESULT EraseRangeCommand::execute(const std::vector<std::string>& tokens
 		return COMMAND_INVALID_PARAM;
 	}
 
-	int startLba = std::stoi(tokens[TOKEN_ERASE_RANGE_START_LBA]);
-	int endLba = std::stoi(tokens[TOKEN_ERASE_RANGE_END_LBA]);
+	int startLba = 0;
+	int endLba = 0;
+	tryParseInt32(tokens[TOKEN_ERASE_RANGE_START_LBA], startLba);
+	tryParseInt32(tokens[TOKEN_ERASE_RANGE_END_LBA], endLba);
 
 	if (startLba > endLba)
 		return COMMAND_INVALID_PARAM;

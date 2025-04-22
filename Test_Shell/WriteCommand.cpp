@@ -7,7 +7,9 @@ COMMAND_RESULT WriteCommand::execute(const std::vector<std::string>& tokens)
 		return COMMAND_INVALID_PARAM;
 	}
 
-	int lba = std::stoi(tokens[TOKEN_WRITE_LBA]);
+	int lba = 0;
+	tryParseInt32(tokens[TOKEN_WRITE_LBA], lba);
+
 	uint32_t data = static_cast<uint32_t>(std::stoul(tokens[TOKEN_WRITE_DATA], nullptr, 0));
 	shell->write(lba, data);
 

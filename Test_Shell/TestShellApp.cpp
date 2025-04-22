@@ -39,7 +39,10 @@ void TestShellApp::run(std::istream& in, std::ostream& out)
 
 bool TestShellApp::init()
 {
-    Logger::getInstance().initLogFile();
+    bool result = false;
+    result = Logger::getInstance().initLogFile();
+    if (result == false) return false;
+
     testShell->initCommands();
 
     using CreateFn = ITestScript * (*)();
