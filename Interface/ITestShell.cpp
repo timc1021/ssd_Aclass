@@ -142,7 +142,7 @@ bool ITestShell::isWriteCommandValid(const vector<string> commandToken) {
 	if ((commandToken.size() != TOKEN_WRITE_NUM) ||
 		(!isLBAValid(commandToken[TOKEN_WRITE_LBA])) ||
 		(!isWriteDataValid(commandToken[TOKEN_WRITE_DATA]))) {
-		ADD_LOG("ITestShell::isReadCommandValid", "ERROR");
+		ADD_LOG("ITestShell::isWriteCommandValid", "ERROR");
 
 		return false;
 	}
