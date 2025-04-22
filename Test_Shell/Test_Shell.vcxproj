@@ -186,8 +186,14 @@
   <ItemGroup>
     <ClCompile Include="..\Interface\ITestShell.cpp" />
     <ClCompile Include="CommandBase.cpp" />
+    <ClCompile Include="EraseCommand.cpp" />
+    <ClCompile Include="EraseRangeCommand.cpp" />
+    <ClCompile Include="EraseRangeCommand.h" />
+    <ClCompile Include="FullReadCommand.cpp" />
+    <ClCompile Include="FullwriteCommand.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ReadCommand.cpp" />
     <ClCompile Include="TestShellDevice.cpp" />
     <ClCompile Include="TestShellApp.cpp" />
     <ClCompile Include="WriteCommand.cpp" />
@@ -199,6 +205,8 @@
     <ClInclude Include="EraseCommand.h" />
     <ClInclude Include="ExitCommand.h" />
     <ClInclude Include="FlushCommand.h" />
+    <ClInclude Include="FullReadCommand.h" />
+    <ClInclude Include="FullwriteCommand.h" />
     <ClInclude Include="HelpCommand.h" />
     <ClInclude Include="ICommand.h" />
     <ClInclude Include="Logger.h" />
@@ -206,7 +214,7 @@
     <ClInclude Include="TestShellDevice.h" />
     <ClInclude Include="TestShellApp.h" />
     <ClInclude Include="TestShellScript.h" />
-    <ClInclude Include="Types.h" />
+    <ClInclude Include="Type.h" />
     <ClInclude Include="WriteCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,27 +1,43 @@
 #include "CommandBase.h"
 
-bool CommandBase::isLBAValid(const std::string& lba)
+bool CommandBase::isLBAValid(int32_t lba)
 {
-	int iLba = std::stoi(lba);
-	return (iLba >= 0 && iLba < MAX_LBA_SIZE);
+	return (lba >= 0 && lba < MAX_LBA_SIZE);
 }
 
-bool CommandBase::isWriteDataValid(const string& writeData)
+bool CommandBase::isDataValid(const string& data)
 {
-	if ((writeData.length() != DATA_LENGTH) ||
-		(writeData.substr(0, HEX_PREFIX_LENGTH) != HEX_PREFIX)) {
-		ADD_LOG("ITestShell::isWriteDataValid", "ERROR");
+	if ((data.length() != DATA_LENGTH) ||
+		(data.substr(0, HEX_PREFIX_LENGTH) != HEX_PREFIX)) {
+		ADD_LOG("CommandBase::isDataValid", "ERROR");
 
 		return false;
 	}
 
-	for (char c : writeData.substr(HEX_PREFIX_LENGTH)) {
+	for (char c : data.substr(HEX_PREFIX_LENGTH)) {
 		if (isdigit(c) || isupper(c)) continue;
 
-		ADD_LOG("ITestShell::isWriteDataValid", "ERROR");
+		ADD_LOG("CommandBase::isDataValid", "ERROR");
 
 		return false;
 	}
 
 	return true;
+}
+
+bool CommandBase::tryParseInt32(const std::string& str, int32_t& outValue) {
+    try {
+        size_t pos = 0;
+        long value = std::stol(str, &pos, 10);
+
+        if (pos != str.size() || value < INT32_MIN || value > INT32_MAX) {
+            return false;
+        }
+
+        outValue = static_cast<int32_t>(value);
+        return true;
+    }
+    catch (...) {
+        return false;
+    }
 }

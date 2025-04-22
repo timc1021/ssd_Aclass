@@ -181,14 +181,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Interface\ITestShell.h" />
+    <ClInclude Include="..\Test_Shell\CommandBase.h" />
+    <ClInclude Include="..\Test_Shell\EraseCommand.h" />
+    <ClInclude Include="..\Test_Shell\EraseRangeCommand.h" />
+    <ClInclude Include="..\Test_Shell\ExitCommand.h" />
+    <ClInclude Include="..\Test_Shell\FlushCommand.h" />
+    <ClInclude Include="..\Test_Shell\FullReadCommand.h" />
+    <ClInclude Include="..\Test_Shell\FullwriteCommand.h" />
+    <ClInclude Include="..\Test_Shell\HelpCommand.h" />
+    <ClInclude Include="..\Test_Shell\ICommand.h" />
     <ClInclude Include="..\Test_Shell\Logger.h" />
+    <ClInclude Include="..\Test_Shell\ReadCommand.h" />
     <ClInclude Include="..\Test_Shell\TestShellApp.h" />
+    <ClInclude Include="..\Test_Shell\Type.h" />
+    <ClInclude Include="..\Test_Shell\WriteCommand.h" />
     <ClInclude Include="TestShellMock.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Interface\ITestShell.cpp" />
+    <ClCompile Include="..\Test_Shell\CommandBase.cpp" />
+    <ClCompile Include="..\Test_Shell\EraseCommand.cpp" />
+    <ClCompile Include="..\Test_Shell\EraseRangeCommand.cpp" />
+    <ClCompile Include="..\Test_Shell\FullReadCommand.cpp" />
+    <ClCompile Include="..\Test_Shell\FullwriteCommand.cpp" />
     <ClCompile Include="..\Test_Shell\Logger.cpp" />
+    <ClCompile Include="..\Test_Shell\ReadCommand.cpp" />
     <ClCompile Include="..\Test_Shell\TestShellApp.cpp" />
+    <ClCompile Include="..\Test_Shell\WriteCommand.cpp" />
     <ClCompile Include="TestShellTest.cpp" />
   </ItemGroup>
   <ItemGroup>

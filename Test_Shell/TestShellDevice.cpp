@@ -72,8 +72,6 @@ void TestShellDevice::erase(const int lba, const int size)
 		ADD_LOG("ITestShell::erase", "FAIL CODE : " + std::to_string(retCode));
 		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
 	}
-
-	return;
 }
 
 bool TestShellDevice::readCompareRange(int start_lba, int end_lba, uint32_t data) {	
@@ -109,14 +107,6 @@ bool TestShellDevice::readCompare(int lba, const uint32_t expected) {
 		std::cout << "LBA " << lba << " : expected : 0x" << std::hex << expected << ", actual : 0x" << data << std::endl;
 		return false;
 	}
-}
-
-void TestShellDevice::eraseRange(const int startLba, const int endLba) {
-	vector<string> cmd;
-	cmd.push_back("erase_range");
-	cmd.push_back(std::to_string(startLba));
-	cmd.push_back(std::to_string(endLba));
-	handleEraseRange(cmd);
 }
 
 void TestShellDevice::flush(void)

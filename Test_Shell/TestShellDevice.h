@@ -17,5 +17,5 @@ public:
 	void flush(void) override;
 	void writeLBAs(const vector<int>lba, const uint32_t data) override;
 	bool readCompare(int lba, const uint32_t expected) override;
-	void eraseRange(const int startLba, const int endLba) override;
+	//void eraseRange(const int startLba, const int endLba) override;
 };

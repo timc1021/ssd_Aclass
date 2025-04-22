@@ -19,6 +19,9 @@
     <Filter Include="Command">
       <UniqueIdentifier>{243eb8d5-4f7b-40ac-a5b2-3ad8a4682fdf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CommandHeader">
+      <UniqueIdentifier>{8a0bedbb-7354-4864-877f-7070442419a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -51,6 +54,24 @@
     <ClCompile Include="WriteCommand.cpp">
       <Filter>Command</Filter>
     </ClCompile>
+    <ClCompile Include="FullwriteCommand.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadCommand.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
+    <ClCompile Include="FullReadCommand.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
+    <ClCompile Include="EraseRangeCommand.h">
+      <Filter>CommandHeader</Filter>
+    </ClCompile>
+    <ClCompile Include="EraseRangeCommand.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
+    <ClCompile Include="EraseCommand.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestShellDevice.h">
@@ -68,35 +89,41 @@
     <ClInclude Include="..\Interface\ITestShell.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ICommand.h">
-      <Filter>Command</Filter>
-    </ClInclude>
     <ClInclude Include="..\TestScript\ITestScript.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ReadCommand.h">
-      <Filter>Command</Filter>
-    </ClInclude>
-    <ClInclude Include="Types.h">
+    <ClInclude Include="Type.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CommandBase.h">
-      <Filter>Command</Filter>
-    </ClInclude>
     <ClInclude Include="WriteCommand.h">
-      <Filter>Command</Filter>
+      <Filter>CommandHeader</Filter>
     </ClInclude>
-    <ClInclude Include="EraseCommand.h">
-      <Filter>Command</Filter>
+    <ClInclude Include="ReadCommand.h">
+      <Filter>CommandHeader</Filter>
     </ClInclude>
-    <ClInclude Include="FlushCommand.h">
-      <Filter>Command</Filter>
-    </ClInclude>
-    <ClInclude Include="ExitCommand.h">
-      <Filter>Command</Filter>
+    <ClInclude Include="ICommand.h">
+      <Filter>CommandHeader</Filter>
     </ClInclude>
     <ClInclude Include="HelpCommand.h">
-      <Filter>Command</Filter>
+      <Filter>CommandHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandBase.h">
+      <Filter>CommandHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="FullReadCommand.h">
+      <Filter>CommandHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="FullwriteCommand.h">
+      <Filter>CommandHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="ExitCommand.h">
+      <Filter>CommandHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="EraseCommand.h">
+      <Filter>CommandHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="FlushCommand.h">
+      <Filter>CommandHeader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

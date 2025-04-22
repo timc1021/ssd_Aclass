@@ -4,12 +4,13 @@
 class HelpCommand : public CommandBase {
 public:
     HelpCommand(ITestShell* testShell) : CommandBase(testShell) {}
-    COMMAND_RESULT execute(const std::vector<std::string>&) override {
+    COMMAND_RESULT execute(const std::vector<std::string>& commandToken) override {
 		using std::left;
 		using std::setw;
 		using std::setfill;
 
-		//ADD_LOG("ITestShell::help", "print HELP message");
+		if(commandToken.size() != 1)
+			ADD_LOG("HelpCommand::execute", "Warning, help not need parameter");
 
 		cout << "ÆÀ¸í: A class\n";
 		cout << "ÆÀ¿ø: ÃÖÀç¹Î, ÃÖÀ¯Á¤, ¼Òº´¿í, ±èÈñÁ¤, ±èÃæÈñ\n";
@@ -29,4 +30,8 @@ public:
 		cout << left << setfill(' ') << setw(35) << "4_EraseAndWriteAging or 4_" << "For each 3 LBAs, write and erase and test. Repeat 30 times.\n";
         return COMMAND_SUCCESS;
     }
+
+	bool isCommandValid(const std::vector<std::string>& commandToken) override {
+		return true;
+	}
 };
