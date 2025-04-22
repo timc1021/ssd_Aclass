@@ -2,22 +2,30 @@
 
 COMMAND_RESULT WriteCommand::execute(const std::vector<std::string>& tokens)
 {
-	if (tokens.size() != 3 || !isLBAValid(tokens[1]))
+	if (!isCommandValid(tokens)) {
+		ADD_LOG("WriteCommand::execute", "ERROR, invalid parameter");
 		return COMMAND_INVALID_PARAM;
+	}
 
-	int lba = std::stoi(tokens[1]);
-	uint32_t data = static_cast<uint32_t>(std::stoul(tokens[2], nullptr, 0));
+	int lba = std::stoi(tokens[TOKEN_WRITE_LBA]);
+	uint32_t data = static_cast<uint32_t>(std::stoul(tokens[TOKEN_WRITE_DATA], nullptr, 0));
 	shell->write(lba, data);
+
 	return COMMAND_SUCCESS;
 }
 
-bool WriteCommand::isWriteCommandValid(const vector<string> commandToken)
+bool WriteCommand::isCommandValid(const std::vector<std::string>& commandToken)
 {
-	if ((commandToken.size() != TOKEN_WRITE_NUM) ||
-		(!isLBAValid(commandToken[TOKEN_WRITE_LBA])) ||
-		(!isWriteDataValid(commandToken[TOKEN_WRITE_DATA]))) {
-		ADD_LOG("ITestShell::isWriteCommandValid", "ERROR");
+	if (commandToken.size() != TOKEN_WRITE_NUM)
+		return false;
 
+	int32_t lba;
+	bool ret = tryParseInt32(commandToken[TOKEN_WRITE_LBA], lba);
+	if (ret == false)
+		return false;
+
+	if ((!isLBAValid(lba)) ||
+		(!isDataValid(commandToken[TOKEN_WRITE_DATA]))) {
 		return false;
 	}
 

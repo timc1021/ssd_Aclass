@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 #include "TestShellApp.h"
 #include "TestShellMock.h"
-
+#include "Logger.h"
 using namespace testing;
 using namespace std;
 
@@ -11,6 +11,7 @@ class TestShellFixture : public Test {
 public:
 
 	TestShellFixture() {
+		Logger::getInstance().setRunnerMode(true);
 		EXPECT_CALL(mock, registerCommand(_, _)).Times(::testing::AnyNumber());
 	}
 
@@ -165,57 +166,89 @@ TEST_F(TestShellFixture, eraseRangeSameStartWithEnd) {
 	executeEraseRange(95, 95);
 }
 
-TEST_F(TestShellFixture, eraseRangeWithInvalidRange) {
+TEST_F(TestShellFixture, eraseRangeWithInvalidParam) {
+	executeCommand("erase_range");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase_range a b c");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 	executeCommand("erase_range 40 10");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 	executeCommand("erase_range -1 10");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase_range a");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 	executeCommand("erase_range 1 200");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase_range 1 a");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase_range a a");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
-TEST_F(TestShellFixture, eraseWithInvalidRange) {
-	executeCommand("erase_range -1 10");
+TEST_F(TestShellFixture, eraseWithInvalidParam) {
+	executeCommand("erase");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase -1");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase a");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("erase a 10");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, readWithInvalidParam) {
+	executeCommand("read");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("read 100");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("read 1 1");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("read -1");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("read a");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, writeWithInvalidParam) {
+	executeCommand("write");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("write 0xAAAAAAAA");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("write 100 0xAAAAAAAA");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("write 1 1234");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("write 1 abcd");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("write a 0xAAAAAAAA");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("write 55 0xAABBBB");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("write 3 0xAAAABBBB 2");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, fullwriteWithInvalidParam) {
+	executeCommand("fullwrite");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("fullwrite 100 0xAAAAAAAA");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("fullwrite 1");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("fullwrite abcd");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("fullwrite 0xInvalid");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+	executeCommand("fullwrite 0 0");
+	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+TEST_F(TestShellFixture, fullreadWithInvalidParam) {
+	executeCommand("fullread 0");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
 TEST_F(TestShellFixture, invalidCommand) {
 	executeCommand("invalidCommand");
-	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
-}
-
-TEST_F(TestShellFixture, readWithInvalidLBA) {
-	executeCommand("read 100");
-	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
-}
-
-TEST_F(TestShellFixture, writeWithInvalidLBA) {
-	executeCommand("write 100 0xAAAAAAAA");
-	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
-}
-
-TEST_F(TestShellFixture, writeWithInvalidData) {
-	executeCommand("write 1 invalid");
-	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
-}
-
-TEST_F(TestShellFixture, writeWithInvalidData2) {
-	executeCommand("write 55 0xA!AABBBB");
-	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
-}
-
-TEST_F(TestShellFixture, writeWithWrongLengthData) {
-	executeCommand("write 55 0xAABBBB");
-	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
-}
-
-TEST_F(TestShellFixture, readWithWrongCommandParaNum) {
-	executeCommand("read");
-	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
-}
-
-TEST_F(TestShellFixture, writeWithWrongCommandParaNum) {
-	executeCommand("write 3 0xAAAABBBB 2");
 	EXPECT_NE(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 
