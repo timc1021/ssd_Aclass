@@ -9,6 +9,11 @@ using namespace std;
 
 class TestShellFixture : public Test {
 public:
+
+	TestShellFixture() {
+		EXPECT_CALL(mock, registerCommand(_, _)).Times(::testing::AnyNumber());
+	}
+
 	void executeRead(int lba)
 	{
 		string command = "read " + to_string(lba);
@@ -45,6 +50,13 @@ public:
 	void executeEraseRange(int startLba, int endLba) {
 		ostringstream oss;
 		oss << "erase_range " << startLba << " " << endLba;
+		string command = oss.str();
+		executeCommand(command);
+	}
+
+	void flush() {
+		ostringstream oss;
+		oss << "erase ";
 		string command = oss.str();
 		executeCommand(command);
 	}
@@ -209,6 +221,12 @@ TEST_F(TestShellFixture, writeWithWrongCommandParaNum) {
 
 TEST_F(TestShellFixture, parseExitCommand) {
 	executeCommand("exit");
+	EXPECT_EQ(std::string::npos, output.str().find("INVALID COMMAND"));
+}
+
+TEST_F(TestShellFixture, flushCommand) {
+	EXPECT_CALL(mock, flush()).Times(1);
+	executeCommand("flush");
 	EXPECT_EQ(std::string::npos, output.str().find("INVALID COMMAND"));
 }
 

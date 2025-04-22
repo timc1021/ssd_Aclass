@@ -25,6 +25,9 @@ public:
 		mockSSD = std::make_shared<MockSSDController>();
 	}
 	void removeFilesAt(std::string dirPath) {
+		if (!fs::exists(dirPath)) {
+			return;
+		}
 		for (const auto& entry : fs::directory_iterator(dirPath)) {
 			if (entry.is_regular_file()) {
 				fs::remove(entry.path());
@@ -41,9 +44,7 @@ TEST_F(CommandBufferTest, tc) {
 	CommandValue command(strCommand);
 
 	buffer.printBuffer();
-
 	buffer.addCommandToBuffer(command);
-
 	EXPECT_EQ(buffer.printBuffer(), "W 20 0xABCDABCD\n");
 }
 
@@ -66,8 +67,6 @@ TEST_F(CommandBufferTest, tc2) {
 
 TEST_F(CommandBufferTest, tc3) {
 	removeFilesAt("./buffer");
-	EXPECT_CALL(*mockSSD, writeLBA(::testing::_, ::testing::_)).Times(::testing::AtLeast(0));
-
 	CommandBuffer buffer(mockSSD);
 	std::string strCommand = "W 20 0xABCDABCD";
 	CommandValue command(strCommand);
@@ -284,4 +283,174 @@ TEST_F(CommandBufferTest, tc12) {
 	EXPECT_EQ(buffer.printBuffer(), "E 11 1\nE 1 10\n");
 	// E 1 10
 	// E 11 1
+}
+
+TEST_F(CommandBufferTest, tc13) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 10 3";
+	CommandValue command(strCommand);
+
+	EXPECT_CALL(*mockSSD, writeLBA(Ge(10), CommandValue::EMPTY_VALUE))
+		.Times(3);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 10 3\n");
+	// E 1 5
+
+	buffer.flush();
+	EXPECT_EQ(buffer.printBuffer(), "");
+}
+
+TEST_F(CommandBufferTest, tc14) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 95 5";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 95 5\n");
+}
+
+TEST_F(CommandBufferTest, tc15) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 89 5";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 5\n");
+
+	strCommand = "E 92 8";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 99 1\nE 89 10\n");
+}
+
+TEST_F(CommandBufferTest, tc16) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 20 9";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 20 9\n");
+
+	strCommand = "E 29 9";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 30 8\nE 20 10\n");
+
+	strCommand = "E 38 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 40 8\nE 30 10\nE 20 10\n");
+
+	strCommand = "E 46 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 50 6\nE 40 10\nE 30 10\nE 20 10\n");
+
+	strCommand = "E 56 9";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 60 5\nE 50 10\nE 40 10\nE 30 10\nE 20 10\n");
+
+	EXPECT_CALL(*mockSSD, writeLBA(Ge(20), CommandValue::EMPTY_VALUE))
+		.Times(45);
+	strCommand = "E 63 8";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	//EXPECT_EQ(buffer.printBuffer(), "E 60 5\nE 50 10\nE 40 10\nE 30 10\nE 20 10\n");
+	EXPECT_EQ(buffer.printBuffer(), "E 63 8\n");
+}
+
+TEST_F(CommandBufferTest, tc17) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "W 99 0x11112222";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "W 99 0x11112222\n");
+
+	strCommand = "E 29 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 29 10\nW 99 0x11112222\n");
+
+	strCommand = "E 98 2";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 98 2\nE 29 10\n");
+
+	strCommand = "W 99 0x11112222";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	//EXPECT_EQ(buffer.printBuffer(), "E 98 2\nE 29 10\nW 99 0x11112222\n");
+	EXPECT_EQ(buffer.printBuffer(), "E 98 1\nE 29 10\nW 99 0x11112222\n");
+
+	strCommand = "E 89 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 10\nE 29 10\nW 99 0x11112222\n");
+
+	strCommand = "W 32 0xFFFFAAAA";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 10\nE 29 10\nW 99 0x11112222\nW 32 0xFFFFAAAA\n");
+
+	strCommand = "E 39 10";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 89 10\nE 39 10\nE 29 10\nW 99 0x11112222\nW 32 0xFFFFAAAA\n");
+
+	uint32_t result;
+	buffer.getBufferedValueIfExists(29, result);
+	EXPECT_EQ(result, 0x00000000);
+
+	buffer.getBufferedValueIfExists(99, result);
+	EXPECT_EQ(result, 0x11112222);
+}
+
+TEST_F(CommandBufferTest, tc18) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "E 99 1";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 99 1\n");
+
+	strCommand = "W 99 0x11112222";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "W 99 0x11112222\n");
+}
+
+TEST_F(CommandBufferTest, tc19) {
+	removeFilesAt("./buffer");
+	CommandBuffer buffer(mockSSD);
+	std::string strCommand = "W 1 0xFFFF1111";
+	CommandValue command(strCommand);
+
+	buffer.printBuffer();
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "W 1 0xFFFF1111\n");
+
+	strCommand = "E 10 2";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 10 2\nW 1 0xFFFF1111\n");
+
+	strCommand = "W 10 0xFFFF1111";
+	command.setCommand(strCommand);
+	buffer.addCommandToBuffer(command);
+	EXPECT_EQ(buffer.printBuffer(), "E 11 1\nW 1 0xFFFF1111\nW 10 0xFFFF1111\n");
 }

@@ -11,84 +11,55 @@ CommandBuffer::CommandBuffer(std::shared_ptr<SSDControllerInterface> ssd) : ssd(
 	loadInitialFiles();
 }
 
-CommandBuffer::~CommandBuffer() {
+CommandBuffer::~CommandBuffer()
+{
 	createTxtFilesOnDestruction();
 }
 
 void CommandBuffer::addCommandToBuffer(CommandValue command)
 {
-	int cmdCheckBuffer[CommandValue::MAX_NUM_LBA] = { CommandValue::NULL_COMMAND, };
-	int checkBuffer[CommandValue::MAX_NUM_LBA] = { CommandValue::NULL_COMMAND, };
-
 	if (buffer.size() >= maxBufferSize) {
 		flush();
 		buffer.push_back(command);
 		return;
 	}
-	if (command.command == CommandValue::WRITE)
-	{
-		checkBuffer[command.LBA] = CommandValue::WRITE;
-		cmdCheckBuffer[command.LBA] = CommandValue::WRITE;
-	}
-	else if (command.command == CommandValue::ERASE)
-	{
-		for (auto i = command.LBA; i < command.LBA + command.value; i++) {
-			checkBuffer[i] = CommandValue::ERASE;
-			cmdCheckBuffer[i] = CommandValue::ERASE;
-		}
-	}
+	std::vector<int> checkBuffer = initCheckBufferWith(command);
 
-
-	for (auto buf = buffer.begin(); buf != buffer.end(); ) {
-		if (buf->command == CommandValue::WRITE) {
-			if (cmdCheckBuffer[buf->LBA] != CommandValue::NULL_COMMAND) {
-				buf = buffer.erase(buf);
-				continue;
-			}
-		}
-		else if (buf->command == CommandValue::ERASE && command.command == CommandValue::ERASE) {
-			for (auto i = buf->LBA; i < buf->LBA + buf->value; i++) {
-				checkBuffer[i] = CommandValue::ERASE;
-			}
-			buf = buffer.erase(buf);
-			continue;
-		}
-		buf++;
-	}
+	removeOverlappingWriteCommands(checkBuffer);
 
 	if (command.command == CommandValue::ERASE) {
-		for (int i = 0, minLBA = -1; i < CommandValue::MAX_NUM_LBA; i++) {
-			if (checkBuffer[i] == CommandValue::ERASE && minLBA == -1)
-			{
-				minLBA = i;
-			}
-			else if (minLBA != -1 && i - minLBA >= 10) {
-				CommandValue mergedCommand(CommandValue::ERASE, minLBA, 10);
-				minLBA += 10;
-
-				if (checkBuffer[minLBA] != CommandValue::ERASE)
-					minLBA = -1;
-
-				if (buffer.size() >= maxBufferSize)
-					flush();
-				buffer.insert(buffer.begin(), mergedCommand);
-			}
-			else if (minLBA != -1 && checkBuffer[i] != CommandValue::ERASE)
-			{
-				CommandValue mergedCommand(CommandValue::ERASE, minLBA, i - minLBA);
-				minLBA = -1;
-
-				if (buffer.size() >= maxBufferSize)
-					flush();
-				buffer.insert(buffer.begin(), mergedCommand);
-			}
-		}
+		setCheckBufferOnEraseCommands(checkBuffer);
+		mergeEraseRange(checkBuffer);
 	}
 	else if (command.command == CommandValue::WRITE) {
 		buffer.push_back(command);
 	}
+
+	removeOverwrittenSingleErase();
 }
 
+void CommandBuffer::flush()
+{
+	flushCommandsToSSD();
+	renameBufferFilesToEmpty();
+
+	buffer.clear();
+}
+
+bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const
+{
+	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ++buf) {
+		if (buf->command == CommandValue::WRITE && buf->LBA == lba) {
+			outValue = buf->value;
+			return true;
+		}
+		else if (buf->command == CommandValue::ERASE && lba >= buf->LBA && lba < buf->LBA + static_cast<int>(buf->value)) {
+			outValue = CommandValue::EMPTY_VALUE;
+			return true;
+		}
+	}
+	return false;
+}
 
 std::string CommandBuffer::printBuffer() const
 {
@@ -97,6 +68,113 @@ std::string CommandBuffer::printBuffer() const
 		result += command.getCommandStr() + "\n";
 	}
 	return result;
+}
+
+void CommandBuffer::removeOverwrittenSingleErase()
+{
+	std::vector<int> checkBuffer;
+	checkBuffer.resize(CommandValue::MAX_NUM_LBA, CommandValue::NULL_COMMAND);
+
+	for (auto buf = buffer.rbegin(); buf != buffer.rend(); ) {
+		if (buf->command == CommandValue::WRITE) {
+			checkBuffer[buf->LBA] = CommandValue::WRITE;
+		}
+		else if (buf->command == CommandValue::ERASE ) {
+			if (buf->value == 1 && checkBuffer[buf->LBA] == CommandValue::WRITE) {
+				buf = std::vector<CommandValue>::reverse_iterator(buffer.erase((buf + 1).base()));
+				continue;
+			}
+			else if (checkBuffer[buf->LBA] == CommandValue::WRITE) {
+				buf->LBA = buf->LBA + 1;
+				buf->value -= 1;
+			}
+			else if (checkBuffer[buf->LBA +buf->value -1] == CommandValue::WRITE) {
+				buf->value -= 1;
+			}
+		}
+
+		buf++;
+	}
+}
+
+void CommandBuffer::mergeEraseRange(std::vector<int>& checkBuffer)
+{
+	int minLBA = -1;
+	for (int i = 0; i < CommandValue::MAX_NUM_LBA; i++) {
+		if (checkBuffer[i] == CommandValue::ERASE && minLBA == -1)
+		{
+			minLBA = i;
+		}
+		else if (minLBA != -1 && i - minLBA >= 10) {
+			CommandValue mergedCommand(CommandValue::ERASE, minLBA, 10);
+			minLBA += 10;
+
+			if (checkBuffer[minLBA] != CommandValue::ERASE)
+				minLBA = -1;
+
+			if (buffer.size() >= maxBufferSize)
+				flush();
+			buffer.insert(buffer.begin(), mergedCommand);
+		}
+		else if (minLBA != -1 && checkBuffer[i] != CommandValue::ERASE)
+		{
+			CommandValue mergedCommand(CommandValue::ERASE, minLBA, i - minLBA);
+			minLBA = -1;
+
+			if (buffer.size() >= maxBufferSize)
+				flush();
+			buffer.insert(buffer.begin(), mergedCommand);
+		}
+	}
+	if (minLBA != -1) {
+		CommandValue mergedCommand(CommandValue::ERASE, minLBA, CommandValue::MAX_NUM_LBA - minLBA);
+		buffer.insert(buffer.begin(), mergedCommand);
+	}
+}
+
+void CommandBuffer::setCheckBufferOnEraseCommands(std::vector<int>& checkBuffer)
+{
+	for (auto buf = buffer.begin(); buf != buffer.end(); ) {
+		if (buf->command == CommandValue::ERASE) {
+			for (auto i = buf->LBA; i < buf->LBA + buf->value; i++) {
+				checkBuffer[i] = CommandValue::ERASE;
+			}
+			buf = buffer.erase(buf);
+			continue;
+		}
+		buf++;
+	}
+}
+
+void CommandBuffer::removeOverlappingWriteCommands(std::vector<int>& checkBuffer)
+{
+	for (auto buf = buffer.begin(); buf != buffer.end(); ) {
+		if (buf->command == CommandValue::WRITE) {
+			if (checkBuffer[buf->LBA] != CommandValue::NULL_COMMAND) {
+				buf = buffer.erase(buf);
+				continue;
+			}
+		}
+		buf++;
+	}
+}
+
+std::vector<int> CommandBuffer::initCheckBufferWith(CommandValue& command)
+{
+	std::vector<int> checkBuffer;
+	checkBuffer.resize(CommandValue::MAX_NUM_LBA, CommandValue::NULL_COMMAND);
+
+	if (command.command == CommandValue::WRITE)
+	{
+		checkBuffer[command.LBA] = CommandValue::WRITE;
+	}
+	else if (command.command == CommandValue::ERASE)
+	{
+		for (auto i = command.LBA; i < command.LBA + command.value; i++) {
+			checkBuffer[i] = CommandValue::ERASE;
+		}
+	}
+	return checkBuffer;
 }
 
 void CommandBuffer::loadInitialFiles() {
@@ -137,20 +215,9 @@ void CommandBuffer::createTxtFilesOnDestruction() const {
 		ofs.close();
 	}
 }
-void CommandBuffer::flush() {
-	for (const auto& command : buffer) {
-		if (command.command == CommandValue::WRITE) {
-			ssd->writeLBA(command.LBA, command.value);
-		}
-		else if (command.command == CommandValue::ERASE) {
-			for (int i = 0; i < static_cast<int>(command.value); ++i) {
-				if (command.LBA + i >= 0 && command.LBA + i < 100) {
-					ssd->writeLBA(command.LBA + i, 0x00000000);
-				}
-			}
-		}
-	}
 
+void CommandBuffer::renameBufferFilesToEmpty()
+{
 	for (size_t i = 0; i < buffer.size(); ++i) {
 		std::string oldPath = bufferDir + "/" + buffer[i].getCommandStr() + ".txt";
 		std::string newName = "empty_" + std::to_string(i);
@@ -159,22 +226,21 @@ void CommandBuffer::flush() {
 		if (fs::exists(oldPath) && buffer[i].getCommandStr() != newName) {
 			fs::rename(oldPath, newPath);
 		}
-
-		buffer[i] = CommandValue(newName);
 	}
-
-	buffer.clear();
 }
-bool CommandBuffer::getBufferedValueIfExists(int lba, uint32_t& outValue) const {
-	for (auto it = buffer.rbegin(); it != buffer.rend(); ++it) {
-		if (it->command == CommandValue::WRITE && it->LBA == lba) {
-			outValue = it->value;
-			return true;
+
+void CommandBuffer::flushCommandsToSSD()
+{
+	for (const auto& command : buffer) {
+		if (command.command == CommandValue::WRITE) {
+			ssd->writeLBA(command.LBA, command.value);
 		}
-		else if (it->command == CommandValue::ERASE && lba >= it->LBA && lba < it->LBA + static_cast<int>(it->value)) {
-			outValue = 0x00000000;
-			return true;
+		else if (command.command == CommandValue::ERASE) {
+			for (int i = 0; i < static_cast<int>(command.value); ++i) {
+				if (command.LBA + i >= 0 && command.LBA + i < CommandValue::MAX_NUM_LBA) {
+					ssd->writeLBA(command.LBA + i, CommandValue::EMPTY_VALUE);
+				}
+			}
 		}
 	}
-	return false;
 }

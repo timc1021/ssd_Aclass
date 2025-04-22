@@ -5,10 +5,6 @@
 #include "ITestScript.h"
 #include "Logger.h"
 
-using std::cout;
-using std::isdigit;
-using std::stoi;
-
 #define HEX_PREFIX			("0x")
 #define HEX_PREFIX_LENGTH	(2)
 #define TOKEN_COMMAND		(0)
@@ -41,6 +37,10 @@ typedef enum {
 } ERASE_TOKEN;
 
 typedef enum {
+	TOKEN_FLUSH_NUM = 1,
+} FLUSH_TOKEN;
+
+typedef enum {
 	TOKEN_ERASE_RANGE_START_LBA = 1,
 	TOKEN_ERASE_RANGE_END_LBA,
 	TOKEN_ERASE_RANGNE_NUM,
@@ -51,17 +51,18 @@ COMMAND_RESULT ITestShell::handleCommand(const string& commandLine) {
 	string command = commandToken[TOKEN_COMMAND];
 	COMMAND_RESULT result = COMMAND_SUCCESS;
 
-	if (isCommandValid(commandToken)) {
-		result = handleShellCommand(commandToken);
-	}
-	else if (IsExistTestScript(command))
-	{
-		result = handleTestScript(command);
-	}
-	else
-	{
-		ADD_LOG("ITestShell::handleCommand", "ERROR, Invalid Command");
-		result = COMMAND_INVALID_PARAM;
+	result = handleShellCommand(commandToken);
+
+	if (result == NOT_A_DEFAULT_COMMAND) {
+		if (IsExistTestScript(command))
+		{
+			result = handleTestScript(command);
+		}
+		else
+		{
+			ADD_LOG("ITestShell::handleCommand", "ERROR, Invalid Command");
+			result = COMMAND_INVALID_PARAM;
+		}
 	}
 
 	return result;
@@ -72,30 +73,8 @@ COMMAND_RESULT ITestShell::handleShellCommand(const vector<string> commandToken)
 	string command = commandToken[TOKEN_COMMAND];
 	COMMAND_RESULT result = COMMAND_SUCCESS;
 
-	if (command == "read") {
-		result = handleRead(commandToken);
-	}
-	else if (command == "write") {
-		result = handleWrite(commandToken);
-	}
-	else if (command == "fullread") {
-		result = handleFullread();
-	}
-	else if (command == "fullwrite") {
-		result = handleFullwrite(commandToken);
-	}
-	else if (command == "erase") {
-		result = handleErase(commandToken);
-	}
-	else if (command == "erase_range") {
-		result = handleEraseRange(commandToken);
-	}
-	else if (command == "help") {
-		help();
-	}
-	else if (command == "exit") {
-		result = exit();
-	}
+	result = CallCommand(command, commandToken);
+
 	return result;
 }
 
@@ -104,8 +83,12 @@ COMMAND_RESULT ITestShell::handleTestScript(const string& tcName)
 	ITestScript* script = testScriptCommand.find(tcName)->second;
 	bool result = script->run();
 
-	if (result == false)
+	string msg = (result == true) ? "PASS" : "FAIL";
+	ADD_LOG("ITestShell::handleTestScript", msg);
+
+	if (result == false) {
 		return COMMAND_TC_FAIL;
+	}
 
 	return COMMAND_SUCCESS;
 }
@@ -132,17 +115,6 @@ vector<string> ITestShell::splitBySpace(const string& input) {
 		tokens.push_back(input.substr(start));
 
 	return tokens;
-}
-
-bool ITestShell::isCommandValid(const vector<string> commandToken) {
-	string command = commandToken[TOKEN_COMMAND];
-	bool exists = find(commandList.begin(), commandList.end(), command) != commandList.end();
-
-	if (!exists) {
-		return false;
-	}
-
-	return true;
 }
 
 bool ITestShell::isWriteDataValid(const string& writeData)
@@ -203,7 +175,7 @@ bool ITestShell::isFullwriteCommandValid(const vector<string> commandToken)
 
 bool ITestShell::isLBAValid(const string& lba)
 {
-	int iLba = std::stoi(lba);
+	int iLba = stoi(lba);
 
 	if (iLba >= MAX_LBA_SIZE || iLba < START_LBA) {
 		ADD_LOG("ITestShell::isLBAValid", "ERROR");
@@ -239,6 +211,14 @@ bool ITestShell::isEraseRangeCommandValid(const vector<string> commandToken)
 	return true;
 }
 
+bool ITestShell::isFlushCommandValid(const vector<string> commandToken)
+{
+	if (commandToken.size() != TOKEN_FLUSH_NUM)
+		return false;
+
+	return true;
+}
+
 COMMAND_RESULT ITestShell::handleRead(const vector<string> commandToken)
 {
 	if (!isReadCommandValid(commandToken))
@@ -249,7 +229,7 @@ COMMAND_RESULT ITestShell::handleRead(const vector<string> commandToken)
 	return COMMAND_SUCCESS;
 }
 
-COMMAND_RESULT ITestShell::handleFullread(void)
+COMMAND_RESULT ITestShell::handleFullread(const vector<string> commandToken)
 {
 	fullRead();
 
@@ -261,7 +241,7 @@ COMMAND_RESULT ITestShell::handleWrite(const vector<string> commandToken)
 	if (!isWriteCommandValid(commandToken))
 		return COMMAND_INVALID_PARAM;
 
-	write(stoi(commandToken[TOKEN_WRITE_LBA]), static_cast<unsigned int>(std::stoul(commandToken[TOKEN_WRITE_DATA], nullptr, 0)));
+	write(stoi(commandToken[TOKEN_WRITE_LBA]), static_cast<unsigned int>(stoul(commandToken[TOKEN_WRITE_DATA], nullptr, 0)));
 
 	return COMMAND_SUCCESS;
 }
@@ -271,7 +251,7 @@ COMMAND_RESULT ITestShell::handleFullwrite(const vector<string> commandToken)
 	if (!isFullwriteCommandValid(commandToken))
 		return COMMAND_INVALID_PARAM;
 
-	fullWrite(static_cast<unsigned int>(std::stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
+	fullWrite(static_cast<unsigned int>(stoul(commandToken[TOKEN_FULLWRITE_DATA], nullptr, 16)));
 
 	return COMMAND_SUCCESS;
 }
@@ -284,15 +264,15 @@ COMMAND_RESULT ITestShell::handleErase(const vector<string> commandToken)
 	int lba = stoi(commandToken[TOKEN_ERASE_LBA]);
 	int size = stoi(commandToken[TOKEN_ERASE_SIZE]);
 
-	std::ostringstream oss;
+	ostringstream oss;
 
 	if (size > 0) {
 
 		int currentLba = lba;
 
 		while (size > 0 && currentLba < MAX_LBA_SIZE) {
-			int chunk = std::min(MAX_ERASE_LBA, size);
-			chunk = std::min(chunk, MAX_LBA_SIZE - currentLba);
+			int chunk = min(MAX_ERASE_LBA, size);
+			chunk = min(chunk, MAX_LBA_SIZE - currentLba);
 
 			erase(currentLba, chunk);
 
@@ -305,7 +285,7 @@ COMMAND_RESULT ITestShell::handleErase(const vector<string> commandToken)
 		int currentLba = lba;
 
 		while (absSize > 0 && currentLba >= 0) {
-			int chunk = std::min({ MAX_ERASE_LBA, absSize, currentLba + 1 });
+			int chunk = min({ MAX_ERASE_LBA, absSize, currentLba + 1 });
 			erase(currentLba - chunk + 1, chunk);
 
 			currentLba -= chunk;
@@ -334,8 +314,8 @@ COMMAND_RESULT ITestShell::handleEraseRange(const vector<string> commandToken)
 	int currentLba = startLba;
 
 	while (size > 0 && currentLba < MAX_LBA_SIZE) {
-		int chunk = std::min(MAX_ERASE_LBA, size);
-		chunk = std::min(chunk, MAX_LBA_SIZE - currentLba);
+		int chunk = min(MAX_ERASE_LBA, size);
+		chunk = min(chunk, MAX_LBA_SIZE - currentLba);
 
 		erase(currentLba, chunk);
 
@@ -343,6 +323,14 @@ COMMAND_RESULT ITestShell::handleEraseRange(const vector<string> commandToken)
 		size -= chunk;
 	}
 
+	return COMMAND_SUCCESS;
+}
+
+COMMAND_RESULT ITestShell::handleFlush(const vector<string> commandToken)
+{
+	if (!isFlushCommandValid(commandToken))
+		return COMMAND_INVALID_PARAM;
+	flush();
 	return COMMAND_SUCCESS;
 }
 
@@ -371,17 +359,13 @@ uint32_t ITestShell::fullRead()
 	return readData;
 }
 
-COMMAND_RESULT ITestShell::exit() {
+COMMAND_RESULT ITestShell::exit(const vector<string> commandToken) {
 	ADD_LOG("ITestShell::exit", "exit");
 	return COMMAND_EXIT;
 }
 
-void ITestShell::help()
+COMMAND_RESULT ITestShell::help(const vector<string> commandToken)
 {
-	using std::left;
-	using std::setw;
-	using std::setfill;
-
 	ADD_LOG("ITestShell::help", "print HELP message");
 
 	cout << "ÆÀ¸í: A class\n";
@@ -400,4 +384,6 @@ void ITestShell::help()
 	cout << left << setfill(' ') << setw(35) << "2_PartialLBAWrite or 2_" << "Write 5 LBAs and test all data is written with right data.Repeat 30 times.\n";
 	cout << left << setfill(' ') << setw(35) << "3_WriteReadAging of 3_" << "Write LBA 0 and 99 and test all data is written with right data.Repeat 200 times.\n";
 	cout << left << setfill(' ') << setw(35) << "4_EraseAndWriteAging or 4_" << "For each 3 LBAs, write and erase and test. Repeat 30 times.\n";
+
+	return COMMAND_SUCCESS;
 }

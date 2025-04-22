@@ -18,6 +18,7 @@ public:
 	int command;
 
 	static const int MAX_NUM_LBA = 100;
+	static const uint32_t EMPTY_VALUE = 0x00000000;
 
 	int LBA;
 	uint32_t value;
@@ -104,11 +105,22 @@ private:
 	void loadInitialFiles();
 	void createTxtFilesOnDestruction() const;
 
+	void removeOverwrittenSingleErase();
+	void mergeEraseRange(std::vector<int>& checkBuffer);
+	void setCheckBufferOnEraseCommands(std::vector<int>& checkBuffer);
+	void removeOverlappingWriteCommands(std::vector<int>& checkBuffer);
+	std::vector<int> initCheckBufferWith(CommandValue& command);
+
+	void renameBufferFilesToEmpty();
+	void flushCommandsToSSD();
+
+
 public:
 	CommandBuffer(std::shared_ptr<SSDControllerInterface> ssd);
 	~CommandBuffer();
 
 	void addCommandToBuffer(CommandValue command);
+
 	void flush();
 
 	std::string printBuffer() const;

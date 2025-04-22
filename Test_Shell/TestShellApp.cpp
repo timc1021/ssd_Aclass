@@ -42,15 +42,11 @@ bool TestShellApp::init()
     Logger::getInstance().initLogFile();
 
     using CreateFn = ITestScript * (*)();
-    const std::string scriptFolder = "../scripts";
+
+    if (!isValidDllFolderPath()) return false;
 
     try {
-        if (!std::filesystem::exists(scriptFolder)) {
-            std::cerr << "scripts 폴더가 존재하지 않습니다: " << scriptFolder << std::endl;
-            return false;
-        }
-
-        for (const auto& entry : std::filesystem::directory_iterator(scriptFolder)) {
+        for (const auto& entry : std::filesystem::directory_iterator(scriptPath)) {
             if (entry.path().extension() == ".dll") {
                 HMODULE dll = LoadLibraryA(entry.path().string().c_str());
                 if (!dll) {
@@ -89,6 +85,15 @@ bool TestShellApp::init()
     return true;
 }
 
+bool TestShellApp::isValidDllFolderPath()
+{
+    if (!std::filesystem::exists(scriptPath)) {
+        std::cerr << "scripts 폴더가 존재하지 않습니다: " << scriptPath << std::endl;
+        return false;
+    }
+    return true;
+}
+
 void TestShellApp::runner(char* argv)
 {
     bool result = false;
@@ -98,6 +103,8 @@ void TestShellApp::runner(char* argv)
     result = init();
     if (result == false)
         return;
+
+    Logger::getInstance().setRunnerMode(true);
 
     std::ifstream file(file_name);
     if (!file.is_open()) {
@@ -109,13 +116,7 @@ void TestShellApp::runner(char* argv)
         getline(file, command);
         std::cout << command << "---   RUN   ...";
 
-        std::streambuf* originalCoutBuffer = std::cout.rdbuf();
-        std::cout.rdbuf(nullptr);
-
         result = testShell->handleCommand(command);
-
-        std::cout.rdbuf(originalCoutBuffer);
-
         if (result == COMMAND_SUCCESS) {
             std::cout << "Pass\n";
         }

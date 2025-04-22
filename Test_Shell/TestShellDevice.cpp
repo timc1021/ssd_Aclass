@@ -39,14 +39,14 @@ uint32_t TestShellDevice::read(const int lba)
 		ADD_LOG("ITestShell::read", "FAIL CODE: " + std::to_string(retCode));
 		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
 
-		return -1;
+		return 0;
 	}
 
 	std::ifstream file("ssd_output.txt");
 	if (!file.is_open()) {
 		ADD_LOG("ITestShell::read", "file open FAIL");
 		std::cerr << "Failed to open ssd_output.txt" << std::endl;
-		return -2;
+		return 0;
 	}
 
 	getline(file, strReadData);
@@ -92,7 +92,6 @@ void TestShellDevice::writeLBAs(const vector<int>lba, const uint32_t data) {
 	}
 }
 
-
 bool TestShellDevice::readCompare(int lba, const uint32_t expected) {
 	int data;
 
@@ -110,11 +109,24 @@ bool TestShellDevice::readCompare(int lba, const uint32_t expected) {
 	}
 }
 
-
 void TestShellDevice::eraseRange(const int startLba, const int endLba) {
 	vector<string> cmd;
 	cmd.push_back("erase_range");
 	cmd.push_back(std::to_string(startLba));
 	cmd.push_back(std::to_string(endLba));
 	handleEraseRange(cmd);
+}
+
+void TestShellDevice::flush(void)
+{
+	std::ostringstream cmd;
+
+	cmd << "SSD.exe F ";
+
+	ADD_LOG("ITestShell::flush", cmd.str());
+	int retCode = std::system(cmd.str().c_str());
+	if (retCode != 0) {
+		ADD_LOG("ITestShell::flush", "FAIL CODE: " + std::to_string(retCode));
+		std::cerr << "Failed to run command: " << cmd.str() << ", return code: " << retCode << std::endl;
+	}
 }
