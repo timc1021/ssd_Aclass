@@ -58,3 +58,37 @@ TEST_F(CommandTest, ExecuteInvalidCommand_ThrowsException) {
 TEST_F(CommandTest, ExecuteWriteWithBadHexFormat_ThrowsException) {
 	EXPECT_THROW(command->execute("W", 2, "12345678"), std::invalid_argument);
 }
+
+TEST_F(CommandTest, ExecuteReadCommand_UsesFastReadIfBufferedWriteExists) {
+	dummyBuffer->addCommandToBuffer(CommandValue('W', 10, 0xDEADBEEF));
+
+	EXPECT_CALL(*mockSSD, readLBA).Times(0);
+	EXPECT_CALL(*mockOutputFile, saveToFile("0xDEADBEEF")).Times(1);
+
+	command->execute("R", 10);
+}
+
+TEST_F(CommandTest, ExecuteReadCommand_UsesFastReadIfBufferedEraseExists) {
+	dummyBuffer->addCommandToBuffer(CommandValue('E', 5, 3));
+
+	EXPECT_CALL(*mockSSD, readLBA).Times(0);
+	EXPECT_CALL(*mockOutputFile, saveToFile("0x00000000")).Times(1);
+
+	command->execute("R", 6);
+}
+
+TEST_F(CommandTest, ExecuteReadCommand_FallbacksToNormalReadIfNoBuffer) {
+	EXPECT_CALL(*mockSSD, readLBA(8)).WillOnce(Return(0xFEEDFACE));
+	EXPECT_CALL(*mockOutputFile, saveToFile("0xFEEDFACE")).Times(1);
+
+	command->execute("R", 8);
+}
+
+
+TEST_F(CommandTest, ExecuteUnknownCommand_ThrowsException) {
+	EXPECT_THROW(command->execute("X", 1), std::invalid_argument);
+}
+
+TEST_F(CommandTest, ExecuteWriteWithInvalidHex_ThrowsException) {
+	EXPECT_THROW(command->execute("W", 2, "12345678"), std::invalid_argument);
+}
